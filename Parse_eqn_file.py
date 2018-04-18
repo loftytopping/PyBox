@@ -833,13 +833,13 @@ def write_rate_file_numba(filename,rate_dict):
 
     f.write('    KALKPXY=1.80E-14*numba_exp(-260.0/temp)*O2\n') 
 
-    f.write('    KROPRIM = 2.50E-14*numba_exp(-300/temp)\n') 
+    f.write('    KROPRIM = 2.50E-14*numba_exp(-300.0/temp)\n') 
 
-    f.write('    KCH3O2 = 1.03E-13*numba_exp(365/temp)\n') 
+    f.write('    KCH3O2 = 1.03E-13*numba_exp(365.0/temp)\n') 
 
     f.write('    K298CH3O2 = 3.5E-13\n') 
 
-    f.write('    K14ISOM1 = 3.00E7*numba_exp(-5300/temp)	')
+    f.write('    K14ISOM1 = 3.00E7*numba_exp(-5300.0/temp)	')
 
     f.write('    # -------------------------------------------------------------------\n') 
     f.write('    # complex reactions\n') 
@@ -931,7 +931,7 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    k70     = 7.40E-31*M*(temp/300.0)**(-2.4)\n') 
     f.write('    k7i     = 3.30E-11*(temp/300.0)**(-0.3)\n') 
     f.write('    kr7     = k70/k7i\n') 
-    f.write('    fc7     = numba_exp(-temp/1420.0)\n') 
+    f.write('    fc7     = 0.81\n') 
     f.write('    nc7     = 0.75-(1.27*numba_log10(fc7))\n') 
     f.write('    f7      = 10.0**(numba_log10(fc7)/(1+((numba_log10(kr7)/nc7))**2.0))\n') 
     f.write('    KMT07   = (k70*k7i)*f7/(k70+k7i)\n') 
@@ -1036,12 +1036,12 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    k170 = 5.00E-30*((temp/300.0)**(-1.5))*M\n') 
     f.write('    k17i = 1.00E-12\n') 
     f.write('    kr17 = k170/k17i\n') 
-    f.write('    fc17 = (0.17*numba_exp(-51./temp))+numba_exp(-1.0*temp/204.)\n') 
+    f.write('    fc17 = (0.17*numba_exp(-51./temp))+numba_exp(-1.0*temp/204.0)\n') 
     f.write('    nc17 = 0.75-(1.27*numba_log10(fc17))\n') 
     f.write('    f17  = 10.0**(numba_log10(fc17)/(1.0+((numba_log10(kr17)/nc17))**2.0))\n') 
     f.write('    KMT17 = (k170*k17i)*f17/(k170+k17i)\n') 
     
-    f.write('    KMT18 = 9.5E-39*O2*numba_exp(5270/temp)/(1+7.5E-29*O2*numba_exp(5610/temp))\n') 
+    f.write('    KMT18 = 9.5E-39*O2*numba_exp(5270.0/temp)/(1+7.5E-29*O2*numba_exp(5610.0/temp))\n') 
 
     f.write('    # ************************************************************************\n') 
     f.write('    # define photolysis reaction rates using derwent method from mcm2box.fac\n') 

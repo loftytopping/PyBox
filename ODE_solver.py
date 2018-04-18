@@ -46,6 +46,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     # define the ODE function to be called
     def dydt_func(t,y):
 
+        #pdb.set_trace()
         #Here we use the pre-created Numba based functions to arrive at our value for dydt
         # Calculate time of day
         time_of_day_seconds=start_time+t
@@ -63,7 +64,8 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         #Calculate reaction rate for each equation.
         # Note that H2O will change in parcel mode [to be changed in the full aerosol mode]
         # The time_of_day_seconds is used for photolysis rates - need to change this if want constant values
-        rates=evaluate_rates(time_of_day_seconds,RO2,H2O,temp,numpy.zeros((equations)),numpy.zeros((62)))
+        #pdb.set_trace()
+        rates=evaluate_rates(time_of_day_seconds,RO2,H2O,temp,numpy.zeros((equations)),numpy.zeros((63)))
 
         # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc] 
         reactants=reactant_product(y_asnumpy,equations,numpy.zeros((equations)))
@@ -73,7 +75,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         reactants = numpy.multiply(reactants,rates)
 
         # Now use reaction rates with the loss_gain information in a pre-created Numba file to calculate the final dydt for each compound
-        dydt=dydt_func(numpy.zeros((len(y_asnumpy))),reactants)
+        dydt=dydt_eval(numpy.zeros((len(y_asnumpy))),reactants)
 
         # ----------------------------------------------------------------------------------
         # The following demonstrates the same procedure but using only Numpy and pure python
@@ -108,7 +110,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     from Rate_coefficients_numba import evaluate_rates 
     # from Rate_coefficients import evaluate_rates # - Non Numba for testing
     from Reactants_conc_numba import reactants as reactant_product
-    from Loss_Gain_numba import dydt as dydt_func
+    from Loss_Gain_numba import dydt as dydt_eval
     
     # 'Unpack' variables from input_dict
     species_dict=input_dict['species_dict']
@@ -165,6 +167,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         if total_time == 0.0:
             #Define an Assimulo problem
             #Define an explicit solver
+            #pdb.set_trace()
             exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
             
         else:
