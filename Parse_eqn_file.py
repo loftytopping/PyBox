@@ -405,6 +405,8 @@ def write_rate_file(filename,rate_dict):
     f.write('    #        : ro2      + no      = rono2\n') 
     f.write('    # iupac 1992\n') 
     f.write('    KRONO2    = 2.70E-12*numpy.exp(360.0/temp)\n') 
+
+    f.write('    KRO2NO = 2.7E-12*numpy.exp(360.0/temp) \n') 
 	
     f.write('    # kro2ho2: ro2      + ho2     = rooh    + o2\n') 
     f.write('    # mcm protocol [1997]\n') 
@@ -798,6 +800,8 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    #        : ro2      + no      = rono2\n') 
     f.write('    # iupac 1992\n') 
     f.write('    KRONO2    = 2.70E-12*numba_exp(360.0/temp)\n') 
+    
+    f.write('    KRO2NO = 2.7E-12*numba_exp(360.0/temp) \n') 
 
     f.write('    # kro2ho2: ro2      + ho2     = rooh    + o2\n') 
     f.write('    # mcm protocol [1997]\n') 
@@ -1255,49 +1259,52 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     
     f.write('    ! Calculating standard rate coefficients \n') 
     f.write('    ! iupac 1992 \n')
-    f.write('    KRONO2    = 2.7D-12*EXP(360/TEMP) \n')
+    f.write('    KRONO2    = 2.7E-12*EXP(360/TEMP) \n')
+
+    f.write('    KRO2NO = 2.7E-12*EXP(360.0/TEMP) \n') 
+    
     #mcm_constants_dict['KRONO2']=kro2no
     f.write('    ! kro2ho2: ro2      + ho2     = rooh    + o2 \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KRO2HO2   = 2.91D-13*EXP(1300/TEMP)  \n')
+    f.write('    KRO2HO2   = 2.91E-13*EXP(1300/TEMP)  \n')
     #mcm_constants_dict['KRO2HO2']=kro2ho2
     f.write('    ! kapho2 : rcoo2    + ho2     = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KAPHO2    = 5.2D-13*EXP(980/TEMP)	 \n')
+    f.write('    KAPHO2    = 5.2E-13*EXP(980/TEMP)	 \n')
     #mcm_constants_dict['KAPHO2']=kapho2 
     f.write('    ! kapno  : rcoo2    + no      = products \n')
     f.write('    ! mej [1998] \n')
-    f.write('    KAPNO = 7.5D-12*EXP(290/TEMP)	 \n')
+    f.write('    KAPNO = 7.5E-12*EXP(290/TEMP)	 \n')
     #mcm_constants_dict['KAPNO']=kapno 
     f.write('    ! kro2no3: ro2      + no3     = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KRO2NO3   = 2.3D-12	 \n')
+    f.write('    KRO2NO3   = 2.3E-12	 \n')
     #mcm_constants_dict['KRO2NO3']=kro2no3
     f.write('    ! kno3al : no3      + rcho    = rcoo2   + hno3 \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KNO3AL    = 1.4D-12*EXP(-1860/TEMP) \n')
+    f.write('    KNO3AL    = 1.4E-12*EXP(-1860/TEMP) \n')
     #mcm_constants_dict['KNO3AL']=kno3al 
     f.write('    ! kdec   : ro                 = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KDEC      = 1.00D+06 \n')
+    f.write('    KDEC      = 1.00E06 \n')
     #mcm_constants_dict['KDEC']=kdec
-    f.write('    KROSEC = 2.50D-14*EXP(-300/TEMP) \n')
+    f.write('    KROSEC = 2.50E-14*EXP(-300/TEMP) \n')
     #mcm_constants_dict['KROSEC']=krosec
     f.write('    KALKOXY= 3.70E-14*EXP(-460.0/TEMP)*O2 \n')
     #mcm_constants_dict['KALKOXY']=kalkoxy
     f.write('    KALKPXY= 1.80E-14*EXP(-260.0/TEMP)*O2 \n')
     #mcm_constants_dict['KALKPXY']=kalkpxy    
 
-    f.write('    KROPRIM = 2.50D-14*EXP(-300/TEMP) \n') 
+    f.write('    KROPRIM = 2.50E-14*EXP(-300/TEMP) \n') 
     #mcm_constants_dict['KROPRIM']=KROPRIM
 
-    f.write('    KCH3O2 = 1.03D-13*EXP(365/TEMP) \n') 
+    f.write('    KCH3O2 = 1.03E-13*EXP(365/TEMP) \n') 
     #mcm_constants_dict['KCH302']=KCH3O2
 
-    f.write('    K298CH3O2 = 3.5D-13 \n') 
+    f.write('    K298CH3O2 = 3.5E-13 \n') 
     #mcm_constants_dict['K298CH3O2']=K298CH3O2
 
-    f.write('    K14ISOM1 = 3.00D7*EXP(-5300/TEMP)	')
+    f.write('    K14ISOM1 = 3.00E7*EXP(-5300/TEMP)	')
         
     f.write('    ! ------------------------------------------------------------------- \n')
     f.write('    ! complex reactions \n')
@@ -1305,8 +1312,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! kfpan kbpan \n')
     f.write('    ! formation and decomposition of pan \n')
     f.write('    ! iupac 2001 (mcmv3.2) \n')
-    f.write('    kc0     = 3.28D-28*M*(TEMP/300)**(-6.87) \n') 
-    f.write('    kci     = 1.125D-11*(TEMP/300)**(-1.105) \n') 
+    f.write('    kc0     = 3.28E-28*M*(TEMP/300)**(-6.87) \n') 
+    f.write('    kci     = 1.125E-11*(TEMP/300)**(-1.105) \n') 
     f.write('    krc     = kc0/kci \n') 
     f.write('    fcc     = 0.30 \n') 
     f.write('    nc      = 0.75-(1.27*LOG10(fcc)) \n') 
@@ -1314,8 +1321,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    KFPAN   = (kc0*kci)*fc/(kc0+kci) \n') 
     #mcm_constants_dict['KFPAN']=kfpan    
 
-    f.write('    kd0     = 1.10D-05*M*EXP(-10100/TEMP) \n') 
-    f.write('    kdi     = 1.90D17*EXP(-14100/TEMP) \n') 
+    f.write('    kd0     = 1.10E-05*M*EXP(-10100/TEMP) \n') 
+    f.write('    kdi     = 1.90E17*EXP(-14100/TEMP) \n') 
     f.write('    krd     = kd0/kdi \n') 
     f.write('    fcd     = 0.30 \n') 
     f.write('    ncd     = 0.75-(1.27*LOG10(fcd)) \n') 
@@ -1323,8 +1330,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    KBPAN   = (kd0*kdi)*fd/(kd0+kdi) \n') 
     #mcm_constants_dict['KBPAN']=kbpan
 
-    f.write('    KPPN0     = 1.7D-03*EXP(-11280/TEMP)*M\n') 
-    f.write('    KPPNI     = 8.3D+16*EXP(-13940/TEMP)\n') 
+    f.write('    KPPN0     = 1.7E-03*EXP(-11280/TEMP)*M\n') 
+    f.write('    KPPNI     = 8.3E+16*EXP(-13940/TEMP)\n') 
     f.write('    KRPPN     = KPPN0/KPPNI\n') 
     f.write('    FCPPN     = 0.36\n') 
     f.write('    NCPPN     = 0.75-1.27*(LOG10(FCPPN))\n') 
@@ -1333,9 +1340,9 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     
     f.write('    ! kmt01  : o        + no      = no2 \n')
     f.write('    ! iupac 2001 (mcmv3.2) \n')
-    f.write('    k10     = 1.0D-31*M*(TEMP/300)**(-1.6) \n') 
+    f.write('    k10     = 1.0E-31*M*(TEMP/300)**(-1.6) \n') 
 
-    f.write('    k1i     = 5.0D-11*(TEMP/300)**(0.3) \n') 
+    f.write('    k1i     = 5.0E-11*(TEMP/300)**(0.3) \n') 
     f.write('    kr1     = k10/k1i \n') 
     f.write('    fc1     = 0.85 \n') 
     f.write('    nc1     = 0.75-(1.27*LOG10(fc1)) \n') 
@@ -1379,7 +1386,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
 
     f.write('    ! kmt05  : oh       + co(+o2) = ho2     + co2 \n')
     f.write('    ! iupac 2006 \n')
-    f.write('    KMT05  = 1.44D-13*(1+(M/4.2D+19)) \n') 
+    f.write('    KMT05  = 1.44E-13*(1+(M/4.2D+19)) \n') 
     #mcm_constants_dict['KMT05']=kmt05
 
     f.write('    ! kmt06  : ho2      + ho2     = h2o2    + o2 \n')
@@ -1406,8 +1413,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! kmt08  : oh       + no2     = hno3 \n')
     
     f.write('    ! iupac 2006, mcmv3.2 \n')
-    f.write('    k80     = 3.2D-30*M*(TEMP/300)**(-4.5) \n') 
-    f.write('    k8i     = 3.0D-11 \n') 
+    f.write('    k80     = 3.2E-30*M*(TEMP/300)**(-4.5) \n') 
+    f.write('    k8i     = 3.0E-11 \n') 
     f.write('    kr8     = k80/k8i \n') 
     f.write('    fc8     = 0.41 \n') 
     f.write('    nc8     = 0.75-(1.27*LOG10(fc8)) \n') 
@@ -1418,8 +1425,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! kmt09  : ho2      + no2     = ho2no2 \n')
     f.write('    ! iupac 1997, mcmv3.2 \n')
 
-    f.write('    k90     = 1.4D-31*M*(TEMP/300)**(-3.1) \n') 
-    f.write('    k9i     = 4.0D-12 \n') 
+    f.write('    k90     = 1.4E-31*M*(TEMP/300)**(-3.1) \n') 
+    f.write('    k9i     = 4.0E-12 \n') 
     f.write('    kr9     = k90/k9i \n') 
     f.write('    fc9     = 0.4 \n') 
     f.write('    nc9     = 0.75-(1.27*LOG10(fc9)) \n') 
@@ -1431,7 +1438,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! iupac 1997, mcmv3.2 \n')
 
     f.write('    k100     = 4.10E-05*M*EXP(-10650.0/TEMP) \n') 
-    f.write('    k10i     = 6.0D+15*EXP(-11170/TEMP) \n') 
+    f.write('    k10i     = 6.0E+15*EXP(-11170/TEMP) \n') 
     f.write('    kr10     = k100/k10i \n') 
     f.write('    fc10     = 0.4 \n') 
     f.write('    nc10     = 0.75-(1.27*LOG10(fc10)) \n') 
@@ -1451,8 +1458,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
 
     f.write('    ! kmt12 iupac 2006, mcmv3.2 \n')
 
-    f.write('    k120 = 2.5D-31*M*(TEMP/300)**(-2.6) \n') 
-    f.write('    k12i = 2.0D-12 \n') 
+    f.write('    k120 = 2.5E-31*M*(TEMP/300)**(-2.6) \n') 
+    f.write('    k12i = 2.0E-12 \n') 
     f.write('    kr12 = k120/k12i \n') 
     f.write('    fc12 = 0.53 \n') 
     f.write('    nc12 = 0.75-(1.27*LOG10(fc12)) \n') 
