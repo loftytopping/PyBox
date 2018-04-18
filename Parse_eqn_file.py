@@ -404,7 +404,7 @@ def write_rate_file(filename,rate_dict):
     f.write('    # kro2no : ro2      + no      = ro      + no2\n') 
     f.write('    #        : ro2      + no      = rono2\n') 
     f.write('    # iupac 1992\n') 
-    f.write('    KRONO2    = 2.40E-12*numpy.exp(360.0/temp)\n') 
+    f.write('    KRONO2    = 2.70E-12*numpy.exp(360.0/temp)\n') 
 	
     f.write('    # kro2ho2: ro2      + ho2     = rooh    + o2\n') 
     f.write('    # mcm protocol [1997]\n') 
@@ -412,29 +412,37 @@ def write_rate_file(filename,rate_dict):
 	
     f.write('    # kapho2 : rcoo2    + ho2     = products\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KAPHO2    = 4.30E-13*numpy.exp(1040.0/temp)\n') 
+    f.write('    KAPHO2    = 5.2E-13*numpy.exp(980.0/temp)\n') 
 	
     f.write('    # kapno  : rcoo2    + no      = products\n') 
     f.write('    # mej [1998]\n') 
-    f.write('    KAPNO = 8.10E-12*numpy.exp(270.0/temp)\n') 
+    f.write('    KAPNO = 7.5E-12*numpy.exp(290.0/temp)\n') 
 	
     f.write('    # kro2no3: ro2      + no3     = products\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KRO2NO3   = 2.50E-12\n') 
+    f.write('    KRO2NO3   = 2.3E-12\n') 
 	
     f.write('    # kno3al : no3      + rcho    = rcoo2   + hno3\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KNO3AL    = 1.44E-12*numpy.exp(-1862.0/temp)\n') 
+    f.write('    KNO3AL    = 1.4E-12*numpy.exp(-1860.0/temp)\n') 
 
     f.write('    # kdec   : ro                 = products\n') 
     f.write('    # mcm protocol [1997]\n') 
     f.write('    KDEC      = 1.00E+06\n') 
 
-    f.write('    KROSEC = 1.50E-14*numpy.exp(-200.0/temp)\n') 
+    f.write('    KROSEC = 2.50E-14*numpy.exp(-300.0/temp)\n') 
 
     f.write('    KALKOXY=3.70E-14*numpy.exp(-460.0/temp)*O2\n') 
 
     f.write('    KALKPXY=1.80E-14*numpy.exp(-260.0/temp)*O2\n') 
+
+    f.write('    KROPRIM = 2.50E-14*numpy.exp(-300/temp)\n') 
+
+    f.write('    KCH3O2 = 1.03E-13*numpy.exp(365/temp)\n') 
+
+    f.write('    K298CH3O2 = 3.5E-13\n') 
+
+    f.write('    K14ISOM1 = 3.00E7*numpy.exp(-5300/temp)	')
 
     f.write('    # -------------------------------------------------------------------\n') 
     f.write('    # complex reactions\n') 
@@ -443,27 +451,35 @@ def write_rate_file(filename,rate_dict):
     f.write('    # kfpan kbpan\n') 
     f.write('    # formation and decomposition of pan\n') 
     f.write('    # iupac 2001 (mcmv3.2)\n') 
-    f.write('    kc0     = 2.70E-28*M*(temp/300.0)**(-7.1)\n') 
-    f.write('    kci     = 1.21E-11*(temp/300.0)**(-0.9)\n') 
+    f.write('    kc0     = 3.28E-28*M*(temp/300.0)**(-6.87)\n') 
+    f.write('    kci     = 1.125E-11*(temp/300.0)**(-1.105)\n') 
     f.write('    krc     = kc0/kci\n') 
     f.write('    fcc     = 0.30\n') 
     f.write('    nc      = 0.75-(1.27*numpy.log10(fcc))\n') 
     f.write('    fc      = 10**(numpy.log10(fcc)/(1.0+((numpy.log10(krc))/nc)**2.0))\n') 
     f.write('    KFPAN   = (kc0*kci)*fc/(kc0+kci)\n') 
 
-    f.write('    kd0     = 4.90E-03*M*numpy.exp(-12100.0/temp)\n') 
-    f.write('    kdi     = 5.40E+16*numpy.exp(-13830.0/temp)\n') 
+    f.write('    kd0     = 1.10E-05*M*numpy.exp(-10100.0/temp)\n') 
+    f.write('    kdi     = 1.90E+17*numpy.exp(-14100.0/temp)\n') 
     f.write('    krd     = kd0/kdi\n') 
     f.write('    fcd     = 0.30\n') 
     f.write('    ncd     = 0.75-(1.27*numpy.log10(fcd))\n') 
     f.write('    fd      = 10.0**(numpy.log10(fcd)/(1.0+((numpy.log10(krd))/ncd)**2.0))\n') 
     f.write('    KBPAN   = (kd0*kdi)*fd/(kd0+kdi)\n') 
+    
+    f.write('    KPPN0     = 1.7E-03*M*numpy.exp(-11280.0/temp)\n') 
+    f.write('    KPPNI     = 8.3E+16*numpy.exp(-13940.0/temp)\n') 
+    f.write('    KRPPN     = KPPN0/KPPNI\n') 
+    f.write('    FCPPN     = 0.36\n') 
+    f.write('    NCPPN     = 0.75-(1.27*numpy.log10(fcd))\n') 
+    f.write('    FPPN      = 10.0**(numpy.log10(fcd)/(1.0+((numpy.log10(krd))/ncd)**2.0))\n') 
+    f.write('    KBPPN   = (KPPN0*KPPNI)*FCPPN/(KPPN0+KPPNI)\n') 
 
     f.write('    # kmt01  : o        + no      = no2\n') 
     f.write('    # iupac 2001 (mcmv3.2)\n') 
     f.write('    k10     = 1.00E-31*M*(temp/300.0)**(-1.6)\n') 
 
-    f.write('    k1i     = 3.00E-11*(temp/300.0)**(0.3)\n') 
+    f.write('    k1i     = 5.0E-11*(temp/300.0)**(0.3)\n') 
     f.write('    kr1     = k10/k1i\n') 
     f.write('    fc1     = 0.85\n') 
     f.write('    nc1     = 0.75-(1.27*numpy.log10(fc1))\n') 
@@ -502,7 +518,7 @@ def write_rate_file(filename,rate_dict):
 
     f.write('    # kmt05  : oh       + co(+o2) = ho2     + co2\n') 
     f.write('    # iupac 2006\n') 
-    f.write('    KMT05  = (1.0 + (M/4.2E19))\n') 
+    f.write('    KMT05  = 1.44E-13*(1.0 + (M/4.2E19))\n') 
 
     f.write('    # kmt06  : ho2      + ho2     = h2o2    + o2\n') 
     f.write('    # water enhancement factor\n') 
@@ -518,7 +534,7 @@ def write_rate_file(filename,rate_dict):
     f.write('    k70     = 7.40E-31*M*(temp/300.0)**(-2.4)\n') 
     f.write('    k7i     = 3.30E-11*(temp/300.0)**(-0.3)\n') 
     f.write('    kr7     = k70/k7i\n') 
-    f.write('    fc7     = numpy.exp(-temp/1420.0)\n') 
+    f.write('    fc7     = 0.81 \n') 
     f.write('    nc7     = 0.75-(1.27*numpy.log10(fc7))\n') 
     f.write('    f7      = 10.0**(numpy.log10(fc7)/(1+((numpy.log10(kr7)/nc7))**2.0))\n') 
     f.write('    KMT07   = (k70*k7i)*f7/(k70+k7i)\n') 
@@ -526,10 +542,10 @@ def write_rate_file(filename,rate_dict):
     f.write('    # kmt08  : oh       + no2     = hno3\n') 
 
     f.write('    # iupac 2006, mcmv3.2\n') 
-    f.write('    k80     = 3.30E-30*M*(temp/300.0)**(-3.0)\n') 
-    f.write('    k8i     = 4.10E-11\n') 
+    f.write('    k80     = 3.2E-30*M*(temp/300.0)**(-4.5)\n') 
+    f.write('    k8i     = 3.0E-11\n') 
     f.write('    kr8     = k80/k8i\n') 
-    f.write('    fc8     = 0.4\n') 
+    f.write('    fc8     = 0.41\n') 
     f.write('    nc8     = 0.75-(1.27*numpy.log10(fc8))\n') 
     f.write('    f8      = 10.0**(numpy.log10(fc8)/(1.0+((numpy.log10(kr8)/nc8))**2.0))\n') 
     f.write('    KMT08   = (k80*k8i)*f8/(k80+k8i)\n') 
@@ -537,10 +553,10 @@ def write_rate_file(filename,rate_dict):
     f.write('    # kmt09  : ho2      + no2     = ho2no2\n') 
     f.write('    # iupac 1997, mcmv3.2\n') 
     
-    f.write('    k90     = 1.80E-31*M*(temp/300.0)**(-3.2)\n') 
-    f.write('    k9i     = 4.70E-12\n') 
+    f.write('    k90     = 1.4E-31*M*(temp/300.0)**(-3.1)\n') 
+    f.write('    k9i     = 4.0E-12\n') 
     f.write('    kr9     = k90/k9i\n') 
-    f.write('    fc9     = 0.6\n') 
+    f.write('    fc9     = 0.4\n') 
     f.write('    nc9     = 0.75-(1.27*numpy.log10(fc9))\n') 
     f.write('    f9      = 10.0**(numpy.log10(fc9)/(1.0+((numpy.log10(kr9)/nc9))**2.0))\n') 
     f.write('    KMT09   = (k90*k9i)*f9/(k90+k9i)\n') 
@@ -549,9 +565,9 @@ def write_rate_file(filename,rate_dict):
     f.write('    # iupac 1997, mcmv3.2\n') 
 
     f.write('    k100     = 4.10E-05*M*numpy.exp(-10650.0/temp)\n') 
-    f.write('    k10i     = 4.80E+15*numpy.exp(-11170.0/temp)\n') 
+    f.write('    k10i     = 6.0E+15*numpy.exp(-11170.0/temp)\n') 
     f.write('    kr10     = k100/k10i\n') 
-    f.write('    fc10     = 0.6\n') 
+    f.write('    fc10     = 0.4\n') 
     f.write('    nc10     = 0.75-(1.27*numpy.log10(fc10))\n') 
     f.write('    f10      = 10.0**(numpy.log10(fc10)/(1.0+((numpy.log10(kr10)/nc10))**2.0))\n') 
     f.write('    KMT10    = (k100*k10i)*f10/(k100+k10i)\n') 
@@ -567,10 +583,10 @@ def write_rate_file(filename,rate_dict):
 
     f.write('    # kmt12 iupac 2006, mcmv3.2\n') 
 
-    f.write('    k120 = 4.50E-31*((temp/300.0)**(-3.9))*M\n') 
-    f.write('    k12i = 1.30E-12*((temp/300.0)**(-0.7))\n') 
+    f.write('    k120 = 2.5E-31*((temp/300.0)**(-2.6))*M\n') 
+    f.write('    k12i = 2.0E-12\n') 
     f.write('    kr12 = k120/k12i\n') 
-    f.write('    fc12 = 0.525\n') 
+    f.write('    fc12 = 0.53\n') 
     f.write('    nc12 = 0.75-(1.27*numpy.log10(fc12))\n') 
     f.write('    f12  = 10.0**(numpy.log10(fc12)/(1.0+((numpy.log10(kr12)/nc12))**2.0))\n') 
     f.write('    KMT12    = (k120*k12i)*f12/(k120+k12i)\n') 
@@ -592,7 +608,7 @@ def write_rate_file(filename,rate_dict):
     f.write('    k140     = 9.00E-05*numpy.exp(-9690.0/temp)*M\n') 
     f.write('    k14i     = 1.10E+16*numpy.exp(-10560.0/temp)\n') 
     f.write('    kr14     = k140/k14i\n') 
-    f.write('    fc14     = 0.4\n') 
+    f.write('    fc14     = 0.36\n') 
     f.write('    nc14     = 0.75-(1.27*numpy.log10(fc14))\n') 
     f.write('    f14      = 10.0**(numpy.log10(fc14)/(1.0+((numpy.log10(kr14)/nc14))**2.0))\n') 
     f.write('    KMT14    = (k140*k14i)*f14/(k140+k14i)\n') 
@@ -628,34 +644,7 @@ def write_rate_file(filename,rate_dict):
     f.write('    f17  = 10.0**(numpy.log10(fc17)/(1.0+((numpy.log10(kr17)/nc17))**2.0))\n') 
     f.write('    KMT17 = (k170*k17i)*f17/(k170+k17i)\n') 
 
-    f.write('    #Taken from yet another MCM version, will need converting to lower case\n') 
-    f.write('    KRO2NO = 2.7E-12*numpy.exp(360/temp)\n') 
-
-    f.write('    KRO2HO2 = 2.91E-13*numpy.exp(1300/temp)\n') 
-
-    f.write('    KAPHO2 = 5.2E-13*numpy.exp(980/temp)\n') 
-
-    f.write('    KAPNO = 7.5E-12*numpy.exp(290/temp)\n') 
-
-    f.write('    KRO2NO3 = 2.3E-12\n') 
-
-    f.write('    KNO3AL = 1.4E-12*numpy.exp(-1860/temp)\n') 
-
-    f.write('    KDEC = 1.00E+06\n') 
-
-    f.write('    KROPRIM = 2.50E-14*numpy.exp(-300/temp)\n') 
-
-    f.write('    KROSEC = 2.50E-14*numpy.exp(-300/temp)\n') 
-
-    f.write('    KCH3O2 = 1.03E-13*numpy.exp(365/temp)\n') 
-
-    f.write('    K298CH3O2 = 3.5E-13\n') 
-
     f.write('    KMT18 = 9.5E-39*O2*numpy.exp(5270/temp)/(1+7.5E-29*O2*numpy.exp(5610/temp))\n') 
-
-    f.write('    KROPRIM  = 3.70E-14*numpy.exp(-460.0/temp)\n') 
-
-    f.write('    KROSEC   = 1.80E-14*numpy.exp(-260.0/temp)\n') 
 
     f.write('    # ************************************************************************\n') 
     f.write('    # define photolysis reaction rates using derwent method from mcm2box.fac\n') 
@@ -697,12 +686,13 @@ def write_rate_file(filename,rate_dict):
     f.write('    J[15]=2.792E-05*cosx**(0.805)*numpy.exp(-1.0*0.338*secx)\n') 
     f.write('    J[16]=1.675E-05*cosx**(0.805)*numpy.exp(-1.0*0.338*secx)\n') 
     f.write('    J[17]=7.914E-05*cosx**(0.764)*numpy.exp(-1.0*0.364*secx)\n') 
-    f.write('    J[18]=1.140E-05*cosx**(0.396)*numpy.exp(-1.0*0.298*secx)\n') 
-    f.write('    J[19]=1.140E-05*cosx**(0.396)*numpy.exp(-1.0*0.298*secx)\n') 
+    f.write('    J[18]=1.482E-06*cosx**(0.396)*numpy.exp(-1.0*0.298*secx)\n') 
+    f.write('    J[19]=1.482E-05*cosx**(0.396)*numpy.exp(-1.0*0.298*secx)\n') 
+    f.write('    J[20]=7.600E-04*cosx**(0.396)*numpy.exp(-1.0*0.298*secx)\n') 
     f.write('    J[21]=7.992E-07*cosx**(1.578)*numpy.exp(-1.0*0.271*secx)\n') 
     f.write('    J[22]=5.804E-06*cosx**(1.092)*numpy.exp(-1.0*0.377*secx)\n') 
-    f.write('    J[23]=1.836E-05*cosx**(0.395)*numpy.exp(-1.0*0.296*secx)\n') 
-    f.write('    J[24]=1.836E-05*cosx**(0.395)*numpy.exp(-1.0*0.296*secx)\n') 
+    f.write('    J[23]=2.4246E-06*cosx**(0.395)*numpy.exp(-1.0*0.296*secx)\n') 
+    f.write('    J[24]=2.424E-06*cosx**(0.395)*numpy.exp(-1.0*0.296*secx)\n') 
     f.write('    J[31]=6.845E-05*cosx**(0.130)*numpy.exp(-1.0*0.201*secx)\n') 
     f.write('    J[32]=1.032E-05*cosx**(0.130)*numpy.exp(-1.0*0.201*secx)\n') 
     f.write('    J[33]=3.802E-05*cosx**(0.644)*numpy.exp(-1.0*0.312*secx)\n') 
@@ -714,7 +704,7 @@ def write_rate_file(filename,rate_dict):
     f.write('    J[53]=2.485E-06*cosx**(1.196)*numpy.exp(-1.0*0.328*secx)\n') 
     f.write('    J[54]=4.095E-06*cosx**(1.111)*numpy.exp(-1.0*0.316*secx)\n') 
     f.write('    J[55]=1.135E-05*cosx**(0.974)*numpy.exp(-1.0*0.309*secx)\n') 
-    f.write('    J[56]=7.549E-06*cosx**(1.015)*numpy.exp(-1.0*0.324*secx)\n') 
+    f.write('    J[56]=4.365E-05*cosx**(1.089)*numpy.exp(-1.0*0.323*secx)\n') 
     f.write('    J[57]=3.363E-06*cosx**(1.296)*numpy.exp(-1.0*0.322*secx)\n') 
     f.write('    J[61]=7.537E-04*cosx**(0.499)*numpy.exp(-1.0*0.266*secx)\n') 
     f.write('    TEMP=temp\n') 
@@ -807,7 +797,7 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    # kro2no : ro2      + no      = ro      + no2\n') 
     f.write('    #        : ro2      + no      = rono2\n') 
     f.write('    # iupac 1992\n') 
-    f.write('    KRONO2    = 2.40E-12*numba_exp(360.0/temp)\n') 
+    f.write('    KRONO2    = 2.70E-12*numba_exp(360.0/temp)\n') 
 
     f.write('    # kro2ho2: ro2      + ho2     = rooh    + o2\n') 
     f.write('    # mcm protocol [1997]\n') 
@@ -815,29 +805,37 @@ def write_rate_file_numba(filename,rate_dict):
 
     f.write('    # kapho2 : rcoo2    + ho2     = products\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KAPHO2    = 4.30E-13*numba_exp(1040.0/temp)\n') 
+    f.write('    KAPHO2    = 5.2E-13*numba_exp(980.0/temp)\n') 
 
     f.write('    # kapno  : rcoo2    + no      = products\n') 
     f.write('    # mej [1998]\n') 
-    f.write('    KAPNO = 8.10E-12*numba_exp(270.0/temp)\n') 
+    f.write('    KAPNO = 7.5E-12*numba_exp(290.0/temp)\n') 
 
     f.write('    # kro2no3: ro2      + no3     = products\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KRO2NO3   = 2.50E-12\n') 
+    f.write('    KRO2NO3   = 2.3E-12\n') 
 
     f.write('    # kno3al : no3      + rcho    = rcoo2   + hno3\n') 
     f.write('    # mcm protocol [1997]\n') 
-    f.write('    KNO3AL    = 1.44E-12*numba_exp(-1862.0/temp)\n') 
+    f.write('    KNO3AL    = 1.4E-12*numba_exp(-1860.0/temp)\n') 
 
     f.write('    # kdec   : ro                 = products\n') 
     f.write('    # mcm protocol [1997]\n') 
     f.write('    KDEC      = 1.00E+06\n') 
 
-    f.write('    KROSEC = 1.50E-14*numba_exp(-200.0/temp)\n') 
+    f.write('    KROSEC = 2.50E-14*numba_exp(-300.0/temp)\n') 
 
     f.write('    KALKOXY=3.70E-14*numba_exp(-460.0/temp)*O2\n') 
 
     f.write('    KALKPXY=1.80E-14*numba_exp(-260.0/temp)*O2\n') 
+
+    f.write('    KROPRIM = 2.50E-14*numba_exp(-300/temp)\n') 
+
+    f.write('    KCH3O2 = 1.03E-13*numba_exp(365/temp)\n') 
+
+    f.write('    K298CH3O2 = 3.5E-13\n') 
+
+    f.write('    K14ISOM1 = 3.00E7*numba_exp(-5300/temp)	')
 
     f.write('    # -------------------------------------------------------------------\n') 
     f.write('    # complex reactions\n') 
@@ -846,27 +844,35 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    # kfpan kbpan\n') 
     f.write('    # formation and decomposition of pan\n') 
     f.write('    # iupac 2001 (mcmv3.2)\n') 
-    f.write('    kc0     = 2.70E-28*M*(temp/300.0)**(-7.1)\n') 
-    f.write('    kci     = 1.21E-11*(temp/300.0)**(-0.9)\n') 
+    f.write('    kc0     = 3.28E-28*M*(temp/300.0)**(-6.87)\n') 
+    f.write('    kci     = 1.125E-11*(temp/300.0)**(-1.105)\n') 
     f.write('    krc     = kc0/kci\n') 
     f.write('    fcc     = 0.30\n') 
     f.write('    nc      = 0.75-(1.27*numba_log10(fcc))\n') 
     f.write('    fc      = 10**(numba_log10(fcc)/(1.0+((numba_log10(krc))/nc)**2.0))\n') 
     f.write('    KFPAN   = (kc0*kci)*fc/(kc0+kci)\n') 
 
-    f.write('    kd0     = 4.90E-03*M*numba_exp(-12100.0/temp)\n') 
-    f.write('    kdi     = 5.40E+16*numba_exp(-13830.0/temp)\n') 
+    f.write('    kd0     = 1.10E-05*M*numba_exp(-10100.0/temp)\n') 
+    f.write('    kdi     = 1.90E+17*numba_exp(-14100.0/temp)\n') 
     f.write('    krd     = kd0/kdi\n') 
     f.write('    fcd     = 0.30\n') 
     f.write('    ncd     = 0.75-(1.27*numba_log10(fcd))\n') 
     f.write('    fd      = 10.0**(numba_log10(fcd)/(1.0+((numba_log10(krd))/ncd)**2.0))\n') 
     f.write('    KBPAN   = (kd0*kdi)*fd/(kd0+kdi)\n') 
 
+    f.write('    KPPN0     = 1.7E-03*M*numba_exp(-11280.0/temp)\n') 
+    f.write('    KPPNI     = 8.3E+16*numba_exp(-13940.0/temp)\n') 
+    f.write('    KRPPN     = KPPN0/KPPNI\n') 
+    f.write('    FCPPN     = 0.36\n') 
+    f.write('    NCPPN     = 0.75-(1.27*numba_log10(fcd))\n') 
+    f.write('    FPPN      = 10.0**(numba_log10(fcd)/(1.0+((numba_log10(krd))/ncd)**2.0))\n') 
+    f.write('    KBPPN   = (KPPN0*KPPNI)*FCPPN/(KPPN0+KPPNI)\n') 
+
     f.write('    # kmt01  : o        + no      = no2\n') 
     f.write('    # iupac 2001 (mcmv3.2)\n') 
     f.write('    k10     = 1.00E-31*M*(temp/300.0)**(-1.6)\n') 
 
-    f.write('    k1i     = 3.00E-11*(temp/300.0)**(0.3)\n') 
+    f.write('    k1i     = 5.0E-11*(temp/300.0)**(0.3)\n') 
     f.write('    kr1     = k10/k1i\n') 
     f.write('    fc1     = 0.85\n') 
     f.write('    nc1     = 0.75-(1.27*numba_log10(fc1))\n') 
@@ -905,7 +911,7 @@ def write_rate_file_numba(filename,rate_dict):
 
     f.write('    # kmt05  : oh       + co(+o2) = ho2     + co2\n') 
     f.write('    # iupac 2006\n') 
-    f.write('    KMT05  = (1.0 + (M/4.2E19))\n') 
+    f.write('    KMT05  = 1.44E-13*(1.0 + (M/4.2E19))\n') 
 
     f.write('    # kmt06  : ho2      + ho2     = h2o2    + o2\n') 
     f.write('    # water enhancement factor\n') 
@@ -929,10 +935,10 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    # kmt08  : oh       + no2     = hno3\n') 
 
     f.write('    # iupac 2006, mcmv3.2\n') 
-    f.write('    k80     = 3.30E-30*M*(temp/300.0)**(-3.0)\n') 
-    f.write('    k8i     = 4.10E-11\n') 
+    f.write('    k80     = 3.2E-30*M*(temp/300.0)**(-4.5)\n') 
+    f.write('    k8i     = 3.0E-11\n') 
     f.write('    kr8     = k80/k8i\n') 
-    f.write('    fc8     = 0.4\n') 
+    f.write('    fc8     = 0.41\n') 
     f.write('    nc8     = 0.75-(1.27*numba_log10(fc8))\n') 
     f.write('    f8      = 10.0**(numba_log10(fc8)/(1.0+((numba_log10(kr8)/nc8))**2.0))\n') 
     f.write('    KMT08   = (k80*k8i)*f8/(k80+k8i)\n') 
@@ -940,10 +946,10 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    # kmt09  : ho2      + no2     = ho2no2\n') 
     f.write('    # iupac 1997, mcmv3.2\n') 
     
-    f.write('    k90     = 1.80E-31*M*(temp/300.0)**(-3.2)\n') 
-    f.write('    k9i     = 4.70E-12\n') 
+    f.write('    k90     = 1.4E-31*M*(temp/300.0)**(-3.1)\n') 
+    f.write('    k9i     = 4.0E-12\n') 
     f.write('    kr9     = k90/k9i\n') 
-    f.write('    fc9     = 0.6\n') 
+    f.write('    fc9     = 0.4\n') 
     f.write('    nc9     = 0.75-(1.27*numba_log10(fc9))\n') 
     f.write('    f9      = 10.0**(numba_log10(fc9)/(1.0+((numba_log10(kr9)/nc9))**2.0))\n') 
     f.write('    KMT09   = (k90*k9i)*f9/(k90+k9i)\n') 
@@ -952,9 +958,9 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    # iupac 1997, mcmv3.2\n') 
 
     f.write('    k100     = 4.10E-05*M*numba_exp(-10650.0/temp)\n') 
-    f.write('    k10i     = 4.80E+15*numba_exp(-11170.0/temp)\n') 
+    f.write('    k10i     = 6.0E+15*numba_exp(-11170.0/temp)\n') 
     f.write('    kr10     = k100/k10i\n') 
-    f.write('    fc10     = 0.6\n') 
+    f.write('    fc10     = 0.4\n') 
     f.write('    nc10     = 0.75-(1.27*numba_log10(fc10))\n') 
     f.write('    f10      = 10.0**(numba_log10(fc10)/(1.0+((numba_log10(kr10)/nc10))**2.0))\n') 
     f.write('    KMT10    = (k100*k10i)*f10/(k100+k10i)\n') 
@@ -970,10 +976,10 @@ def write_rate_file_numba(filename,rate_dict):
 
     f.write('    # kmt12 iupac 2006, mcmv3.2\n') 
 
-    f.write('    k120 = 4.50E-31*((temp/300.0)**(-3.9))*M\n') 
-    f.write('    k12i = 1.30E-12*((temp/300.0)**(-0.7))\n') 
+    f.write('    k120 = 2.5E-31*((temp/300.0)**(-2.6))*M\n') 
+    f.write('    k12i = 2.0E-12\n') 
     f.write('    kr12 = k120/k12i\n') 
-    f.write('    fc12 = 0.525\n') 
+    f.write('    fc12 = 0.53\n') 
     f.write('    nc12 = 0.75-(1.27*numba_log10(fc12))\n') 
     f.write('    f12  = 10.0**(numba_log10(fc12)/(1.0+((numba_log10(kr12)/nc12))**2.0))\n') 
     f.write('    KMT12    = (k120*k12i)*f12/(k120+k12i)\n') 
@@ -995,7 +1001,7 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    k140     = 9.00E-05*numba_exp(-9690.0/temp)*M\n') 
     f.write('    k14i     = 1.10E+16*numba_exp(-10560.0/temp)\n') 
     f.write('    kr14     = k140/k14i\n') 
-    f.write('    fc14     = 0.4\n') 
+    f.write('    fc14     = 0.36\n') 
     f.write('    nc14     = 0.75-(1.27*numba_log10(fc14))\n') 
     f.write('    f14      = 10.0**(numba_log10(fc14)/(1.0+((numba_log10(kr14)/nc14))**2.0))\n') 
     f.write('    KMT14    = (k140*k14i)*f14/(k140+k14i)\n') 
@@ -1030,35 +1036,8 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    nc17 = 0.75-(1.27*numba_log10(fc17))\n') 
     f.write('    f17  = 10.0**(numba_log10(fc17)/(1.0+((numba_log10(kr17)/nc17))**2.0))\n') 
     f.write('    KMT17 = (k170*k17i)*f17/(k170+k17i)\n') 
-
-    f.write('    #Taken from yet another MCM version, will need converting to lower case\n') 
-    f.write('    KRO2NO = 2.7E-12*numba_exp(360/temp)\n') 
-
-    f.write('    KRO2HO2 = 2.91E-13*numba_exp(1300/temp)\n') 
-
-    f.write('    KAPHO2 = 5.2E-13*numba_exp(980/temp)\n') 
-
-    f.write('    KAPNO = 7.5E-12*numba_exp(290/temp)\n') 
-
-    f.write('    KRO2NO3 = 2.3E-12\n') 
-
-    f.write('    KNO3AL = 1.4E-12*numba_exp(-1860/temp)\n') 
-
-    f.write('    KDEC = 1.00E+06\n') 
-
-    f.write('    KROPRIM = 2.50E-14*numba_exp(-300/temp)\n') 
-
-    f.write('    KROSEC = 2.50E-14*numba_exp(-300/temp)\n') 
-
-    f.write('    KCH3O2 = 1.03E-13*numba_exp(365/temp)\n') 
-
-    f.write('    K298CH3O2 = 3.5E-13\n') 
-
+    
     f.write('    KMT18 = 9.5E-39*O2*numba_exp(5270/temp)/(1+7.5E-29*O2*numba_exp(5610/temp))\n') 
-
-    f.write('    KROPRIM  = 3.70E-14*numba_exp(-460.0/temp)\n') 
-
-    f.write('    KROSEC   = 1.80E-14*numba_exp(-260.0/temp)\n') 
 
     f.write('    # ************************************************************************\n') 
     f.write('    # define photolysis reaction rates using derwent method from mcm2box.fac\n') 
@@ -1100,12 +1079,13 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    J[15]=2.792E-05*cosx**(0.805)*numba_exp(-1.0*0.338*secx)\n') 
     f.write('    J[16]=1.675E-05*cosx**(0.805)*numba_exp(-1.0*0.338*secx)\n') 
     f.write('    J[17]=7.914E-05*cosx**(0.764)*numba_exp(-1.0*0.364*secx)\n') 
-    f.write('    J[18]=1.140E-05*cosx**(0.396)*numba_exp(-1.0*0.298*secx)\n') 
-    f.write('    J[19]=1.140E-05*cosx**(0.396)*numba_exp(-1.0*0.298*secx)\n') 
+    f.write('    J[18]=1.482E-06*cosx**(0.396)*numba_exp(-1.0*0.298*secx)\n') 
+    f.write('    J[19]=1.482E-05*cosx**(0.396)*numba_exp(-1.0*0.298*secx)\n') 
+    f.write('    J[20]=7.600E-04*cosx**(0.396)*numba_exp(-1.0*0.298*secx)\n') 
     f.write('    J[21]=7.992E-07*cosx**(1.578)*numba_exp(-1.0*0.271*secx)\n') 
     f.write('    J[22]=5.804E-06*cosx**(1.092)*numba_exp(-1.0*0.377*secx)\n') 
-    f.write('    J[23]=1.836E-05*cosx**(0.395)*numba_exp(-1.0*0.296*secx)\n') 
-    f.write('    J[24]=1.836E-05*cosx**(0.395)*numba_exp(-1.0*0.296*secx)\n') 
+    f.write('    J[23]=2.4246E-06*cosx**(0.395)*numba_exp(-1.0*0.296*secx)\n') 
+    f.write('    J[24]=2.424E-06*cosx**(0.395)*numba_exp(-1.0*0.296*secx)\n') 
     f.write('    J[31]=6.845E-05*cosx**(0.130)*numba_exp(-1.0*0.201*secx)\n') 
     f.write('    J[32]=1.032E-05*cosx**(0.130)*numba_exp(-1.0*0.201*secx)\n') 
     f.write('    J[33]=3.802E-05*cosx**(0.644)*numba_exp(-1.0*0.312*secx)\n') 
@@ -1117,7 +1097,7 @@ def write_rate_file_numba(filename,rate_dict):
     f.write('    J[53]=2.485E-06*cosx**(1.196)*numba_exp(-1.0*0.328*secx)\n') 
     f.write('    J[54]=4.095E-06*cosx**(1.111)*numba_exp(-1.0*0.316*secx)\n') 
     f.write('    J[55]=1.135E-05*cosx**(0.974)*numba_exp(-1.0*0.309*secx)\n') 
-    f.write('    J[56]=7.549E-06*cosx**(1.015)*numba_exp(-1.0*0.324*secx)\n') 
+    f.write('    J[56]=4.365E-05*cosx**(1.089)*numba_exp(-1.0*0.323*secx)\n') 
     f.write('    J[57]=3.363E-06*cosx**(1.296)*numba_exp(-1.0*0.322*secx)\n') 
     f.write('    J[61]=7.537E-04*cosx**(0.499)*numba_exp(-1.0*0.266*secx)\n') 
     f.write('    TEMP=temp\n') 
@@ -1194,8 +1174,10 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    REAL(8) k150, k15i, kr15, fc15, nc15, f15, KMT15  \n ')
     f.write('    REAL(8) k160, k16i, kr16, fc16, nc16, f16, KMT16  \n ')
     f.write('    REAL(8) k170, k17i, kr17, fc17, nc17, f17, KMT17  \n ')
-    f.write('    REAL(8) KRO2NO  \n ')
+    f.write('    REAL(8) KRO2NO, K14ISOM1  \n ')
     f.write('    REAL(8) KROPRIM, KCH3O2, K298CH3O2, KMT18  \n ')
+    f.write('    REAL(8) KPPN0, KPPNI, KRPPN, FCPPN, NCPPN  \n ')
+    f.write('    REAL(8) FPPN, KBPPN  \n ')
     f.write('\n') 
         
     # Now add an account for the variables used in changing photolysis rates
@@ -1249,12 +1231,13 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    J(15)=2.792E-05*cosx**(0.805)*EXP(-1.0*0.338*secx)\n') 
     f.write('    J(16)=1.675E-05*cosx**(0.805)*EXP(-1.0*0.338*secx)\n') 
     f.write('    J(17)=7.914E-05*cosx**(0.764)*EXP(-1.0*0.364*secx)\n') 
-    f.write('    J(18)=1.140E-05*cosx**(0.396)*EXP(-1.0*0.298*secx)\n') 
-    f.write('    J(19)=1.140E-05*cosx**(0.396)*EXP(-1.0*0.298*secx)\n') 
+    f.write('    J(18)=1.482E-06*cosx**(0.396)*EXP(-1.0*0.298*secx)\n') 
+    f.write('    J(19)=1.482E-05*cosx**(0.396)*EXP(-1.0*0.298*secx)\n') 
+    f.write('    J(20)=7.600E-04*cosx**(0.396)*EXP(-1.0*0.298*secx)\n') 
     f.write('    J(21)=7.992E-07*cosx**(1.578)*EXP(-1.0*0.271*secx)\n') 
     f.write('    J(22)=5.804E-06*cosx**(1.092)*EXP(-1.0*0.377*secx)\n') 
-    f.write('    J(23)=1.836E-05*cosx**(0.395)*EXP(-1.0*0.296*secx)\n') 
-    f.write('    J(24)=1.836E-05*cosx**(0.395)*EXP(-1.0*0.296*secx)\n') 
+    f.write('    J(23)=2.4246E-06*cosx**(0.395)*EXP(-1.0*0.296*secx)\n') 
+    f.write('    J(24)=2.424E-06*cosx**(0.395)*EXP(-1.0*0.296*secx)\n') 
     f.write('    J(31)=6.845E-05*cosx**(0.130)*EXP(-1.0*0.201*secx)\n') 
     f.write('    J(32)=1.032E-05*cosx**(0.130)*EXP(-1.0*0.201*secx)\n') 
     f.write('    J(33)=3.802E-05*cosx**(0.644)*EXP(-1.0*0.312*secx)\n') 
@@ -1266,52 +1249,64 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    J(53)=2.485E-06*cosx**(1.196)*EXP(-1.0*0.328*secx)\n') 
     f.write('    J(54)=4.095E-06*cosx**(1.111)*EXP(-1.0*0.316*secx)\n') 
     f.write('    J(55)=1.135E-05*cosx**(0.974)*EXP(-1.0*0.309*secx)\n') 
-    f.write('    J(56)=7.549E-06*cosx**(1.015)*EXP(-1.0*0.324*secx)\n') 
+    f.write('    J(56)=4.365E-05*cosx**(1.089)*EXP(-1.0*0.323*secx)\n') 
     f.write('    J(57)=3.363E-06*cosx**(1.296)*EXP(-1.0*0.322*secx)\n') 
     f.write('    J(61)=7.537E-04*cosx**(0.499)*EXP(-1.0*0.266*secx)\n') 
-
+    
     f.write('    ! Calculating standard rate coefficients \n') 
     f.write('    ! iupac 1992 \n')
-    f.write('    KRONO2    = 2.40E-12*EXP(360.0/TEMP) \n')
+    f.write('    KRONO2    = 2.7D-12*EXP(360/TEMP) \n')
     #mcm_constants_dict['KRONO2']=kro2no
     f.write('    ! kro2ho2: ro2      + ho2     = rooh    + o2 \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KRO2HO2   = 2.91E-13*EXP(1300.0/TEMP) \n')
+    f.write('    KRO2HO2   = 2.91D-13*EXP(1300/TEMP)  \n')
     #mcm_constants_dict['KRO2HO2']=kro2ho2
     f.write('    ! kapho2 : rcoo2    + ho2     = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KAPHO2    = 4.30E-13*EXP(1040.0/TEMP) \n')
+    f.write('    KAPHO2    = 5.2D-13*EXP(980/TEMP)	 \n')
     #mcm_constants_dict['KAPHO2']=kapho2 
     f.write('    ! kapno  : rcoo2    + no      = products \n')
     f.write('    ! mej [1998] \n')
-    f.write('    KAPNO = 8.10E-12*EXP(270.0/TEMP) \n')
+    f.write('    KAPNO = 7.5D-12*EXP(290/TEMP)	 \n')
     #mcm_constants_dict['KAPNO']=kapno 
     f.write('    ! kro2no3: ro2      + no3     = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KRO2NO3   = 2.50E-12 \n')
+    f.write('    KRO2NO3   = 2.3D-12	 \n')
     #mcm_constants_dict['KRO2NO3']=kro2no3
     f.write('    ! kno3al : no3      + rcho    = rcoo2   + hno3 \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KNO3AL    = 1.44E-12*EXP(-1862.0/TEMP) \n')
+    f.write('    KNO3AL    = 1.4D-12*EXP(-1860/TEMP) \n')
     #mcm_constants_dict['KNO3AL']=kno3al 
     f.write('    ! kdec   : ro                 = products \n')
     f.write('    ! mcm protocol [1997] \n')
-    f.write('    KDEC      = 1.00E06 \n')
+    f.write('    KDEC      = 1.00D+06 \n')
     #mcm_constants_dict['KDEC']=kdec
-    f.write('    KROSEC = 1.50E-14*EXP(-200.0/TEMP) \n')
+    f.write('    KROSEC = 2.50D-14*EXP(-300/TEMP) \n')
     #mcm_constants_dict['KROSEC']=krosec
-    f.write('    KALKOXY=3.70E-14*EXP(-460.0/TEMP)*O2 \n')
+    f.write('    KALKOXY= 3.70E-14*EXP(-460.0/TEMP)*O2 \n')
     #mcm_constants_dict['KALKOXY']=kalkoxy
-    f.write('    KALKPXY=1.80E-14*EXP(-260.0/TEMP)*O2 \n')
-    #mcm_constants_dict['KALKPXY']=kalkpxy
+    f.write('    KALKPXY= 1.80E-14*EXP(-260.0/TEMP)*O2 \n')
+    #mcm_constants_dict['KALKPXY']=kalkpxy    
+
+    f.write('    KROPRIM = 2.50D-14*EXP(-300/TEMP) \n') 
+    #mcm_constants_dict['KROPRIM']=KROPRIM
+
+    f.write('    KCH3O2 = 1.03D-13*EXP(365/TEMP) \n') 
+    #mcm_constants_dict['KCH302']=KCH3O2
+
+    f.write('    K298CH3O2 = 3.5D-13 \n') 
+    #mcm_constants_dict['K298CH3O2']=K298CH3O2
+
+    f.write('    K14ISOM1 = 3.00D7*EXP(-5300/TEMP)	')
+        
     f.write('    ! ------------------------------------------------------------------- \n')
     f.write('    ! complex reactions \n')
     f.write('    ! ------------------------------------------------------------------- \n')
     f.write('    ! kfpan kbpan \n')
     f.write('    ! formation and decomposition of pan \n')
     f.write('    ! iupac 2001 (mcmv3.2) \n')
-    f.write('    kc0     = 2.70E-28*M*(TEMP/300.0)**(-7.1) \n') 
-    f.write('    kci     = 1.21E-11*(TEMP/300.0)**(-0.9) \n') 
+    f.write('    kc0     = 3.28D-28*M*(TEMP/300)**(-6.87) \n') 
+    f.write('    kci     = 1.125D-11*(TEMP/300)**(-1.105) \n') 
     f.write('    krc     = kc0/kci \n') 
     f.write('    fcc     = 0.30 \n') 
     f.write('    nc      = 0.75-(1.27*LOG10(fcc)) \n') 
@@ -1319,20 +1314,28 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    KFPAN   = (kc0*kci)*fc/(kc0+kci) \n') 
     #mcm_constants_dict['KFPAN']=kfpan    
 
-    f.write('    kd0     = 4.90E-03*M*EXP(-12100.0/TEMP) \n') 
-    f.write('    kdi     = 5.40E16*EXP(-13830.0/TEMP) \n') 
+    f.write('    kd0     = 1.10D-05*M*EXP(-10100/TEMP) \n') 
+    f.write('    kdi     = 1.90D17*EXP(-14100/TEMP) \n') 
     f.write('    krd     = kd0/kdi \n') 
     f.write('    fcd     = 0.30 \n') 
     f.write('    ncd     = 0.75-(1.27*LOG10(fcd)) \n') 
     f.write('    fd      = 10.0**(LOG10(fcd)/(1.0+((LOG10(krd))/ncd)**2.0)) \n') 
     f.write('    KBPAN   = (kd0*kdi)*fd/(kd0+kdi) \n') 
     #mcm_constants_dict['KBPAN']=kbpan
+
+    f.write('    KPPN0     = 1.7D-03*EXP(-11280/TEMP)*M\n') 
+    f.write('    KPPNI     = 8.3D+16*EXP(-13940/TEMP)\n') 
+    f.write('    KRPPN     = KPPN0/KPPNI\n') 
+    f.write('    FCPPN     = 0.36\n') 
+    f.write('    NCPPN     = 0.75-1.27*(LOG10(FCPPN))\n') 
+    f.write('    FPPN      = 10**(LOG10(FCPPN)/(1.0+((LOG10(KRPPN))/NCPPN)**2.0))\n') 
+    f.write('    KBPPN   = (KPPN0*KPPNI)*FCPPN/(KPPN0+KPPNI)\n') 
     
     f.write('    ! kmt01  : o        + no      = no2 \n')
     f.write('    ! iupac 2001 (mcmv3.2) \n')
-    f.write('    k10     = 1.00E-31*M*(TEMP/300.0)**(-1.6) \n') 
+    f.write('    k10     = 1.0D-31*M*(TEMP/300)**(-1.6) \n') 
 
-    f.write('    k1i     = 3.00E-11*(TEMP/300.0)**(0.3) \n') 
+    f.write('    k1i     = 5.0D-11*(TEMP/300)**(0.3) \n') 
     f.write('    kr1     = k10/k1i \n') 
     f.write('    fc1     = 0.85 \n') 
     f.write('    nc1     = 0.75-(1.27*LOG10(fc1)) \n') 
@@ -1376,7 +1379,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
 
     f.write('    ! kmt05  : oh       + co(+o2) = ho2     + co2 \n')
     f.write('    ! iupac 2006 \n')
-    f.write('    KMT05  = (1.0 + (M/4.2E19)) \n') 
+    f.write('    KMT05  = 1.44D-13*(1+(M/4.2D+19)) \n') 
     #mcm_constants_dict['KMT05']=kmt05
 
     f.write('    ! kmt06  : ho2      + ho2     = h2o2    + o2 \n')
@@ -1394,7 +1397,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    k70     = 7.40E-31*M*(TEMP/300.0)**(-2.4) \n') 
     f.write('    k7i     = 3.30E-11*(TEMP/300.0)**(-0.3) \n') 
     f.write('    kr7     = k70/k7i \n') 
-    f.write('    fc7     = EXP(-TEMP/1420.0) \n') 
+    f.write('    fc7     = 0.81 \n') 
     f.write('    nc7     = 0.75-(1.27*LOG10(fc7)) \n') 
     f.write('    f7      = 10.0**(LOG10(fc7)/(1+((LOG10(kr7)/nc7))**2.0)) \n') 
     f.write('    KMT07   = (k70*k7i)*f7/(k70+k7i) \n') 
@@ -1403,10 +1406,10 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! kmt08  : oh       + no2     = hno3 \n')
     
     f.write('    ! iupac 2006, mcmv3.2 \n')
-    f.write('    k80     = 3.30E-30*M*(TEMP/300.0)**(-3.0) \n') 
-    f.write('    k8i     = 4.10E-11 \n') 
+    f.write('    k80     = 3.2D-30*M*(TEMP/300)**(-4.5) \n') 
+    f.write('    k8i     = 3.0D-11 \n') 
     f.write('    kr8     = k80/k8i \n') 
-    f.write('    fc8     = 0.4 \n') 
+    f.write('    fc8     = 0.41 \n') 
     f.write('    nc8     = 0.75-(1.27*LOG10(fc8)) \n') 
     f.write('    f8      = 10.0**(LOG10(fc8)/(1.0+((LOG10(kr8)/nc8))**2.0)) \n') 
     f.write('    KMT08   = (k80*k8i)*f8/(k80+k8i) \n') 
@@ -1415,10 +1418,10 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! kmt09  : ho2      + no2     = ho2no2 \n')
     f.write('    ! iupac 1997, mcmv3.2 \n')
 
-    f.write('    k90     = 1.80E-31*M*(TEMP/300.0)**(-3.2) \n') 
-    f.write('    k9i     = 4.70E-12 \n') 
+    f.write('    k90     = 1.4D-31*M*(TEMP/300)**(-3.1) \n') 
+    f.write('    k9i     = 4.0D-12 \n') 
     f.write('    kr9     = k90/k9i \n') 
-    f.write('    fc9     = 0.6 \n') 
+    f.write('    fc9     = 0.4 \n') 
     f.write('    nc9     = 0.75-(1.27*LOG10(fc9)) \n') 
     f.write('    f9      = 10.0**(LOG10(fc9)/(1.0+((LOG10(kr9)/nc9))**2.0)) \n') 
     f.write('    KMT09   = (k90*k9i)*f9/(k90+k9i) \n') 
@@ -1428,9 +1431,9 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    ! iupac 1997, mcmv3.2 \n')
 
     f.write('    k100     = 4.10E-05*M*EXP(-10650.0/TEMP) \n') 
-    f.write('    k10i     = 4.80E15*EXP(-11170.0/TEMP) \n') 
+    f.write('    k10i     = 6.0D+15*EXP(-11170/TEMP) \n') 
     f.write('    kr10     = k100/k10i \n') 
-    f.write('    fc10     = 0.6 \n') 
+    f.write('    fc10     = 0.4 \n') 
     f.write('    nc10     = 0.75-(1.27*LOG10(fc10)) \n') 
     f.write('    f10      = 10.0**(LOG10(fc10)/(1.0+((LOG10(kr10)/nc10))**2.0)) \n') 
     f.write('    KMT10    = (k100*k10i)*f10/(k100+k10i) \n') 
@@ -1448,10 +1451,10 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
 
     f.write('    ! kmt12 iupac 2006, mcmv3.2 \n')
 
-    f.write('    k120 = 4.50E-31*((TEMP/300.0)**(-3.9))*M \n') 
-    f.write('    k12i = 1.30E-12*((TEMP/300.0)**(-0.7)) \n') 
+    f.write('    k120 = 2.5D-31*M*(TEMP/300)**(-2.6) \n') 
+    f.write('    k12i = 2.0D-12 \n') 
     f.write('    kr12 = k120/k12i \n') 
-    f.write('    fc12 = 0.525 \n') 
+    f.write('    fc12 = 0.53 \n') 
     f.write('    nc12 = 0.75-(1.27*LOG10(fc12)) \n') 
     f.write('    f12  = 10.0**(LOG10(fc12)/(1.0+((LOG10(kr12)/nc12))**2.0)) \n') 
     f.write('    KMT12    = (k120*k12i)*f12/(k120+k12i) \n') 
@@ -1475,7 +1478,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    k140     = 9.00E-05*EXP(-9690.0/TEMP)*M \n') 
     f.write('    k14i     = 1.10E16*EXP(-10560.0/TEMP) \n') 
     f.write('    kr14     = k140/k14i \n') 
-    f.write('    fc14     = 0.4 \n') 
+    f.write('    fc14     = 0.36 \n') 
     f.write('    nc14     = 0.75-(1.27*LOG10(fc14)) \n') 
     f.write('    f14      = 10.0**(LOG10(fc14)/(1.0+((LOG10(kr14)/nc14))**2.0)) \n') 
     f.write('    KMT14    = (k140*k14i)*f14/(k140+k14i) \n') 
@@ -1515,50 +1518,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    KMT17 = (k170*k17i)*f17/(k170+k17i) \n') 
     #mcm_constants_dict['KMT17']=kmt17
 
-
-    f.write('    ! #Taken from yet another MCM version, will need converting to lower case \n') 
-    f.write('    KRO2NO = 2.7E-12*EXP(360.0/TEMP) \n') 
-    #mcm_constants_dict['KRO2NO']=KRO2NO
-
-    f.write('    KRO2HO2 = 2.91E-13*EXP(1300.0/TEMP) \n') 
-    #mcm_constants_dict['KRO2HO2']=KRO2HO2
-
-    f.write('    KAPHO2 = 5.2E-13*EXP(980.0/TEMP) \n') 
-    #mcm_constants_dict['KAPHO2']=KAPHO2
-
-    f.write('    KAPNO = 7.5E-12*EXP(290.0/TEMP) \n') 
-    #mcm_constants_dict['KAPNO']=KAPNO
-
-    f.write('    KRO2NO3 = 2.3E-12 \n') 
-    #mcm_constants_dict['KRO2NO3']=KRO2NO3
-
-    f.write('    KNO3AL = 1.4E-12*EXP(-1860.0/TEMP) \n') 
-    #mcm_constants_dict['KNO3AL']=KNO3AL
-
-    f.write('    KDEC = 1.00E06 \n') 
-    #mcm_constants_dict['KDEC']=KDEC
-        
-
-    f.write('    KROPRIM = 2.50E-14*EXP(-300.0/TEMP) \n') 
-    #mcm_constants_dict['KROPRIM']=KROPRIM
-
-    f.write('    KROSEC = 2.50E-14*EXP(-300.0/TEMP) \n') 
-    #mcm_constants_dict['KROSEC']=KROSEC
-
-    f.write('    KCH3O2 = 1.03E-13*EXP(365.0/TEMP) \n') 
-    #mcm_constants_dict['KCH302']=KCH3O2
-
-    f.write('    K298CH3O2 = 3.5E-13 \n') 
-    #mcm_constants_dict['K298CH3O2']=K298CH3O2
-
-    f.write('    KMT18 = 9.5E-39*O2*EXP(5270.0/TEMP)/(1+7.5E-29*O2*EXP(5610.0/TEMP)) \n') 
+   f.write('    KMT18 = 9.5E-39*O2*EXP(5270.0/TEMP)/(1+7.5E-29*O2*EXP(5610.0/TEMP)) \n') 
     #mcm_constants_dict['KMT18']=kmt18
-
-    f.write('    KROPRIM  = 3.70E-14*EXP(-460.0/TEMP) \n') 
-    #mcm_constants_dict['KROPRIM']=kroprim
-
-    f.write('    KROSEC   = 1.80E-14*EXP(-260.0/TEMP) \n') 
-    #mcm_constants_dict['KROSEC']=krosec
     
     #f.write('    rate_values=numpy.zeros(%s)\n' %(len(rate_dict.keys()))) 
     # Now cycle through the rate_dict dictionary and print to file 
@@ -2311,172 +2272,4 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
     f.write('end subroutine \n') 
     f.close()  
 
-
-def write_partitioning_section_fortran(total_length_y,num_bins,num_species):
-    f = open('Partitioning.f90','w')
-    f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
-    f.write('! Fortran function to calculating dy/dt according to gas-to-particle partitioning                    # \n') # python will convert \n to os.linesep
-    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                              # \n')
-    f.write('!                                      : davetopp80@gmail.com                                        # \n')
-    f.write('!    Personal website: davetoppingsci.com                                                            # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!    This program does not have a license, meaning the deault copyright law applies.                 # \n')
-    f.write('!    Only users who have access to the private repository that holds this file may                   # \n')
-    f.write('!    use it or develop it, but may not distribute it.                                                # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!##################################################################################################### \n')    
-    f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
-    f.write('\n') 
-    #f.write('import numpy as np\n') 
-    f.write('\n')
-    f.write('subroutine dydt_partition(y,ycore,core_diss,core_mass_array,& \n') 
-    f.write('                          density_input,core_density_array,& \n')
-    f.write('                          ignore_index,mw_array,Psat,& \n')
-    f.write('                          DStar_org,alpha_d_org,C_g_i_t,N_perbin,& \n')
-    f.write('                          gamma_gas,Latent_heat,GRAV,Updraft,& \n')
-    f.write('                          sigma,NA,kb,Rv,R_gas,Model_temp,& \n')
-    f.write('                          cp,Ra,Lv_water_vapour,size_array,dy_dt) \n')
-    f.write('\n') 
-    f.write('    implicit none \n')     
-    f.write('\n') 
-    f.write('    !Define variables in order of appearance. Leave intent(out) until end \n')
-    f.write('    REAL(8), intent(in), dimension(%s) :: y \n'%(total_length_y))
-    f.write('    !f2py intent(in) :: y \n') 
-    f.write('    REAL(8), intent(in), dimension(%s) :: ycore,core_mass_array,& \n'%(num_bins))
-    f.write('                         core_density_array, N_perbin \n') 
-    f.write('    REAL(8), intent(in), dimension(%s) :: density_input,DStar_org,& \n'%(num_species))
-    f.write('                         alpha_d_org, gamma_gas, Latent_heat,C_g_i_t \n') 
-    f.write('    INTEGER(8), intent(in), dimension(%s) :: ignore_index,mw_array,Psat \n'%(num_species))
-    f.write('    !f2py intent(in) ::  ycore,core_mass_array \n')
-    f.write('    !f2py intent(in) ::  core_density_array, N_perbin \n') 
-    f.write('    !f2py intent(in) ::  density_input,DStar_org,& \n')
-    f.write('    !f2py intent(in) ::  alpha_d_org, gamma_gas, Latent_heat, C_g_i_t \n') 
-    f.write('    !f2py intent(in) ::  ignore_index,mw_array \n')
-    f.write('    !Global variables - define in parent routine \n')     
-    f.write('    REAL(8), intent(in) :: core_diss, GRAV,Updraft,cp,Ra,Lv_water_vapour \n')
-    f.write('    REAL(8), intent(in) :: sigma,NA,kb,Rv,R_gas,Model_temp \n')
-    f.write('    !f2py intent(in) :: core_diss,GRAV,Updraft,cp,Ra,Lv_water_vapour \n') 
-    f.write('    !f2py intent(in) :: sigma,NA,kb,Rv,R_gas,Model_temp \n')     
-    f.write('    REAL(8), intent(out), dimension(%s) :: size_array \n'%(num_bins))
-    f.write('    REAL(8), intent(out), dimension(%s) :: dy_dt \n'%(total_length_y))
-    f.write('    !f2py intent(out) :: size_array,dy_dt \n')     
-    f.write('\n') 
-    f.write('    !temporary variables used in each size bin calculation \n')     
-    f.write('    REAL(8), dimension(%s) :: Inverse_Kn, Correction_part1, &\n'%(num_species)) 
-    f.write('                              Correction_part2, Correction_part3,& \n')
-    f.write('                              Correction, Kn, dm_dt,& \n')
-    f.write('                              k_i_m_t_part1, k_i_m_t \n') 
-    f.write('    REAL(8), dimension(%s,%s) :: dy_dt_gas_matrix \n'%(num_species,num_bins))
-    f.write('    REAL(8) total_moles, density, diameter, radius, water_moles  \n')
-    f.write('    REAL(8), dimension(%s) :: Pressure_eq, Cstar_i_m_t \n'%(num_species)) 
-    f.write('    REAL(8), dimension(%s) :: kelvin_factor,y_mole_fractions  \n'%(num_species))
-    f.write('    REAL(8), dimension(%s) :: temp_array  \n'%(num_species))
-    f.write('    REAL(8), dimension(%s) :: mass_array, density_array, mass_fractions_array \n'%(num_species+1)) 
-    f.write('    REAL(8) total_SOA_mass, total_water_cond_mass, total_mass \n')
-    f.write('    INTEGER(8) size, index1, index2  \n')
-    f.write('\n') 
-    f.write('    REAL(8), PARAMETER :: Pi = 3.1415927 \n')   
-    f.write('    INTEGER(8), PARAMETER :: num_species = %s \n'%(num_species))       
-    f.write('\n')     
-    f.write('!$OMP PARALLEL DO &\n') 
-    f.write('!$OMP& PRIVATE(size,total_mass),& \n') 
-    f.write('!$OMP& PRIVATE(total_moles,y_mole_fractions,temp_array), & \n') 
-    f.write('!$OMP& PRIVATE(mass_array,mass_fractions_array,density_array), & \n') 
-    f.write('!$OMP& PRIVATE(density,water_moles), & \n') 
-    f.write('!$OMP& PRIVATE(Kn,Inverse_Kn,Correction_part1, Correction_part2), & \n') 
-    f.write('!$OMP& PRIVATE(Correction_part3,Correction,kelvin_factor), & \n') 
-    f.write('!$OMP& PRIVATE(Pressure_eq,Cstar_i_m_t,k_i_m_t_part1), & \n') 
-    f.write('!$OMP& PRIVATE(k_i_m_t,dm_dt,water_core_mole_frac), & \n') 
-    f.write('!$OMP& SHARED(total_SOA_mass,total_water_cond_mass,size_array), & \n') 
-    f.write('!$OMP& SHARED(ycore,core_diss,mw_array,density_input), & \n') 
-    f.write('!$OMP& SHARED(C_g_i_t,dy_dt,core_mass_array,R_gas,Psat,num_species), & \n') 
-    f.write('!$OMP& SHARED(gamma_gas,NA,alpha_d_org,Model_temp,DStar_org), & \n') 
-    f.write('!$OMP& SHARED(dy_dt_gas_matrix) \n') 
-    f.write('    DO size=1,%s \n'%(num_bins)) 
-    f.write('\n')     	
-    f.write('        ! Select a slice of y that represents this size bin \n') 
-    f.write('        temp_array(:)=y(num_species+1+((size-1)*num_species):num_species+& \n') 
-    f.write('        ((size)*num_species))\n') 
-    f.write('        total_moles=SUM(temp_array(:))+ycore(size)*core_diss\n') 
-    f.write('        y_mole_fractions(:)=temp_array(:)/total_moles\n') 
-    f.write('        ! Now mask the array to set the mole fracs of some species to 0\n') 
-    f.write('        WHERE (ignore_index==1) y_mole_fractions = 0.0d0\n') 
-    f.write('        mass_array(1:num_species)=(temp_array(:)/NA)*mw_array(:)\n') 
-    f.write('        mass_array(num_species+1)=core_mass_array(size)\n') 
-    f.write('        density_array(1:num_species)=density_input(1:num_species)\n') 
-    f.write('        density_array(num_species+1)=core_density_array(size)\n') 
-    f.write('\n')     	
-    f.write('        total_SOA_mass=total_SOA_mass+SUM(mass_array(1:num_species-1))\n') 
-    f.write('        total_water_cond_mass=total_water_cond_mass+mass_array(num_species)\n') 
-    f.write('\n')     	
-    f.write('        total_mass=SUM(mass_array(:))\n') 
-    f.write('        mass_fractions_array(:)=mass_array(:)/total_mass\n') 
-    f.write('\n')     		 
-    f.write('        density=1.0D0/(SUM(mass_fractions_array(:)/density_array(:)))\n') 
-    f.write('\n')     	
-    f.write('        size_array(size)=((3.0D0*((total_mass*1.0D3)/ & \n') 
-    f.write('        (N_perbin(size)*1.0D6)))/(4.0D0*Pi*density))**(1.0D0/3.0D0)\n') 
-    f.write('        ! F3b) Knudsen number  \n') 
-    f.write('        ! Calculate the Knudsen number for all condensing molecules based on this new size \n') 
-    f.write('        ! This relies on mean free path for each species [cm] and particle radius [cm]\n') 
-    f.write('        Kn(:)=gamma_gas(:)/size_array(size)\n') 
-    f.write('\n')     	
-    f.write('        ! F3c) Non-continuum regime correction  \n') 
-    f.write('        ! Calculate a correction factor according to the continuum versus non-continuum regimes\n') 
-    f.write('        ! Expression taken from Jacobson et al (2000), page 457. They reference:\n') 
-    f.write('        ! Fuchs and Sutugin 1971\n') 
-    f.write('        ! Pruppacher and Klett 1997\n') 
-    f.write('        Inverse_Kn(:)=1.0D0/Kn(:)\n') 
-    f.write('        Correction_part1(:)=(1.33D0+0.71D0*Inverse_Kn(:))/(1.0D0+Inverse_Kn(:))\n') 
-    f.write('        Correction_part2(:)=(4.0D0*(1.0D0-alpha_d_org(:)))/(3.0D0*alpha_d_org(:))\n') 
-    f.write('        Correction_part3(:)=1.0E0+(Correction_part2(:)+Correction_part2(:))*Kn(:)\n') 
-    f.write('        Correction(:)=1.0D0/Correction_part3(:)\n') 
-    f.write('\n')     	
-    f.write('        ! F3d) Kelvin factor  \n') 
-    f.write('        ! Now calculate a kelvin factor for every semi-volatile compound in this size bin\n') 
-    f.write('        kelvin_factor(:)=EXP((4.0E0*mw_array(:)*1.0D-3*sigma)/ & \n')
-    f.write('        (R_gas*Model_temp*size_array(size)*2.0D0*density)) \n') 
-    f.write('\n')     		
-    f.write('        ! F3f) Equilibrium pressure above droplets  \n') 
-    f.write('        ! Now calculate an equilibrium RH for every compound in this size bin \n') 
-    f.write('        ! This is currently in atmospheres.  \n') 
-    f.write('        Pressure_eq(:)=kelvin_factor(:)*y_mole_fractions(:)*Psat(:)*101325.0D0 \n') 
-    f.write('\n')     
-    f.write('        ! F3g) Calculate the equilibrium concentration equivalent \n') 
-    f.write('        Cstar_i_m_t(:)=Pressure_eq(:)*(NA/(8.3144598D6*Model_temp))  \n') 
-    f.write('\n')    
-    f.write('        ! F3h) The droplet growth equation  \n') 
-    f.write('        ! The following calculates the change in mass, per particle of this size. \n') 
-    f.write('        ! The equation relies on the following parameters \n')  
-    f.write('        ! and units. Always check units \n') 
-    f.write('        ! radius [m] \n') 
-    f.write('        ! DStar_org [m2/s] - pass in [cm2/s] so needs to be converted by *1.0E-4 \n') 
-    f.write('        ! Pressure_gas [Pascals] \n') 
-    f.write('        ! Pressure_eq [Pascals] \n') 
-    f.write('        ! R_gas [m3 Pascals /(K mol)] \n') 
-    f.write('        ! molw [g/mol] \n') 
-    f.write('        ! T [K] \n') 
-    f.write('        ! The units of the equation should therefore be g/s \n') 
-    f.write('        ! ASTEM version - should be the same as the Jacobson version once coverted to molecules/cc/s \n') 
-    f.write('        k_i_m_t_part1(:) = DStar_org(:)*Correction(:) \n') 
-    f.write('        k_i_m_t(:)=4.0D0*Pi*size_array(size)*1.0D2*N_perbin(size)*k_i_m_t_part1(:) \n')   
-    f.write('        dm_dt(:)=k_i_m_t(:)*(C_g_i_t(:)-Cstar_i_m_t(:))   \n') 
-    f.write('\n')    	
-    f.write('        ! F3i) Now update the contribution to the ODEs being solved  \n') 
-    f.write('        ! 1) Add contributory loss from the gas phase to particle phase [this includes water] \n') 
-    f.write('        dy_dt_gas_matrix(1:num_species,size)=dy_dt(1:num_species)-dm_dt(1:num_species) \n') 
-    f.write('        ! 2) Add a contributory gain to the particle phase from the gas phase \n') 
-    f.write('        index1=num_species+1+((size-1)*num_species)  \n') 
-    f.write('        index2=num_species+((size)*num_species)  \n') 
-    f.write('        dy_dt(index1:index2)=dm_dt(1:num_species)  \n') 
-    f.write('\n')    		
-    f.write('    ENDDO \n') 
-    f.write('!$OMP END PARALLEL DO \n') 
-    f.write('   dy_dt(1:num_species)=SUM(dy_dt_gas_matrix, DIM=2)  \n')
-    f.write('\n')    		    
-    f.write('end subroutine \n') 
-    f.close()  
-	
-
-
+    
