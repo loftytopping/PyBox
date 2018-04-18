@@ -1518,7 +1518,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    KMT17 = (k170*k17i)*f17/(k170+k17i) \n') 
     #mcm_constants_dict['KMT17']=kmt17
 
-   f.write('    KMT18 = 9.5E-39*O2*EXP(5270.0/TEMP)/(1+7.5E-29*O2*EXP(5610.0/TEMP)) \n') 
+    f.write('    KMT18 = 9.5E-39*O2*EXP(5270.0/TEMP)/(1+7.5E-29*O2*EXP(5610.0/TEMP)) \n') 
     #mcm_constants_dict['KMT18']=kmt18
     
     #f.write('    rate_values=numpy.zeros(%s)\n' %(len(rate_dict.keys()))) 
