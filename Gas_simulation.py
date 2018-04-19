@@ -74,7 +74,7 @@ if __name__=='__main__':
 
     filename='MCM_mixed_test'    
 
-    files_exist = True
+    files_exist = False
     
     if files_exist is False:
 
