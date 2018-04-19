@@ -72,18 +72,25 @@ if __name__=='__main__':
     # This is important since the species-2-dict array maps extracted species to array numbers. This
     # can change with each parse
 
-    filename='MCM_test'    
+    filename='MCM_mixed_test'    
 
-    files_exist = False
+    files_exist = True
     
     if files_exist is False:
 
+        # check if __pycache__ exists
+        if os.path.isdir("__pycache__"):
+            my_dir = '__pycache__' # enter the dir name
+            for fname in os.listdir(my_dir):
+                if "_numba_" in fname:
+                    os.remove(os.path.join(my_dir, fname))
+
         # Parse equation file and store relevant dictionaries for later retrieval
         print_options=dict()
-        print_options['Full_eqn']=0 #Set to 1 to print details of all equations and rate coefficients parsed [usefu for checking]
+        print_options['Full_eqn']=1 #Set to 1 to print details of all equations and rate coefficients parsed [useful for checking]
 
         # Define the .eqn file to be used in the following
-        outputdict=Parse_eqn_file.extract_mechanism('MCM_test.eqn.txt',print_options)
+        outputdict=Parse_eqn_file.extract_mechanism('MCM_mixed_test.eqn.txt',print_options)
 
         # Collect the dictionaries generated
         reaction_dict=outputdict['reaction_dict']
@@ -104,6 +111,8 @@ if __name__=='__main__':
             pickle.dump(species_dict2array, handle, protocol=pickle.HIGHEST_PROTOCOL)
         with open(filename+'_species_dict.pickle', 'wb') as handle:
             pickle.dump(species_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(filename+'_equations.pickle', 'wb') as handle:
+            pickle.dump(equations, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         #pdb.set_trace()
     
@@ -133,6 +142,8 @@ if __name__=='__main__':
             species_dict2array = pickle.load(f) 
         with open(filename+'_species_dict.pickle', 'rb') as f:
             species_dict = pickle.load(f) 
+        with open(filename+'_equations.pickle', 'rb') as f:
+            equations = pickle.load(f) 
         
     print("Ready to run simulation") 
     pdb.set_trace()
@@ -143,8 +154,9 @@ if __name__=='__main__':
     #-------------------------------------------------------------------------------------
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
-    species_initial_conc['OH']=20.0
-    species_initial_conc['TOLUENE']=200.0
+    species_initial_conc['O3']=18.0
+    species_initial_conc['APINENE']=30.0
+    species_initial_conc['BCARY']=20.0
 
     # Save this information to a dictionary to pass to ODE solver
     input_dict=dict()

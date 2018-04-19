@@ -106,6 +106,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
 
     #-------------------------------------------------------------------------------------
 
+    print("Importing Numba modules [compiling]")
     #import static compilation of Fortran functions for use in ODE solver
     from Rate_coefficients_numba import evaluate_rates 
     # from Rate_coefficients import evaluate_rates # - Non Numba for testing
@@ -161,6 +162,8 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     
     print("Starting simulation")
 
+    #pdb.set_trace()
+
     # In the following, we can 
     while total_time < simulation_time:
         
@@ -181,7 +184,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         exp_sim = CVode(exp_mod) 
         tol_list=[1.0e-3]*num_species
         exp_sim.atol = tol_list #Default 1e-6
-        exp_sim.rtol = 0.03 #Default 1e-6
+        exp_sim.rtol = 1e-6 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
         #exp_sim.discr = 'Adams'
         exp_sim.maxh = 100.0
@@ -198,6 +201,8 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         total_time+=batch_step
         t_array.append(total_time) # Save the output from the end step, of the current batch, to a matrix
         y_matrix[time_step,:]=y_output[-1,:]
+
+        #pdb.set_trace()
                 
         #now save this information into a matrix for later plotting.
         time_step+=1
@@ -207,7 +212,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     #pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     if with_plots:
-        P.plot(t_array,y_matrix[:,species_dict2array['TOLUENE']], marker='o')
+        P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
         P.title(exp_mod.name)
         P.ylabel("State: $y_1$")
         P.xlabel("Time")
