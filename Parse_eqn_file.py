@@ -2480,6 +2480,7 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                 if len(equations_list_loss) > 0:
                     for equation in equations_list_loss:
                         reactants_list_loss_temp=[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                        reactants_list_loss_temp=list(set(reactants_list_loss_temp))
                         # Check if 'otherspecie' is in this reaction
                         if reactant in reactants_list_loss_temp:
                             if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
@@ -2491,7 +2492,8 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                             # we now check the stochiometry to see if we need a variable before and reduction in power
                             # if our specie only has a stoich of 1 we dont need to consider it in the proceeding calculations
                             if stoich_first==1:
-                                for reactant_step, reactant2 in rate_dict_reactants[equation].items():
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
                                 
                                     if reactant2 not in ['hv'] and reactant2 != reactant:
                                         stoich=loss_dict[reactant2][equation]
@@ -2509,7 +2511,8 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                                                 f.write('*y(%s)**%s'%(species_dict2array[reactant2]+1,stoich))
                             else: # If our specie has a stoich of > 1 we need to include it in the expression
                                 #f.write('-%s*'%(stoich_first))
-                                for reactant_step, reactant2 in rate_dict_reactants[equation].items():
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
                                     #step=1
                                     if reactant2 not in ['hv']:
                                         if reactant2 == reactant:
@@ -2518,13 +2521,13 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                                                     f.write('-%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
                                                     step+=1
                                                 else:
-                                                    f.write('%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('*%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
                                             elif stoich_first > 2:
                                                 if step == 1:
                                                     f.write('-%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
                                                     step+=1
                                                 else:
-                                                    f.write('%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('*%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
                                         elif reactant2 != reactant:
                                             stoich=loss_dict[reactant2][equation]
                                             if stoich == 1:
@@ -2551,6 +2554,7 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                 if len(equations_list_gain) > 0:
                     for equation in equations_list_gain:
                         reactants_list_gain_temp=[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                        reactants_list_gain_temp=list(set(reactants_list_gain_temp))
                         if reactant in reactants_list_gain_temp:
                             if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
                                 f.write(' & \n')
@@ -2564,7 +2568,8 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                             #    loss_step+=
                             step=1
                             if stoich_first==1:
-                                for reactant_step, reactant2 in rate_dict_reactants[equation].items():
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
                                     #step=1
                                     if reactant2 not in ['hv'] and reactant2 != reactant:
                                         stoich=loss_dict[reactant2][equation]
@@ -2582,7 +2587,8 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                                                 f.write('*y(%s)**%s'%(species_dict2array[reactant2]+1,stoich))
                             else:
                                 #f.write('-%s*'%(stoich_first))
-                                for reactant_step, reactant2 in rate_dict_reactants[equation].items():
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
                                     #step=1
                                     if reactant2 not in ['hv']:
                                         if reactant2 == reactant:
@@ -2591,13 +2597,13 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
                                                     f.write('+%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
                                                     step+=1
                                                 else:
-                                                    f.write('%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('*%s*y(%s)'%(stoich_first,species_dict2array[reactant2]+1))
                                             elif stoich_first > 2:
                                                 if step == 1:
                                                     f.write('+%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
                                                     step+=1
                                                 else:
-                                                    f.write('%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('*%s*y(%s)**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
                                         elif reactant2 != reactant:
                                             stoich=loss_dict[reactant2][equation]
                                             if stoich == 1:

@@ -30,16 +30,20 @@
 # The Assimulo package does not allow extra argument passing, and thus defines the structure of the code. 
 # In the import statements, all files developed specifically for this project as marked [•]
 
+# I keep all Parse/conversion files in the parent directory hence the 'from . import' statements
+
 import numpy 
-import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
-import rate_coeff_conversion # [•] Converts standard text rate coefficients into Python/Fortran
-import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
+import sys
+import os
+sys.path.append(os.path.abspath('../..'))
+from PyBox import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
+from PyBox import rate_coeff_conversion # [•] Converts standard text rate coefficients into Python/Fortran
+from PyBox import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
 import collections
 import pdb
 from datetime import datetime
 import time
 from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
-import os
 import pickle
             
 # Start of the main body of code
@@ -78,30 +82,24 @@ if __name__=='__main__':
     
     if files_exist is False:
 
-        # check if __pycache__ exists
-        if os.path.isdir("__pycache__"):
-            my_dir = '__pycache__' # enter the dir name
-            for fname in os.listdir(my_dir):
-                if "_numba_" in fname:
-                    os.remove(os.path.join(my_dir, fname))
+        # Delete any 'straggling' f90 or cython files
         for fname in os.listdir('.'):
-            if ".npy" in fname:
+            #if "f2py.cpython" in fname:
+            #    os.remove(fname)
+            if ".f90" in fname:
                 os.remove(fname)
-            if ".pickle" in fname:
-                os.remove(fname)
-            if ".npz" in fname:
-                os.remove(fname)
-                
+
         # Parse equation file and store relevant dictionaries for later retrieval
         print_options=dict()
-        print_options['Full_eqn']=1 #Set to 1 to print details of all equations and rate coefficients parsed [useful for checking]
+        print_options['Full_eqn']=0 #Set to 1 to print details of all equations and rate coefficients parsed [usefu for checking]
 
         # Define the .eqn file to be used in the following
-        outputdict=Parse_eqn_file.extract_mechanism('MCM_mixed_test.eqn.txt',print_options)
+        outputdict=Parse_eqn_file.extract_mechanism(filename+'.eqn.txt',print_options)
 
         # Collect the dictionaries generated
         reaction_dict=outputdict['reaction_dict']
         rate_dict=outputdict['rate_dict']
+        rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
         rate_dict_reactants=outputdict['rate_dict_reactants']
         rate_def=outputdict['rate_def']
         loss_dict=outputdict['loss_dict']
@@ -120,27 +118,45 @@ if __name__=='__main__':
             pickle.dump(species_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
         with open(filename+'_equations.pickle', 'wb') as handle:
             pickle.dump(equations, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            
+        # Generate some static Fortran libraries for use in ODE solver
+        # Here you have the option to use OpenMP for spreading caclualtions across available cores
+        # This will automatically map to the number of cores on your machine
+        openMP=True
         
         #pdb.set_trace()
     
         # Convert the rate coefficient expressions into Fortran commands
-        print("Converting rate coefficient operations into Python file")
+        print("Converting rate coefficient operation into Fortran file")
         #rate_dict=rate_coeff_conversion.convert_rate_mcm(rate_dict)
         # Convert rate definitions in original *.eqn.txt file into a form to be used in Fortran
-        # In the production model we use Numba for speed. You can select an equivalent 
-        rate_dict=rate_coeff_conversion.convert_rate_mcm_numba(rate_dict)
-        Parse_eqn_file.write_rate_file_numba(filename,rate_dict)    
+        rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
+        Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
+        print("Compiling rate coefficient file using f2py")
+        #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
+        os.system("python f2py_rate_coefficient.py build_ext --inplace")
         
-        # Create python modules for product multiplications and dydt function
-        # Also create sparse matrices for both operations if not using Numba
-        print("Creating Python functions and sparse matrices for product multiplications and dydt function")
-        Parse_eqn_file.write_reactants_indices(filename,equations,num_species,species_dict2array,rate_dict_reactants,loss_dict)
-        Parse_eqn_file.write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,species_dict2array)
+        # Create Fortran file for calculating prodcts all of reactants for all reactions
+        print("Creating Fortran file to calculate reactant contribution to equation")
+        Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
+        print("Compiling reactant product file using f2py")
+        os.system("python f2py_reactant_conc.py build_ext --inplace")
+        
+        # Create Fortran file for calculating dy_dt
+        print("Creating Fortran file to calculate dy_dt for each reaction")
+        Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
+        print("Compiling dydt file using f2py")
+        os.system("python f2py_loss_gain.py build_ext --inplace")
 
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
         Parse_eqn_file.write_RO2_indices(filename,species_dict2array)
         
+        # Create jacobian 
+        Parse_eqn_file.write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,openMP)
+        print("Compiling jacobian function using f2py")      
+        os.system("python f2py_jacobian.py build_ext --inplace")
+
     else:
         
         # You have already parsed the .eqn file and stored relevant information. 
@@ -164,7 +180,7 @@ if __name__=='__main__':
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
     species_initial_conc['BCARY']=20.0
-
+    
     # Save this information to a dictionary to pass to ODE solver
     input_dict=dict()
     input_dict['species_dict']=species_dict
@@ -173,7 +189,7 @@ if __name__=='__main__':
     input_dict['equations']=equations
     #-------------------------------------------------------------------------------------
     #3) Run the simulation
-    run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
+    run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict)
     #-------------------------------------------------------------------------------------
     
 
