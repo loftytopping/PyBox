@@ -2,17 +2,18 @@
 #                                                                                        #
 #    Contains definitions of functions use in RHS of ODE                                 #
 #                                                                                        #
-#    Mixed Python - Fortran version. This version uses the f2py module to re-write       #
-#    the RHS calculations to exploit multi-core shared/distributed memory machine        #
+#    By default relies on pre-compiled Numba modules, but can be used with Numpy/Scipy   #
+#    This will be provided as a seperate module for teaching/training but too slow for   #
+#    'production' runs                                                                   #
 #                                                                                        #
-#                                                                                        #
-#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                  #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
 #    This program does not yet have a license, meaning the deault copyright law applies. #
+#    I will add an appropriate open-source icense once made public with paper            #
 #    Only users who have access to the private repository that holds this file may       #
-#    use it or develop it, but may not distribute it without explicit permission.        #
+#    use it, but may not distribute it without explicit permission.                      #
 #                                                                                        #
 #                                                                                        #
 ##########################################################################################
@@ -106,8 +107,8 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
 
     #-------------------------------------------------------------------------------------
 
-    print("Importing Numba modules [compiling]")
-    #import static compilation of Fortran functions for use in ODE solver
+    print("Importing Numba modules [compiling if first import or clean build]")
+    #import static compilation of Numba functions for use in ODE solver
     from Rate_coefficients_numba import evaluate_rates 
     # from Rate_coefficients import evaluate_rates # - Non Numba for testing
     from Reactants_conc_numba import reactants as reactant_product
@@ -150,6 +151,9 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     # To not run in batches, just define one batch as your total simulation time. This will reduce any overhead with
     # initialising the solvers
     # Set total simulation time and batch steps in seconds
+    
+    # Note also that the current module outputs solver information after each batch step. This can be turned off and the
+    # the batch step change for increased speed
     simulation_time= 3600.0
     batch_step=100.0
     t_array=[]
@@ -164,7 +168,6 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
 
     #pdb.set_trace()
 
-    # In the following, we can 
     while total_time < simulation_time:
         
         if total_time == 0.0:
@@ -191,7 +194,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
         # Use of a jacobian makes a big differece in simulation time. This is relatively 
         # easy to define for a gas phase - not sure for an aerosol phase with composition
         # dependent processes. 
-        exp_sim.usejac = False
+        exp_sim.usejac = False # To be provided as an option in future update. See Fortran variant for use of Jacobian
         #exp_sim.fac1 = 0.05
         #exp_sim.fac2 = 50.0
         exp_sim.report_continuously = True
@@ -211,6 +214,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
     
     #pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
+    #In a future release I will add this as a seperate module
     if with_plots:
         P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
         P.title(exp_mod.name)

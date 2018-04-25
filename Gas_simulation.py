@@ -3,21 +3,22 @@
 #    Example gas phase model. This takes an equation file, given in the KPP format,      #
 #    and then sets up an ODE solver where initial concentrations of any specie can       #
 #    be set. It also relies on some pre-defined rate coefficients and photolysis rates   #
-#    taken from the MCM. These are explicitly written into the relevant Fortran modules  #
-#    in the file Parse_eqn_file.write_rate_file_fortran() which is provided with a 
-#    Fortran syntax version of pre-defined rates in  
+#    taken from the MCM. These are explicitly written into the relevant  modules         #
+#    in the file Parse_eqn_file.write_rate_file_xxx() which is provided with a           #
+#    Fortran syntax version of pre-defined rates if that version used [see f2py dir]     #
 #                                                                                        #
 #    Mixed Python - Fortran version. This version uses the f2py module to re-write       #
 #    the RHS calculations to exploit multi-core shared/dsitributed memory machine        #
 #                                                                                        #
 #                                                                                        #
-#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                  #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
 #    This program does not yet have a license, meaning the deault copyright law applies. #
+#    I will add an appropriate open-source icense once made public with paper            #
 #    Only users who have access to the private repository that holds this file may       #
-#    use it or develop it, but may not distribute it without explicit permission.        #
+#    use it, but may not distribute it without explicit permission.                      #
 #                                                                                        #
 #                                                                                        #
 ##########################################################################################
@@ -32,7 +33,7 @@
 
 import numpy 
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
-import rate_coeff_conversion # [•] Converts standard text rate coefficients into Python/Fortran
+import rate_coeff_conversion # [•] Converts standard text rate coefficients into Numba/Fortran
 import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
 import collections
 import pdb
@@ -123,8 +124,8 @@ if __name__=='__main__':
         
         #pdb.set_trace()
     
-        # Convert the rate coefficient expressions into Fortran commands
-        print("Converting rate coefficient operations into Python file")
+        # Convert the rate coefficient expressions into Numba commands
+        print("Converting rate coefficient operations into Python-Numba file")
         #rate_dict=rate_coeff_conversion.convert_rate_mcm(rate_dict)
         # Convert rate definitions in original *.eqn.txt file into a form to be used in Fortran
         # In the production model we use Numba for speed. You can select an equivalent 
@@ -133,7 +134,7 @@ if __name__=='__main__':
         
         # Create python modules for product multiplications and dydt function
         # Also create sparse matrices for both operations if not using Numba
-        print("Creating Python functions and sparse matrices for product multiplications and dydt function")
+        print("Creating Python-Numba functions and sparse matrices for product multiplications and dydt function")
         Parse_eqn_file.write_reactants_indices(filename,equations,num_species,species_dict2array,rate_dict_reactants,loss_dict)
         Parse_eqn_file.write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,species_dict2array)
 
@@ -153,7 +154,7 @@ if __name__=='__main__':
             equations = pickle.load(f) 
         
     print("Ready to run simulation") 
-    pdb.set_trace()
+    #pdb.set_trace()
             
     # Now load the numpy arrays generated in the parsing script for use in the simulations. Again, these are named to
     # match this particular code. However the ordering is not important.

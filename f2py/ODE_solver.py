@@ -6,13 +6,14 @@
 #    the RHS calculations to exploit multi-core shared/distributed memory machine        #
 #                                                                                        #
 #                                                                                        #
-#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                  #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
 #    This program does not yet have a license, meaning the deault copyright law applies. #
+#    I will add an appropriate open-source icense once made public with paper            #
 #    Only users who have access to the private repository that holds this file may       #
-#    use it or develop it, but may not distribute it without explicit permission.        #
+#    use it, but may not distribute it without explicit permission.                      #
 #                                                                                        #
 #                                                                                        #
 ##########################################################################################
@@ -124,6 +125,9 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict):
     # To not run in batches, just define one batch as your total simulation time. This will reduce any overhead with
     # initialising the solvers
     # Set total simulation time and batch steps in seconds
+    
+    # Note also that the current module outputs solver information after each batch step. This can be turned off and the
+    # the batch step change for increased speed
     simulation_time= 3600.0
     batch_step=100.0
     t_array=[]
@@ -162,7 +166,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict):
         # Use of a jacobian makes a big differece in simulation time. This is relatively 
         # easy to define for a gas phase - not sure for an aerosol phase with composition
         # dependent processes. 
-        exp_sim.usejac = True
+        exp_sim.usejac = True # To be provided as an option in future update. 
         #exp_sim.fac1 = 0.05
         #exp_sim.fac2 = 50.0
         exp_sim.report_continuously = True
@@ -180,6 +184,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict):
     
     #pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
+    #In a future release I will add this as a seperate module
     if with_plots:
         P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
         P.title(exp_mod.name)

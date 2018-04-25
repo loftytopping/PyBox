@@ -2,13 +2,14 @@
 #                                                                                        #
 #    Scripts to build model from chemical mechanism file and/or extract species          #
 #                                                                                        #
-#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                  #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
 #    This program does not have a license, meaning the deault copyright law applies.     #
+#    I will add an appropriate open-source icense once made public with paper            #
 #    Only users who have access to the private repository that holds this file may       #
-#    use it or develop it, but may not distribute it.                                    #
+#    use it, but may not distribute it without explicit permission.                      #
 #                                                                                        #
 #                                                                                        #
 ##########################################################################################
@@ -16,7 +17,6 @@
 # VERSION 0.9
 # - Not fit for public release.
 
-# Last modification 30/11/17
 # Please note - All mechanism work here is based on the MCM. This includes definitions of contribution
 # to RO2 concetrations etc.
 

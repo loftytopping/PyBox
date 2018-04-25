@@ -1,5 +1,21 @@
-# The content of build f2py modules .py
-  
+##########################################################################################
+#                                                                                        #
+#    Script to compile Fortran module from Python using f2py                             #
+#                                                                                        #
+#                                                                                        #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
+#                                      : davetopp80@gmail.com                            #
+#    Personal website: davetoppingsci.com                                                #
+#                                                                                        #
+#    This program does not yet have a license, meaning the deault copyright law applies. #
+#    I will add an appropriate open-source icense once made public with paper            #
+#    Only users who have access to the private repository that holds this file may       #
+#    use it, but may not distribute it without explicit permission.                      #
+#                                                                                        #
+#                                                                                        #
+##########################################################################################
+
+
 from numpy.distutils.core import Extension
 ext = Extension (name = "jacobian_f2py",
                  sources = ["Jacobian.f90"], 
