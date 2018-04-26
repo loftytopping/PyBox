@@ -24,7 +24,7 @@ import pdb
 from scipy.sparse import csr_matrix
 from timeit import default_timer as timer
 
-def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict):
+def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict):
 
     from assimulo.solvers import RodasODE, CVode #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -107,7 +107,7 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
 
     #-------------------------------------------------------------------------------------
 
-    print("Importing Numba modules [compiling if first import or clean build]")
+    print("Importing Numba modules [compiling if first import or clean build...please be patient]")
     #import static compilation of Numba functions for use in ODE solver
     from Rate_coefficients_numba import evaluate_rates 
     # from Rate_coefficients import evaluate_rates # - Non Numba for testing
@@ -209,6 +209,10 @@ def run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
                 
         #now save this information into a matrix for later plotting.
         time_step+=1
+
+    # Do you want to save the generated matrix of outputs?
+    if save_output:
+        numpy.save(filename+'_output', y_matrix)
         
     with_plots=True
     

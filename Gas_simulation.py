@@ -172,9 +172,12 @@ if __name__=='__main__':
     input_dict['species_dict2array']=species_dict2array
     input_dict['species_initial_conc']=species_initial_conc
     input_dict['equations']=equations
+
+    #Do you want to save the output from the simulation as a .npy file?
+    save_output=True
     #-------------------------------------------------------------------------------------
     #3) Run the simulation
-    run_simulation(filename, start_time, temp, RH, RO2_indices, H2O, input_dict)
+    run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict)
     #-------------------------------------------------------------------------------------
     
 
