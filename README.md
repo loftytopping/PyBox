@@ -6,8 +6,8 @@ Please check the project wiki page for more inforamtion on updates and planned r
 
 The model works on the basis of reading a file that defines reactions in the gas phase. Within this repo, some examples are given as taken from the MCM. For example, take the mixed VOC file given by 'MCM_mixed_test.eqn.txt'. This contains the following:
 
-### {46.} 	 CH3OH + OH = HO2 + HCHO : 	2.85D-12*EXP(-345/TEMP) 	;
-### {47.} 	 C2H5OH + OH = C2H5O : 	3.0D-12*EXP(20/TEMP)*0.05 	;
+## {46.} 	 CH3OH + OH = HO2 + HCHO : 	2.85D-12*EXP(-345/TEMP) 	;
+## {47.} 	 C2H5OH + OH = C2H5O : 	3.0D-12*EXP(20/TEMP)*0.05 	;
 {48.} 	 C2H5OH + OH = CH3CHO + HO2 : 	3.0D-12*EXP(20/TEMP)*0.9 	;
 {49.} 	 C2H5OH + OH = HOCH2CH2O2 : 	3.0D-12*EXP(20/TEMP)*0.05 	;
 
