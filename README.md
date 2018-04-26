@@ -8,9 +8,11 @@ The model works on the basis of reading a file that defines reactions in the gas
 
 ##### {46.} 	 CH3OH + OH = HO2 + HCHO : 	2.85D-12*EXP(-345/TEMP) 	;
 ##### {47.} 	 C2H5OH + OH = C2H5O : 	3.0D-12*EXP(20/TEMP)*0.05 	;
-{48.} 	 C2H5OH + OH = CH3CHO + HO2 : 	3.0D-12*EXP(20/TEMP)*0.9 	;
-{49.} 	 C2H5OH + OH = HOCH2CH2O2 : 	3.0D-12*EXP(20/TEMP)*0.05 	;
+##### {48.} 	 C2H5OH + OH = CH3CHO + HO2 : 	3.0D-12*EXP(20/TEMP)*0.9 	;
+##### {49.} 	 C2H5OH + OH = HOCH2CH2O2 : 	3.0D-12*EXP(20/TEMP)*0.05 	;
 
-Where the equation number os first defined, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. This file is first parsed in the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ODEs. 
+Where the equation number is first defined, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. This file is first parsed in the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ODEs. 
+
+The model relies on the [Assimulo](http://www.jmodelica.org/assimulo) ODE solver package, and has been built/tested within the Python3 Anaconda environment.
 
 
