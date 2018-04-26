@@ -27,5 +27,8 @@ from the command line. Please check the ambient conditions and species concentra
     species_initial_conc['BCARY']=20.0
 
 ## Python + Fortran
+Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run.
 
+
+Happy coding!
 
