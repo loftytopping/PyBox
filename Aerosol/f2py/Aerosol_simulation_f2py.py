@@ -42,6 +42,7 @@
 import numpy 
 import os
 sys.path.append(os.path.abspath('../..'))
+sys.path.append(os.path.abspath('..'))
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
 import rate_coeff_conversion # [•] Converts standard text rate coefficients into Numba/Fortran
 import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
@@ -57,14 +58,6 @@ import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
 # This code relies on UManSysProp to calculate properties - change the link below to where your copy of UManSysProp_public is stored
 import pybel
-sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
-from umansysprop import boiling_points
-from umansysprop import vapour_pressures
-from umansysprop import critical_properties
-from umansysprop import liquid_densities
-from umansysprop import partition_models
-from umansysprop import activity_coefficient_models_dev as aiomfac
-from umansysprop.forms import CoreAbundanceField
             
 # Start of the main body of code
 if __name__=='__main__':
@@ -142,7 +135,7 @@ if __name__=='__main__':
         
         # Now map these species onto SMILES according to the relevant .xml file that comes with the MCM. If this file changes
         # you will need to change the reference here
-        outputdict=Parse_eqn_file.extract_smiles_species(outputdict,'MCM331.xml')
+        outputdict=Parse_eqn_file.extract_smiles_species(outputdict,'../MCM.xml')
 
         # Collect the dictionaries generated
         reaction_dict=outputdict['reaction_dict']
@@ -249,13 +242,13 @@ if __name__=='__main__':
             
     # Modify property arrays to include water as partitioning component
     # Load previously calculated values
-    y_density_array=return_dict['y_density_array']
-    y_mw=return_dict['y_mw']
-    sat_vp=return_dict['sat_vp']
-    Delta_H=return_dict['Delta_H']
-    Latent_heat_gas=return_dict['Latent_heat_gas']   
-    ignore_index=return_dict['ignore_index'] 
-    ignore_index_fortran=return_dict['ignore_index_fortran'] 
+    y_density_array=property_dict1['y_density_array']
+    y_mw=property_dict1['y_mw']
+    sat_vp=property_dict1['sat_vp']
+    Delta_H=property_dict1['Delta_H']
+    Latent_heat_gas=property_dict1['Latent_heat_gas']   
+    ignore_index=property_dict1['ignore_index'] 
+    ignore_index_fortran=property_dict1['ignore_index_fortran'] 
     
     sat_vap_water = np.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * np.log(temp)))
     y_density_array.append(1000.0E0) #Append density of water to array [kg/m3]
@@ -270,27 +263,23 @@ if __name__=='__main__':
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
     property_dict2=Property_calculation.Pure_component2(num_species,y_mw)
-    alpha_d_org=return_dict['alpha_d_org']
-    DStar_org=return_dict['DStar_org']
-    mean_them_vel=return_dict['mean_them_vel']
-    gamma_gas=return_dict['gamma_gas']
+    alpha_d_org=property_dict2['alpha_d_org']
+    DStar_org=property_dict2['DStar_org']
+    mean_them_vel=property_dict2['mean_them_vel']
+    gamma_gas=property_dict2['gamma_gas']
     
     # Now deal with the files that treat gas-to-particle partitioning
     
-        
-    print("Ready to run simulation") 
-    #pdb.set_trace()            
-    # Now load the numpy arrays generated in the parsing script for use in the simulations. Again, these are named to
-    # match this particular code. However the ordering is not important.
-    RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
     #-------------------------------------------------------------------------------------
-    # Define initial concentrations, in pbb, of species using names from KPP file
+    # Define initial conditions and size distribution            
+    #-------------------------------------------------------------------------------------
+    # 1) Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
     species_initial_conc['BCARY']=20.0
 
-    # Define an initial size distribution. This also defines an initial
+    # 2) Define an initial size distribution. This also defines an initial
     #     concentration of core material. This core material can either be
     #     an inert absorptive mass, or have specified SMARTS as organic or
     #     inorganic component. Presently we only have 1 core and it is assumed
@@ -311,13 +300,12 @@ if __name__=='__main__':
     print ("Starting sizes = ", x)
     #Plot the discretized size distribution - Close the figure to proceed
     total_number=sum(N_perbin)
-    #----------------------------------------------------------------------------
-    #3a) - Specify the core material. 
+
+    # 3) - Specify the core material. 
     # This code is currently setup to consider mmonium sulphate as the core
     y_core=[1.0e-3]*num_bins #Will hold concentration of core material, only initialise here [molecules/cc] 
     core_density_array=[1770.0]*num_bins #[kg/m3] - need to make sure this matches core definition above
     core_mw=[132.14]*num_bins #[g/mol]
-    
     #Calculate a concentration, in molecules per cc, per size bin of the involatile material
     #The size bins, 'x', are given in microns. 
     core_type='Inorganic' #Label to be used in non-ideal model variants. It is useful to
@@ -360,7 +348,7 @@ if __name__=='__main__':
         step+=1
         
 
-    # Save this information to a dictionary to pass to ODE solver
+    # 4) Save this information to a dictionary to pass to ODE solver
     input_dict=dict()
     input_dict['species_dict']=species_dict
     input_dict['species_dict2array']=species_dict2array
@@ -389,10 +377,12 @@ if __name__=='__main__':
     input_dict['ignore_index']=ignore_index
     input_dict['ignore_index_fortran']=ignore_index_fortran
 
+    RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
+
     #Do you want to save the output from the simulation as a .npy file?
     save_output=True
     #-------------------------------------------------------------------------------------
-    #3) Run the simulation
+    # 5) Run the simulation
     run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict)
     #-------------------------------------------------------------------------------------
     
