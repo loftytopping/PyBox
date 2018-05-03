@@ -65,7 +65,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
         # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
         # With the assimulo solvers we need to output numpy arrays
         dydt_gas=loss_gain_fortran(reactants)
-        #pdb.set_trace()
+        pdb.set_trace()
         
         dy_dt[0:num_species-1,0]=dydt_gas
         
@@ -76,7 +76,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
         (0.48640239E-1 * Model_temp) + (0.41764768E-4 * (Model_temp**2.0E0))- \
         (0.14452093E-7 * (Model_temp**3.0E0)) + (0.65459673E1 * np.log(Model_temp)))
         sat_vp[-1]=(np.log10(sat_vap_water*9.86923E-6))
-        Psat=numpy.power(10.0,sat_vp_asnumpy)    
+        Psat=numpy.power(10.0,sat_vp)    
         
         # Convert the concentration of each component in the gas phase into a partial pressure using the ideal gas law
         # Units are Pascals
@@ -96,14 +96,14 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
         #Set the values for oxidants etc to 0 as will force no mass transfer
         C_g_i_t[ignore_index]=0.0
         
-        total_SOA_mass,size_array,dy_dt = dydt_partition_fortran(total_length_y,num_bins,num_species,\
+        total_SOA_mass,size_array,dy_dt_calc = dydt_partition_fortran(total_length_y,num_bins,num_species,\
         y_asnumpy[0:num_species+num_species*num_bins],ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,molw_asnumpy,Psat, \
         DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV, \
         Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
         
         # Add the calculated gains/losses to the complete dy_dt array
-        dy_dt[0:num_species+num_species*num_bins,0]=dy_dt[:]
+        dy_dt[0:num_species+(num_species*num_bins)-1,0]+=dy_dt_calc[:]
     
         #----------------------------------------------------------------------------
         #F4) Now calculate the change in water vapour mixing ratio. 
@@ -157,7 +157,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
     y_mw=input_dict['y_mw']
     sat_vp=input_dict['sat_vp']
     Delta_H=input_dict['Delta_H']
-    Latent_heat_gas=input_dict['Latent_heat_gas']
+    Latent_heat_asnumpy=input_dict['Latent_heat_asnumpy']
     DStar_org_asnumpy=input_dict['DStar_org_asnumpy']
     alpha_d_org_asnumpy=input_dict['alpha_d_org_asnumpy']
     gamma_gas_asnumpy=input_dict['gamma_gas_asnumpy']
@@ -174,25 +174,32 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
     Lv_water_vapour=input_dict['Lv_water_vapour']
     ignore_index=input_dict['ignore_index']
     ignore_index_fortran=input_dict['ignore_index_fortran']
+    ycore_asnumpy=input_dict['ycore_asnumpy']
+    core_density_array_asnumpy=input_dict['core_density_array_asnumpy']
+    y_cond=input_dict['y_cond_initial']
     
     #Specify some starting concentrations [ppt]
     Cfactor= 2.55e+10 #ppb-to-molecules/cc
     
     # Create variables required to initialise ODE
     num_species=len(species_dict.keys())
-    y0 = [0]*num_species #Initial concentrations, set to 0
+    y0 = [0]*(num_species+num_species*num_bins) #Initial concentrations, set to 0
     t0 = 0.0 #T0
         
-    # Define species concentrations in ppb
+    # Define species concentrations in ppb fr the gas phase
     # You have already set this in the front end script, and now we populate the y array with those concentrations
     for specie in species_initial_conc.keys():
         y0[species_dict2array[specie]]=species_initial_conc[specie]*Cfactor #convert from pbb to molcules/cc
+    # Now add the initial condensed phase [including water]
+    y0[num_species:((num_bins)*num_species)-1]=y_cond[:]
         
     #Set the total_time of the simulation to 0 [havent done anything yet]
     total_time=0.0
     
     # Define a 'key' that represents the end of the composition variables to track
-    key=num_species+((size)*num_species)-1
+    key=num_species+((num_bins)*num_species)-1
+    
+    pdb.set_trace()
     
     # Now run through the simulation in batches. 
     # I do this to enable testing of coupling processes. Some initial investigations with non-ideality in
@@ -242,7 +249,7 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
         # Use of a jacobian makes a big differece in simulation time. This is relatively 
         # easy to define for a gas phase - not sure for an aerosol phase with composition
         # dependent processes. 
-        exp_sim.usejac = True # To be provided as an option in future update. 
+        exp_sim.usejac = False # To be provided as an option in future update. 
         #exp_sim.fac1 = 0.05
         #exp_sim.fac2 = 50.0
         exp_sim.report_continuously = True

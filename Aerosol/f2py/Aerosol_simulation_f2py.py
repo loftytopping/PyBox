@@ -40,7 +40,7 @@
 # In the import statements, all files developed specifically for this project as marked [•]
 
 import numpy 
-import os
+import os, sys
 sys.path.append(os.path.abspath('../..'))
 sys.path.append(os.path.abspath('..'))
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
@@ -53,7 +53,6 @@ from datetime import datetime
 import time
 from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
 import Property_calculation
-import os
 import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
 # This code relies on UManSysProp to calculate properties - change the link below to where your copy of UManSysProp_public is stored
@@ -131,7 +130,7 @@ if __name__=='__main__':
         print_options['Full_eqn']=0 #Set to 1 to print details of all equations and rate coefficients parsed [useful for checking]
 
         # Define the .eqn file to be used in the following
-        outputdict=Parse_eqn_file.extract_mechanism('MCM_mixed_test.eqn.txt',print_options)
+        outputdict=Parse_eqn_file.extract_mechanism(filename+'.eqn.txt',print_options)
         
         # Now map these species onto SMILES according to the relevant .xml file that comes with the MCM. If this file changes
         # you will need to change the reference here
@@ -154,8 +153,8 @@ if __name__=='__main__':
         num_species=len(species_dict.keys())
         
         # Now calculate all properties that dictate gas-to-particle partitioning
-        print("Calculating properties that dictant gas-to-particle partitioning")
-        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,SMILES_dict,temp)
+        print("Calculating properties that dictate gas-to-particle partitioning")
+        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp)
         
         #pdb.set_trace()
         print("Saving the mechanism and property dictionaries as a pickled object for later retrieval")
@@ -233,12 +232,15 @@ if __name__=='__main__':
             Pybel_object_dict= pickle.load(f) 
         with open(filename+'_SMILES_dict.pickle', 'rb') as f:
             SMILES_dict= pickle.load(f) 
-        with open(filename+'_property_dict1.pickle', 'rb') as f:
-            property_dict1= pickle.load(f) 
+        #with open(filename+'_property_dict1.pickle', 'rb') as f:
+        #    property_dict1= pickle.load(f) 
         #with open(filename+'_property_dict2.pickle', 'rb') as f:
         #    property_dict2= pickle.load(f) 
         with open(filename+'_num_species_gas.pickle', 'rb') as f:
             num_species= pickle.load(f) 
+            
+        print("Calculating properties that dictate gas-to-particle partitioning")
+        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp)
             
     # Modify property arrays to include water as partitioning component
     # Load previously calculated values
@@ -359,7 +361,7 @@ if __name__=='__main__':
     input_dict['y_mw']=numpy.array(y_mw)
     input_dict['sat_vp']=sat_vp
     input_dict['Delta_H']=Delta_H
-    input_dict['Latent_heat_gas']=Latent_heat_gas
+    input_dict['Latent_heat_asnumpy']=numpy.array(Latent_heat_gas)
     input_dict['DStar_org_asnumpy']=numpy.array(DStar_org)
     input_dict['alpha_d_org_asnumpy']=numpy.array(alpha_d_org)
     input_dict['gamma_gas_asnumpy']=numpy.array(gamma_gas)
@@ -376,8 +378,13 @@ if __name__=='__main__':
     input_dict['Lv_water_vapour']=Lv_water_vapour
     input_dict['ignore_index']=ignore_index
     input_dict['ignore_index_fortran']=ignore_index_fortran
-
+    input_dict['ycore_asnumpy']=numpy.array(y_core)
+    input_dict['core_density_array_asnumpy']=nump.array(core_density_array)
+    input_dict['y_cond_initial']=y_cond
+    
     RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
+    
+    pdb.set_trace()
 
     #Do you want to save the output from the simulation as a .npy file?
     save_output=True

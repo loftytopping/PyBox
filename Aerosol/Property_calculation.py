@@ -1,4 +1,4 @@
-
+import sys
 import numpy 
 sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
@@ -9,7 +9,7 @@ from umansysprop import partition_models
 from umansysprop import activity_coefficient_models_dev as aiomfac
 from umansysprop.forms import CoreAbundanceField
 
-def Pure_component1(num_species,species_dict,SMILES_dict,temp):
+def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp):
     
     y_density_array=[1000.0]*num_species
     y_mw=[200.0]*num_species
@@ -18,7 +18,8 @@ def Pure_component1(num_species,species_dict,SMILES_dict,temp):
     y_gas=[0.0]*num_species
     species_step=0
     ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties.
-    ignore_index_fortran=np.zeros((num_species+1),)
+    ignore_index_fortran=numpy.zeros((num_species+1),)
+    print("Calculating component properties using UManSysProp")
     for compound in species_dict.values():
         if compound in SMILES_dict.keys():
             y_density_array[species_dict2array[compound]]=(liquid_densities.girolami(Pybel_object_dict[SMILES_dict[compound]])*1.0E3) #Convert from g/cc to kg/m3
@@ -55,9 +56,9 @@ def Pure_component2(num_species,y_mw):
     #We usean approximation to initialise this, but these values will also depend
     #on the accomodation coefficient and size of particles condensing to. Following the
     #approach in Topping et al (2013), diffusivity is calculated as 
-    DStar_org = 1.9E0*np.power(np.array(y_mw),-2.0E0/3.0E0)
+    DStar_org = 1.9E0*numpy.power(numpy.array(y_mw),-2.0E0/3.0E0)
     # - Mean thermal velocity of each molecule [m/s] - 
-    mean_them_vel=np.power((8.0E0*R_gas*temp)/(np.pi*(np.array(y_mw)*1.0E-3)),0.5E0)
+    mean_them_vel=numpy.power((8.0E0*R_gas*temp)/(numpy.pi*(numpy.array(y_mw)*1.0E-3)),0.5E0)
     # - Mean free path for each molecule [m] - 
     gamma_gas = ((3.0E0*DStar_org)/(mean_them_vel*1.0E2))*1.0E-2
     ##############################################
