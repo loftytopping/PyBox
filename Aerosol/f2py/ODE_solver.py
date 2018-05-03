@@ -22,7 +22,7 @@ import numpy
 import pylab as P
 import pdb
 
-def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict):
+def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict):
 
     from assimulo.solvers import RodasODE, CVode #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -177,21 +177,26 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_
     ycore_asnumpy=input_dict['ycore_asnumpy']
     core_density_array_asnumpy=input_dict['core_density_array_asnumpy']
     y_cond=input_dict['y_cond_initial']
+    num_bins=input_dict['num_bins']
     
     #Specify some starting concentrations [ppt]
     Cfactor= 2.55e+10 #ppb-to-molecules/cc
     
     # Create variables required to initialise ODE
-    num_species=len(species_dict.keys())
     y0 = [0]*(num_species+num_species*num_bins) #Initial concentrations, set to 0
     t0 = 0.0 #T0
         
     # Define species concentrations in ppb fr the gas phase
     # You have already set this in the front end script, and now we populate the y array with those concentrations
     for specie in species_initial_conc.keys():
-        y0[species_dict2array[specie]]=species_initial_conc[specie]*Cfactor #convert from pbb to molcules/cc
+        if specie is not 'H2O':
+            y0[species_dict2array[specie]]=species_initial_conc[specie]*Cfactor #convert from pbb to molcules/cc
+        elif specie is 'H2O':
+            y0[species_dict2array[specie]]=species_initial_conc[specie]
+
     # Now add the initial condensed phase [including water]
-    y0[num_species:((num_bins)*num_species)-1]=y_cond[:]
+    pdb.set_trace()
+    y0[num_species:num_species+((num_bins)*num_species)-1]=y_cond[:]
         
     #Set the total_time of the simulation to 0 [havent done anything yet]
     total_time=0.0

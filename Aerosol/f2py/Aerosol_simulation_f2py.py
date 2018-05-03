@@ -76,6 +76,7 @@ if __name__=='__main__':
     # Saturation VP of water vapour, to get concentration of H20
     Psat=610.78*numpy.exp((temp_celsius/(temp_celsius+238.3))*17.2694)
     Pw=RH*Psat
+    Updraft=0.0
     Wconc=0.002166*(Pw/(temp_celsius+273.16)) #kg/m3
     #Convert from m3 to cm3
     Wconc=Wconc*1.0e-6
@@ -104,7 +105,7 @@ if __name__=='__main__':
     
     # First we load the files that deal only with the gas phase mechanism
 
-    filename='MCM_mixed_test'    
+    filename='MCM_APINENE'    
 
     files_exist = False
     
@@ -252,10 +253,10 @@ if __name__=='__main__':
     ignore_index=property_dict1['ignore_index'] 
     ignore_index_fortran=property_dict1['ignore_index_fortran'] 
     
-    sat_vap_water = np.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * np.log(temp)))
+    sat_vap_water = numpy.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * numpy.log(temp)))
     y_density_array.append(1000.0E0) #Append density of water to array [kg/m3]
     y_mw.append(18.0E0) #Append mw of water to array [g/mol]
-    sat_vp.append(np.log10(sat_vap_water*9.86923E-6)) #Convert Pa to atm
+    sat_vp.append(numpy.log10(sat_vap_water*9.86923E-6)) #Convert Pa to atm
     Delta_H.append(40.66)
     Latent_heat_gas.append(Lv_water_vapour) #Water vapour, taken from Paul Connolly's parcel model ACPIM
     num_species+=1 #We need to increase the number of species to account for water
@@ -264,7 +265,7 @@ if __name__=='__main__':
     Pybel_object_dict.update({'O':key})
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
-    property_dict2=Property_calculation.Pure_component2(num_species,y_mw)
+    property_dict2=Property_calculation.Pure_component2(num_species,y_mw,R_gas,temp)
     alpha_d_org=property_dict2['alpha_d_org']
     DStar_org=property_dict2['DStar_org']
     mean_them_vel=property_dict2['mean_them_vel']
@@ -279,7 +280,10 @@ if __name__=='__main__':
     species_initial_conc=dict()
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
-    species_initial_conc['BCARY']=20.0
+    #species_initial_conc['BCARY']=20.0
+
+    # Add water
+    species_initial_conc['H2O']=H2O
 
     # 2) Define an initial size distribution. This also defines an initial
     #     concentration of core material. This core material can either be
@@ -332,11 +336,11 @@ if __name__=='__main__':
     anion_index=[1]
     
     core_dissociation=3.0 #Define this according to choice of core type. Please note this value might change
-    y_core=(4.0/3.0)*np.pi*np.power(np.array(x*1.0e-6),3.0) #4/3*pi*radius^3
-    y_core=y_core*np.array(core_density_array) #mass per particle [kg]
-    y_core=y_core/(np.array(core_mw)*1.0e-3) #moles per particle, changing mw from g/mol to kg/mol
+    y_core=(4.0/3.0)*numpy.pi*numpy.power(numpy.array(x*1.0e-6),3.0) #4/3*pi*radius^3
+    y_core=y_core*numpy.array(core_density_array) #mass per particle [kg]
+    y_core=y_core/(numpy.array(core_mw)*1.0e-3) #moles per particle, changing mw from g/mol to kg/mol
     y_core=y_core*NA #molecules per particle
-    y_core=y_core*np.array(N_perbin) #molecules/cc representing each size range
+    y_core=y_core*numpy.array(N_perbin) #molecules/cc representing each size range
     #Calculate a core mass based on the above information [converting from molecules/cc to micrograms/m3]    
     core_mass=numpy.sum(numpy.multiply(numpy.array(y_core)/NA,numpy.array(core_mw)))*1.0E12
     print ("'Dry' core mass = ", core_mass)
@@ -379,8 +383,9 @@ if __name__=='__main__':
     input_dict['ignore_index']=ignore_index
     input_dict['ignore_index_fortran']=ignore_index_fortran
     input_dict['ycore_asnumpy']=numpy.array(y_core)
-    input_dict['core_density_array_asnumpy']=nump.array(core_density_array)
+    input_dict['core_density_array_asnumpy']=numpy.array(core_density_array)
     input_dict['y_cond_initial']=y_cond
+    input_dict['num_bins']=num_bins
     
     RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
     
