@@ -38,16 +38,17 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # define the ODE function to be called
     def dydt_func(t,y):
 
-        dy_dt=numpy.zeros((len(y),1),)
+        dy_dt=numpy.zeros((total_length_y,1),)
         
         #pdb.set_trace()
         # Calculate time of day
         time_of_day_seconds=start_time+t
         
+        #pdb.set_trace()
         # make sure the y array is not a list. Assimulo uses lists
         y_asnumpy=numpy.array(y)
-        Model_temp = y_asnumpy[-1]
-        
+        Model_temp = temp
+        #pdb.set_trace()
         #Calculate the concentration of RO2 species, using an index file created during parsing
         RO2=numpy.sum(y[RO2_indices])
 
@@ -57,7 +58,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         rates=evaluate_rates_fortran(RO2,H2O,Model_temp,time_of_day_seconds)
         #pdb.set_trace()
         # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc]        
-        reactants=reactants_fortran(y_asnumpy)
+        reactants=reactants_fortran(y_asnumpy[0:num_species-1])
         #pdb.set_trace()
         #Multiply product of reactants with rate coefficient to get reaction rate            
         reactants = numpy.multiply(reactants,rates)
@@ -72,17 +73,17 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # Change the saturation vapour pressure of water
         # Need to re-think the change of organic vapour pressures with temperature.
         # At the moment this is kept constant as re-calulation using UManSysProp very slow
-        sat_vap_water = np.exp((-0.58002206E4 / Model_temp) + 0.13914993E1 - \
+        sat_vap_water = numpy.exp((-0.58002206E4 / Model_temp) + 0.13914993E1 - \
         (0.48640239E-1 * Model_temp) + (0.41764768E-4 * (Model_temp**2.0E0))- \
-        (0.14452093E-7 * (Model_temp**3.0E0)) + (0.65459673E1 * np.log(Model_temp)))
-        sat_vp[-1]=(np.log10(sat_vap_water*9.86923E-6))
+        (0.14452093E-7 * (Model_temp**3.0E0)) + (0.65459673E1 * numpy.log(Model_temp)))
+        sat_vp[-1]=(numpy.log10(sat_vap_water*9.86923E-6))
         Psat=numpy.power(10.0,sat_vp)    
         
         # Convert the concentration of each component in the gas phase into a partial pressure using the ideal gas law
         # Units are Pascals
         Pressure_gas=(y_asnumpy[0:num_species,]/NA)*8.314E+6*Model_temp #[using R]
     
-        core_mass_array=np.multiply(ycore_asnumpy/NA,core_molw_asnumpy)
+        core_mass_array=numpy.multiply(ycore_asnumpy/NA,core_molw_asnumpy)
             
         ####### Calculate the thermal conductivity of gases according to the new temperature ########
         K_water_vapour = (5.69+0.017*(Model_temp-273.15))*1e-3*4.187 #[W/mK []has to be in W/m.K]
@@ -95,47 +96,35 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         C_g_i_t = y_asnumpy[0:num_species,]
         #Set the values for oxidants etc to 0 as will force no mass transfer
         C_g_i_t[ignore_index]=0.0
+    
+        pdb.set_trace()
         
-        total_SOA_mass,size_array,dy_dt_calc = dydt_partition_fortran(total_length_y,num_bins,num_species,\
-        y_asnumpy[0:num_species+num_species*num_bins],ycore_asnumpy,core_dissociation, \
-        core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,molw_asnumpy,Psat, \
+        test=dydt_partition_fortran(total_length_y,num_bins,num_species,y_asnumpy,ycore_asnumpy,core_dissociation,core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat,DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV,Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
+        
+        total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(len(y),num_bins,num_species,\
+        y_asnumpy,ycore_asnumpy,core_dissociation, \
+        core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
         DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV, \
         Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
         
+        pdb.set_trace()
+        
         # Add the calculated gains/losses to the complete dy_dt array
-        dy_dt[0:num_species+(num_species*num_bins)-1,0]+=dy_dt_calc[:]
+        dy_dt[0:num_species+(num_species*num_bins),0]+=dy_dt_calc[:]
     
         #----------------------------------------------------------------------------
         #F4) Now calculate the change in water vapour mixing ratio. 
         #To do this we need to know what the index key for the very last element is     
         #pdb.set_trace()  
-        
-        #Pressure of water vapour
-        #First concentration in moles per cubic centimetre [as change per s]
-        dmoles_water_vp=(dy_dt[num_species-1,0]/NA)
-        #Now use ideal gas law [Pascals]
-        dwater_vap_press=dmoles_water_vp*8.3144598e6*Model_temp
-        #Now calculate change in saturation ratio
-        dy_water_vap=(dwater_vap_press/y[key+1]) #Check to see this is water - covert from molecules/cc to kg/kg.
-        total_SOA_mass=(total_SOA_mass-total_water_cond_mass)*(1.0E12) #g/cc to micrograms/m3
-            
+        pdb.set_trace()        
         #print "elapsed time=", elapsedTime   
         dydt_func.total_SOA_mass=total_SOA_mass
         dydt_func.size_array=size_array
         dydt_func.temp=Model_temp
         dydt_func.RH=Pressure_gas[-1]/(Psat[-1]*101325.0)
-        dydt_func.water_activity=water_activity
+        dydt_func.water_activity=aw_array
                 
-        #----------------------------------------------------------------------------
-        #F5) Calculate the new density of air
-        #pdb.set_trace()
-        #Calculate the change in pressure according to any updraft velocity
-        dy_dt[key+1,0]=-1.0*(y[key+1]/(Ra*y[key+2]))*GRAV*Updraft
-        #Calculate the change in temperature from latent heat release
-        dy_dt[key+2,0]=Ra/y[key+1]*dy_dt[key+1]*y[key+2]/cp
-        dy_dt[key+2,0]=dy_dt[key+2]+(-1.0*(Lv_water_vapour*1.0e3)*dy_water_vap)/cp
-        #----------------------------------------------------------------------------
-        
+        #----------------------------------------------------------------------------        
         return dy_dt
     #-------------------------------------------------------------------------------------
     #-------------------------------------------------------------------------------------
@@ -178,6 +167,11 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     core_density_array_asnumpy=input_dict['core_density_array_asnumpy']
     y_cond=input_dict['y_cond_initial']
     num_bins=input_dict['num_bins']
+    core_molw_asnumpy=input_dict['core_molw_asnumpy']
+    core_dissociation=input_dict['core_dissociation']
+    N_perbin=input_dict['N_perbin']
+    
+    pdb.set_trace()
     
     #Specify some starting concentrations [ppt]
     Cfactor= 2.55e+10 #ppb-to-molecules/cc
@@ -195,16 +189,18 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
             y0[species_dict2array[specie]]=species_initial_conc[specie]
 
     # Now add the initial condensed phase [including water]
-    pdb.set_trace()
-    y0[num_species:num_species+((num_bins)*num_species)-1]=y_cond[:]
-        
+    #pdb.set_trace()
+    y0[num_species:num_species+((num_bins)*num_species)]=y_cond[:]
+    #pdb.set_trace()
+    
     #Set the total_time of the simulation to 0 [havent done anything yet]
     total_time=0.0
     
     # Define a 'key' that represents the end of the composition variables to track
+    total_length_y=len(y0)
     key=num_species+((num_bins)*num_species)-1
     
-    pdb.set_trace()
+    #pdb.set_trace()
     
     # Now run through the simulation in batches. 
     # I do this to enable testing of coupling processes. Some initial investigations with non-ideality in
@@ -245,7 +241,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #exp_mod.jac = dydt_jac
         # Define which ODE solver you want to use
         exp_sim = CVode(exp_mod) 
-        tol_list=[1.0e-3]*num_species
+        tol_list=[1.0e-3]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
         exp_sim.rtol = 1.0e-6 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size

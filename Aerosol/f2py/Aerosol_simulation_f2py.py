@@ -386,6 +386,9 @@ if __name__=='__main__':
     input_dict['core_density_array_asnumpy']=numpy.array(core_density_array)
     input_dict['y_cond_initial']=y_cond
     input_dict['num_bins']=num_bins
+    input_dict['core_molw_asnumpy']=numpy.array(core_mw)
+    input_dict['core_dissociation']=core_dissociation
+    input_dict['N_perbin']=N_perbin
     
     RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
     
