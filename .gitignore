@@ -7,7 +7,6 @@
 *.o
 *.so
 *.dSYM
-*.DS_Store
 
 # Source files #
 ###################
