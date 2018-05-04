@@ -98,15 +98,12 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         C_g_i_t[ignore_index]=0.0
     
         pdb.set_trace()
-        
-        test=dydt_partition_fortran(total_length_y,num_bins,num_species,y_asnumpy,ycore_asnumpy,core_dissociation,core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat,DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV,Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
-        
-        total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(len(y),num_bins,num_species,\
-        y_asnumpy,ycore_asnumpy,core_dissociation, \
+                
+        total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy,ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
         DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV, \
         Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
-        
+
         pdb.set_trace()
         
         # Add the calculated gains/losses to the complete dy_dt array
