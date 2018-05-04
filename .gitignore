@@ -7,6 +7,12 @@
 *.o
 *.so
 *.dSYM
+*.DS_Store
+
+# Source files #
+###################
+*.f90
+*_numba.py
 
 # Packages #
 ############
