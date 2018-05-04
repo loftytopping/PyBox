@@ -22,7 +22,7 @@ import numpy
 import pylab as P
 import pdb
 
-def run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict):
+def run_simulation(start_time, save_output, temp, RH, RO2_indices, H2O, input_dict):
 
     from assimulo.solvers import RodasODE, CVode #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -179,6 +179,10 @@ def run_simulation(start_time, temp, RH, RO2_indices, H2O, input_dict):
                 
         #now save this information into a matrix for later plotting.
         time_step+=1
+
+    # Do you want to save the generated matrix of outputs?
+    if save_output:
+        numpy.save(filename+'_output', y_matrix)
         
     with_plots=True
     

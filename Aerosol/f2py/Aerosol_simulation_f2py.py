@@ -203,13 +203,7 @@ if __name__=='__main__':
         Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
         print("Compiling dydt file using f2py")
         os.system("python f2py_loss_gain.py build_ext --inplace")
-        
-        # Create a Fortran file for calculating gas-to-particle partitioning drivers
-        print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
-        Parse_eqn_file.write_partitioning_section_fortran()
-        print("Compiling gas-to-particle partitioning file using f2py")
-        os.system("python f2py_partition.py build_ext --inplace")
-        
+                
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
         Parse_eqn_file.write_RO2_indices(filename,species_dict2array)
@@ -352,7 +346,15 @@ if __name__=='__main__':
         y_cond[(num_species-1)+(step*num_species)]=water_moles #Add this water to the distribution. 
         #                                                       Note this dosnt yet account for a kelvin factor
         step+=1
-        
+
+    if file_exists is False: # This needs to be changed if either num_species OR num_bins changes
+                             # Future versions should add ability to only change number of bins
+
+        # Create a Fortran file for calculating gas-to-particle partitioning drivers
+        print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
+        Parse_eqn_file.write_partitioning_section_fortran(total_length_y,num_bins,num_species)
+        print("Compiling gas-to-particle partitioning file using f2py")
+        os.system("python f2py_partition.py build_ext --inplace")        
 
     # 4) Save this information to a dictionary to pass to ODE solver
     input_dict=dict()

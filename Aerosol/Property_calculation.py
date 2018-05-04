@@ -1,6 +1,6 @@
 import sys
 import numpy 
-sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
+sys.path.append('/Users/davidtopping/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
 from umansysprop import vapour_pressures
 from umansysprop import critical_properties
@@ -47,7 +47,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
 
     return return_dict
     
-def Pure_component2(num_species,y_mw):
+def Pure_component2(num_species,y_mw,R_gas,temp):
     #----------------------------------------------------------------------------
     #2e) Kinetic properties of all species ######
     #sat_vp = [-12.0]*num_species # np.random.random_sample((num_species,))*-12.0 #log10 atm
