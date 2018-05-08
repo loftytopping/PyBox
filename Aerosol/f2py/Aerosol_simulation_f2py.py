@@ -51,8 +51,8 @@ import collections
 import pdb
 from datetime import datetime
 import time
-from ODE_solver_opsplit import run_simulation # [•] Contains routines to run ODE solver
-#from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
+#from ODE_solver_opsplit import run_simulation # [•] Contains routines to run ODE solver
+from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
 import Property_calculation
 import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
@@ -243,10 +243,10 @@ if __name__=='__main__':
             num_species= pickle.load(f) 
             
         print("Calculating properties that dictate gas-to-particle partitioning")
-        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,'nannoolal','joback_and_reid')
+        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff)
             
     # Modify property arrays to include water as partitioning component
-    # Load previously calculated values
+    # Load previously calculated values, and shave off components IF ignore_vp is True
     y_density_array=property_dict1['y_density_array']
     y_mw=property_dict1['y_mw']
     sat_vp=property_dict1['sat_vp']
@@ -254,6 +254,16 @@ if __name__=='__main__':
     Latent_heat_gas=property_dict1['Latent_heat_gas']   
     ignore_index=property_dict1['ignore_index'] 
     ignore_index_fortran=property_dict1['ignore_index_fortran'] 
+    include_index=sorted(property_dict1['include_index'])
+    #pdb.set_trace()
+    # Now shave off value if
+    if ignore_vp is True:
+        y_density_array=numpy.array(y_density_array)[include_index].tolist()
+        y_mw=numpy.array(y_mw)[include_index].tolist()
+        sat_vp=numpy.array(sat_vp)[include_index].tolist()
+        Delta_H=numpy.array(Delta_H)[include_index].tolist()
+        Latent_heat_gas=numpy.array(Latent_heat_gas)[include_index].tolist()
+        
     
     sat_vap_water = numpy.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * numpy.log(temp)))
     y_density_array.append(1000.0E0) #Append density of water to array [kg/m3]
@@ -261,13 +271,16 @@ if __name__=='__main__':
     sat_vp.append(numpy.log10(sat_vap_water*9.86923E-6)) #Convert Pa to atm
     Delta_H.append(40.66)
     Latent_heat_gas.append(Lv_water_vapour) #Water vapour, taken from Paul Connolly's parcel model ACPIM
-    num_species+=1 #We need to increase the number of species to account for water
+    num_species+=1 #We need to increase the number of species to account for water in the gas phase
+    # Now also account for any change in species considered in condensed phase
+    num_species_condensed=len(y_density_array)
     #Update the Pybel object libraries
     key=pybel.readstring('smi','O')
     Pybel_object_dict.update({'O':key})
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
-    property_dict2=Property_calculation.Pure_component2(num_species,y_mw,R_gas,temp)
+    include_index.append(num_species-1)
+    property_dict2=Property_calculation.Pure_component2(num_species_condensed,y_mw,R_gas,temp)
     alpha_d_org=property_dict2['alpha_d_org']
     DStar_org=property_dict2['DStar_org']
     mean_them_vel=property_dict2['mean_them_vel']
@@ -295,8 +308,7 @@ if __name__=='__main__':
     #Please note that the size distribution module has been replicated from
     #http://all-geo.org/volcan01010/2013/09/how-to-use-lognormal-distributions-in-python/
     num_bins=16 #Number of size bins
-    num_species_cond=num_species
-    y_cond=[0.0]*num_species*num_bins #array that contains all species in all bins
+    y_cond=[0.0]*num_species_condensed*num_bins #array that contains all species in all bins
                                       #water is the final component
     total_conc=100 #Total particles per cc
     std=2.2 #Standard Deviation
@@ -351,7 +363,7 @@ if __name__=='__main__':
     #In the following we need to add water to the last element of every size bin chunk of the array
     for radius in x:
         water_moles=(y_core[step]*core_dissociation)*(RH/(1.0E0-RH))
-        y_cond[(num_species-1)+(step*num_species)]=water_moles #Add this water to the distribution. 
+        y_cond[(num_species_condensed-1)+(step*num_species_condensed)]=water_moles #Add this water to the distribution. 
         #                                                       Note this dosnt yet account for a kelvin factor
         step+=1
 
@@ -360,7 +372,7 @@ if __name__=='__main__':
 
         # Create a Fortran file for calculating gas-to-particle partitioning drivers
         print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
-        Parse_eqn_file.write_partitioning_section_fortran(num_species+num_species*num_bins,num_bins,num_species)
+        Parse_eqn_file.write_partitioning_section_fortran_ignore(num_species+num_species_condensed*num_bins,num_bins,num_species,num_species_condensed,include_index)
         print("Compiling gas-to-particle partitioning file using f2py")
         os.system("python f2py_partition.py build_ext --inplace")        
 
@@ -371,6 +383,7 @@ if __name__=='__main__':
     input_dict['species_initial_conc']=species_initial_conc
     input_dict['equations']=equations
     input_dict['num_species']=num_species
+    input_dict['num_species_condensed']=num_species_condensed
     input_dict['y_density_array_asnumpy']=numpy.array(y_density_array)
     input_dict['y_mw']=numpy.array(y_mw)
     input_dict['sat_vp']=sat_vp
@@ -399,6 +412,7 @@ if __name__=='__main__':
     input_dict['core_molw_asnumpy']=numpy.array(core_mw)
     input_dict['core_dissociation']=core_dissociation
     input_dict['N_perbin']=N_perbin
+    input_dict['include_index']=include_index
     
     RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
     

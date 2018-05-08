@@ -1,6 +1,6 @@
 import sys
 import numpy 
-sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
+sys.path.append('/Users/davidtopping/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
 from umansysprop import vapour_pressures
 from umansysprop import critical_properties
@@ -18,6 +18,8 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     y_gas=[0.0]*num_species
     species_step=0
     ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties.
+    include_index=[]
+    include_dict=dict()
     ignore_index_fortran=numpy.zeros((num_species+1),)
     print("Calculating component properties using UManSysProp")
     
@@ -66,6 +68,8 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
                 if sat_vp[species_dict2array[compound]] > vp_cutoff:
                     ignore_index.append(species_dict2array[compound])
                     ignore_index_fortran[species_dict2array[compound]]=1.0
+                else:
+                    include_index.append(species_dict2array[compound])
                     
             #sat_vp[species_dict2array[compound]]=(vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])))
             #sat_vp_org[Pybel_object_dict[SMILES_dict[compound]]]=vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]]))
@@ -85,6 +89,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     return_dict['Latent_heat_gas']=Latent_heat_gas   
     return_dict['ignore_index']=ignore_index 
     return_dict['ignore_index_fortran']=ignore_index_fortran
+    return_dict['include_index']=include_index
 
     return return_dict
     

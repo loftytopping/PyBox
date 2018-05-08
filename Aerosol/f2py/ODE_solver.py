@@ -95,7 +95,9 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #F2c) Extract the current gas phase concentrations to be used in pressure difference calculations
         C_g_i_t = y_asnumpy[0:num_species,]
         #Set the values for oxidants etc to 0 as will force no mass transfer
-        C_g_i_t[ignore_index]=0.0
+        #C_g_i_t[ignore_index]=0.0
+        C_g_i_t=C_g_i_t[include_index]
+        
     
         #pdb.set_trace()
                 
@@ -107,7 +109,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #pdb.set_trace()
         
         # Add the calculated gains/losses to the complete dy_dt array
-        dy_dt[0:num_species+(num_species*num_bins),0]+=dy_dt_calc[:]
+        dy_dt[0:num_species+(num_species_condensed*num_bins),0]+=dy_dt_calc[:]
         
         #pdb.set_trace()
     
@@ -141,6 +143,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     species_initial_conc=input_dict['species_initial_conc']
     equations=input_dict['equations']
     num_species=input_dict['num_species']
+    num_species_condensed=input_dict['num_species_condensed']
     y_density_array_asnumpy=input_dict['y_density_array_asnumpy']
     y_mw=input_dict['y_mw']
     sat_vp=input_dict['sat_vp']
@@ -169,6 +172,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     core_molw_asnumpy=input_dict['core_molw_asnumpy']
     core_dissociation=input_dict['core_dissociation']
     N_perbin=input_dict['N_perbin']
+    include_index=input_dict['include_index']
     
     pdb.set_trace()
     
@@ -212,7 +216,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
     simulation_time= 3600.0
-    batch_step=1800.0
+    batch_step=300.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -242,7 +246,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         exp_sim = CVode(exp_mod) 
         tol_list=[1.0e-2]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
-        exp_sim.rtol = 1.0e-2 #Default 1e-6
+        exp_sim.rtol = 1.0e-4 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
         #exp_sim.discr = 'Adams'
         exp_sim.maxh = 100.0
