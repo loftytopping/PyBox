@@ -51,7 +51,8 @@ import collections
 import pdb
 from datetime import datetime
 import time
-from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
+from ODE_solver_opsplit import run_simulation # [•] Contains routines to run ODE solver
+#from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
 import Property_calculation
 import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
@@ -63,7 +64,7 @@ if __name__=='__main__':
    
     #-------------------------------------------------------------------------------------
 
-    #1)Define starting ambient conditions
+    #1)Define starting ambient conditions and species concentrations
     temp=288.15
     RH=0.5 #RH/100%
     PInit=98000 #Pascals - Starting pressure of parcel expansion [if run in Parcel model mode]
@@ -95,6 +96,13 @@ if __name__=='__main__':
     NA=6.0221409e+23 #Avogadros number
     kb=1.380648E-23 #Boltzmanns constant
     
+    # Which method for calculating component properties do you want to use?
+    vp_method='nannoolal'
+    bp_method='joback_and_reid'
+    critical_method='nannoolal'
+    density_method='girolami'
+    ignore_vp=True
+    vp_cutoff=-6.0
     
     #-------------------------------------------------------------------------------------
     #2) Parse equation file 
@@ -155,7 +163,7 @@ if __name__=='__main__':
         
         # Now calculate all properties that dictate gas-to-particle partitioning
         print("Calculating properties that dictate gas-to-particle partitioning")
-        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp)
+        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff)
         
         #pdb.set_trace()
         print("Saving the mechanism and property dictionaries as a pickled object for later retrieval")
@@ -235,7 +243,7 @@ if __name__=='__main__':
             num_species= pickle.load(f) 
             
         print("Calculating properties that dictate gas-to-particle partitioning")
-        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp)
+        property_dict1=Property_calculation.Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,'nannoolal','joback_and_reid')
             
     # Modify property arrays to include water as partitioning component
     # Load previously calculated values
@@ -347,12 +355,12 @@ if __name__=='__main__':
         #                                                       Note this dosnt yet account for a kelvin factor
         step+=1
 
-    if file_exists is False: # This needs to be changed if either num_species OR num_bins changes
+    if files_exist is False: # This needs to be changed if either num_species OR num_bins changes
                              # Future versions should add ability to only change number of bins
 
         # Create a Fortran file for calculating gas-to-particle partitioning drivers
         print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
-        Parse_eqn_file.write_partitioning_section_fortran(total_length_y,num_bins,num_species)
+        Parse_eqn_file.write_partitioning_section_fortran(num_species+num_species*num_bins,num_bins,num_species)
         print("Compiling gas-to-particle partitioning file using f2py")
         os.system("python f2py_partition.py build_ext --inplace")        
 

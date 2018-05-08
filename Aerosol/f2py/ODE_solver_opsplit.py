@@ -36,7 +36,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #-------------------------------------------------------------------------------------    
     #-------------------------------------------------------------------------------------
     # define the ODE function to be called
-    def dydt_func(t,y):
+    def dydt_func_gas_only(t,y):
 
         dy_dt=numpy.zeros((total_length_y,1),)
         
@@ -69,6 +69,22 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #pdb.set_trace()
         
         dy_dt[0:num_species-1,0]=dydt_gas
+                
+        #----------------------------------------------------------------------------        
+        return dy_dt
+        
+    def dydt_func_aerosol_only(t,y):
+
+        dy_dt=numpy.zeros((total_length_y,1),)
+        
+        #pdb.set_trace()
+        # Calculate time of day
+        time_of_day_seconds=start_time+t
+        
+        #pdb.set_trace()
+        # make sure the y array is not a list. Assimulo uses lists
+        y_asnumpy=numpy.array(y)
+        Model_temp = temp
         
         # Change the saturation vapour pressure of water
         # Need to re-think the change of organic vapour pressures with temperature.
@@ -117,14 +133,16 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #pdb.set_trace()  
         #pdb.set_trace()        
         #print "elapsed time=", elapsedTime   
-        dydt_func.total_SOA_mass=total_SOA_mass
-        dydt_func.size_array=size_array
-        dydt_func.temp=Model_temp
-        dydt_func.RH=Pressure_gas[-1]/(Psat[-1]*101325.0)
-        dydt_func.water_activity=aw_array
+        dydt_func_aerosol_only.total_SOA_mass=total_SOA_mass
+        dydt_func_aerosol_only.size_array=size_array
+        dydt_func_aerosol_only.temp=Model_temp
+        dydt_func_aerosol_only.RH=Pressure_gas[-1]/(Psat[-1]*101325.0)
+        dydt_func_aerosol_only.water_activity=aw_array
                 
         #----------------------------------------------------------------------------        
         return dy_dt
+        
+        
     #-------------------------------------------------------------------------------------
     #-------------------------------------------------------------------------------------
 
@@ -212,7 +230,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
     simulation_time= 3600.0
-    batch_step=1800.0
+    batch_step=100.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -221,31 +239,55 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # the need to run in batches. You can tell the Assimulo solvers the frequency of outputs.
     y_matrix=numpy.zeros((int(number_steps),len(y0)))
     
-    print("Starting simulation")
+    print("Starting simulation, using operator splitting")
 
-    # In the following, we can 
+    # In the following, we split the simulation into gas only and then gas-to-particle partitioning
+    # This is done to improve time-to-solution and also stiffness of the method
+    # The current strategy is
+    # 100 seconds gas only
+    # 100 seconds partitioning only 
+    # These are defined below and can be changed accordingly
+    
+    gas_only_time=10.0
+    partitioning_only_time=20.0
+    
     while total_time < simulation_time:
         
         if total_time == 0.0:
             #Define an Assimulo problem
             #Define an explicit solver
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            exp_mod = Explicit_Problem(dydt_func_gas_only,y0,t0, name = 'MCM simulation [gas only]')
+            gas_step=1
+            maxh=gas_only_time
             
         else:
+            
             y0 = y_output[-1,:] # Take the output from the last batch as the start of this
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            
+            if gas_step==1:
+                exp_mod = Explicit_Problem(dydt_func_aerosol_only,y0,t0, name = 'MCM simulation [partitioning only]')
+                partitioning_step=1
+                gas_step = 0
+                batch_step=partitioning_only_time
+                maxh=partitioning_only_time
+            else:
+                exp_mod = Explicit_Problem(dydt_func_gas_only,y0,t0, name = 'MCM simulation [gas only]')
+                partitioning_step=0
+                gas_step = 1
+                batch_step=gas_only_time
+                maxh=gas_only_time
             
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.
         #exp_mod.jac = dydt_jac
         # Define which ODE solver you want to use
         exp_sim = CVode(exp_mod) 
-        tol_list=[1.0e-2]*len(y0)
+        tol_list=[1.0]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
-        exp_sim.rtol = 1.0e-2 #Default 1e-6
+        exp_sim.rtol = 1.0e-3 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
         #exp_sim.discr = 'Adams'
-        exp_sim.maxh = 100.0
+        exp_sim.maxh = maxh
         # Use of a jacobian makes a big differece in simulation time. This is relatively 
         # easy to define for a gas phase - not sure for an aerosol phase with composition
         # dependent processes. 

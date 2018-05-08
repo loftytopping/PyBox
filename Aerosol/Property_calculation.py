@@ -1,6 +1,6 @@
 import sys
 import numpy 
-sys.path.append('/Users/davidtopping/Code/Git_repos/UManSysProp_public/')
+sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
 from umansysprop import vapour_pressures
 from umansysprop import critical_properties
@@ -9,7 +9,7 @@ from umansysprop import partition_models
 from umansysprop import activity_coefficient_models_dev as aiomfac
 from umansysprop.forms import CoreAbundanceField
 
-def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp):
+def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff):
     
     y_density_array=[1000.0]*num_species
     y_mw=[200.0]*num_species
@@ -20,14 +20,55 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties.
     ignore_index_fortran=numpy.zeros((num_species+1),)
     print("Calculating component properties using UManSysProp")
+    
+    # Which boiling point method has been chosen
+    boiling_point = {
+        'joback_and_reid': boiling_points.joback_and_reid,
+        'stein_and_brown': boiling_points.stein_and_brown,
+        'nannoolal':       boiling_points.nannoolal,
+        }[bp_method]
+    vapour_pressure = {
+        'nannoolal':            vapour_pressures.nannoolal,
+        'myrdal_and_yalkowsky': vapour_pressures.myrdal_and_yalkowsky,
+        # Evaporation doesn't use boiling point
+        'evaporation': lambda c, t, b: vapour_pressures.evaporation(c, t),
+        }[vp_method]
+    # Which density method has been chosen
+    critical_property = {
+        'nannoolal':          critical_properties.nannoolal,
+        'joback_and_reid':    critical_properties.joback_and_reid,
+        }[critical_method]
+    liquid_density = {
+        'girolami':      lambda c, t, p: liquid_densities.girolami(c),
+        'schroeder':     liquid_densities.schroeder,
+        'le_bas':        liquid_densities.le_bas,
+        'tyn_and_calus': liquid_densities.tyn_and_calus,
+        }[density_method]
+    
     for compound in species_dict.values():
         if compound in SMILES_dict.keys():
-            y_density_array[species_dict2array[compound]]=(liquid_densities.girolami(Pybel_object_dict[SMILES_dict[compound]])*1.0E3) #Convert from g/cc to kg/m3
+            
+            # Calculate a boiling point with Nanoolal for density methods
+            b1 = boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])
+            y_density_array[species_dict2array[compound]]=liquid_density(Pybel_object_dict[SMILES_dict[compound]], temp, critical_property(Pybel_object_dict[SMILES_dict[compound]], b1))
+            
+            #y_density_array[species_dict2array[compound]]=(liquid_densities.girolami(Pybel_object_dict[SMILES_dict[compound]])*1.0E3) #Convert from g/cc to kg/m3
             #y_density_array.append(1400.0)
             y_mw[species_dict2array[compound]]=(Pybel_object_dict[SMILES_dict[compound]].molwt)
             #In the following you will need to select which vapour pressure method you like.
-            sat_vp[species_dict2array[compound]]=(vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])))
-            sat_vp_org[Pybel_object_dict[SMILES_dict[compound]]]=vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]]))
+            
+            # Calculate boiling point
+            b = boiling_point(Pybel_object_dict[SMILES_dict[compound]])
+            
+            sat_vp[species_dict2array[compound]]=vapour_pressure(Pybel_object_dict[SMILES_dict[compound]], temp,b)
+            
+            if ignore_vp is True:
+                if sat_vp[species_dict2array[compound]] > vp_cutoff:
+                    ignore_index.append(species_dict2array[compound])
+                    ignore_index_fortran[species_dict2array[compound]]=1.0
+                    
+            #sat_vp[species_dict2array[compound]]=(vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])))
+            #sat_vp_org[Pybel_object_dict[SMILES_dict[compound]]]=vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]]))
             #y_gas.append(concentration_array[species_step])
         else:
             ignore_index.append(species_dict2array[compound])
