@@ -10,12 +10,25 @@
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
-#    This program does not yet have a license, meaning the deault copyright law applies. #
-#    I will add an appropriate open-source icense once made public with paper            #
-#    Only users who have access to the private repository that holds this file may       #
-#    use it, but may not distribute it without explicit permission.                      #
+#    All Rights Reserved.                                                                #
+#    This file is part of PyBox.                                                         #
 #                                                                                        #
+#    PyBox is free software: you can redistribute it and/or modify it under              #
+#    the terms of the GNU General Public License as published by the Free Software       #
+#    Foundation, either version 3 of the License, or (at your option) any later          #
+#    version.                                                                            #
 #                                                                                        #
+#    PyBox is distributed in the hope that it will be useful, but WITHOUT                #
+#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS       #
+#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more              #
+#    details.                                                                            #
+#                                                                                        #
+#    You should have received a copy of the GNU General Public License along with        #
+#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                 #
+#                                                                                        #
+##########################################################################################
+# Developed using the Anaconda Python 3 distribution and with the Assimulo ODE solver    # 
+# suite: http://www.jmodelica.org/assimulo                                               #
 ##########################################################################################
 
 import numpy 
@@ -24,7 +37,7 @@ import pdb
 
 def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict):
 
-    from assimulo.solvers import RodasODE, CVode #Choose solver accoring to your need. 
+    from assimulo.solvers import RodasODE, CVode, RungeKutta4, LSODAR #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
     
     # In this function, we import functions that have been pre-compiled for use in the ODE solver
@@ -243,7 +256,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # Initial steps might be slower than mid-simulation. It varies.
         #exp_mod.jac = dydt_jac
         # Define which ODE solver you want to use
-        exp_sim = CVode(exp_mod) 
+        exp_sim = LSODAR(exp_mod) 
         tol_list=[1.0e-2]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
         exp_sim.rtol = 1.0e-4 #Default 1e-6
