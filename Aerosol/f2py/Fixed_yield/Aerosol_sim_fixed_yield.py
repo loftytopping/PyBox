@@ -1,12 +1,9 @@
 ##########################################################################################
 #                                                                                        #
-#    Example aerosol phase model [gas+condensed phase]. This takes an equation file,     #
-#    given in the KPP format,                                                            #
-#    and then sets up an ODE solver where initial concentrations of any specie can       #
-#    be set. It also relies on some pre-defined rate coefficients and photolysis rates   #
-#    taken from the MCM. These are explicitly written into the relevant  modules         #
-#    in the file Parse_eqn_file.write_rate_file_xxx() which is provided with a           #
-#    Fortran syntax version of pre-defined rates if that version used [see f2py dir]     #
+#    Example aerosol phase model [gas+condensed phase]. This takes a file that specifies #
+#    a yield of compounds, given as SMILES strings plus fractional yield.  The user      #
+#    then defines what the total concetration [ppb] is and the model simulates gas-to    #
+#    particle partitioning                                                               #
 #                                                                                        #
 #                                                                                        #
 #    The user specifies a starting size distribution and core material                   #
@@ -48,8 +45,8 @@
                                                                                      
 import numpy 
 import os, sys
+sys.path.append(os.path.abspath('../../..'))
 sys.path.append(os.path.abspath('../..'))
-sys.path.append(os.path.abspath('..'))
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
 import rate_coeff_conversion # [•] Converts standard text rate coefficients into Numba/Fortran
 import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
@@ -59,7 +56,7 @@ import pdb
 from datetime import datetime
 import time
 #from ODE_solver_opsplit import run_simulation # [•] Contains routines to run ODE solver
-from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
+from ODE_solver_fixedyield import run_simulation # [•] Contains routines to run ODE solver
 import Property_calculation
 import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
@@ -119,7 +116,7 @@ if __name__=='__main__':
     # be set to 'high', given calculated values are given in Log10(atmospehres). By doing this you
     # can significantly decrease the size of of the resultant jacobian and speed-up calculations
     # This information is compiled in the call to Property_calculation.Pure_component1
-    ignore_vp=True
+    ignore_vp=False
     vp_cutoff=-6.0
     
     #-------------------------------------------------------------------------------------
@@ -132,7 +129,7 @@ if __name__=='__main__':
     
     # First we load the files that deal only with the gas phase mechanism
 
-    filename='MCM_APINENE'    
+    filename='MCM_yield'    
 
     files_exist = False
     
@@ -153,33 +150,19 @@ if __name__=='__main__':
             if ".npz" in fname:
                 os.remove(fname)
                 
-        # Parse equation file and store relevant dictionaries for later retrieval
-        print_options=dict()
-        print_options['Full_eqn']=0 #Set to 1 to print details of all equations and rate coefficients parsed [useful for checking]
-
-        # Define the .eqn file to be used in the following
-        outputdict=Parse_eqn_file.extract_mechanism(filename+'.eqn.txt',print_options)
+        # Define the .txt yield file to be used in the following
+        outputdict=Parse_eqn_file.extract_species(filename+'.txt')
         
-        # Now map these species onto SMILES according to the relevant .xml file that comes with the MCM. If this file changes
-        # you will need to change the reference here
-        outputdict=Parse_eqn_file.extract_smiles_species(outputdict,'../MCM.xml')
-
         # Collect the dictionaries generated
-        reaction_dict=outputdict['reaction_dict']
-        rate_dict=outputdict['rate_dict']
-        rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
-        rate_dict_reactants=outputdict['rate_dict_reactants']
-        rate_def=outputdict['rate_def']
-        loss_dict=outputdict['loss_dict']
-        gain_dict=outputdict['gain_dict']
-        stoich_dict=outputdict['stoich_dict']
+        Pybel_object_dict=outputdict['Pybel_object_dict']
+        smiles_array=outputdict['smiles_array']
+        concentration_array=outputdict['concentration_array']
+        Pybel_object_activity=outputdict['Pybel_object_activity']
         species_dict=outputdict['species_dict']
         species_dict2array=outputdict['species_dict2array']
-        equations=outputdict['max_equations']
-        Pybel_object_dict=outputdict['Pybel_object_dict'] # Might be different size to mechanism extracted dicts [due to ignoring oxidants etc]
-        SMILES_dict=outputdict['SMILES_dict']
-        num_species=len(species_dict.keys())
-        
+        num_species=outputdict['species_number']      
+        SMILES_dict=outputdict['SMILES_dict']  
+        concentration_dict=outputdict['concentration_dict']
         # Now calculate all properties that dictate gas-to-particle partitioning
         print("Calculating properties that dictate gas-to-particle partitioning")
         property_dict1=Property_calculation.Pure_component1(num_species,species_dict,
@@ -203,45 +186,14 @@ if __name__=='__main__':
         #    pickle.dump(property_dict2, handle, protocol=pickle.HIGHEST_PROTOCOL)
         with open(filename+'_num_species_gas.pickle', 'wb') as handle:
             pickle.dump(num_species, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(filename+'concentration_dict.pickle', 'wb') as handle:
+            pickle.dump(concentration_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
         # Generate some static Fortran libraries for use in ODE solver
         # Here you have the option to use OpenMP for spreading caclualtions across available cores
         # This will automatically map to the number of cores on your machine
         openMP=True
     
-        #pdb.set_trace()
-    
-        # Convert the rate coefficient expressions into Fortran commands
-        print("Converting rate coefficient operation into Fortran file")
-        #rate_dict=rate_coeff_conversion.convert_rate_mcm(rate_dict)
-        # Convert rate definitions in original *.eqn.txt file into a form to be used in Fortran
-        rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
-        Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
-        print("Compiling rate coefficient file using f2py")
-        #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
-        os.system("python f2py_rate_coefficient.py build_ext --inplace")
-        
-        # Create Fortran file for calculating prodcts all of reactants for all reactions
-        print("Creating Fortran file to calculate reactant contribution to equation")
-        Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
-        print("Compiling reactant product file using f2py")
-        os.system("python f2py_reactant_conc.py build_ext --inplace")
-        
-        # Create Fortran file for calculating dy_dt
-        print("Creating Fortran file to calculate dy_dt for each reaction")
-        Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
-        print("Compiling dydt file using f2py")
-        os.system("python f2py_loss_gain.py build_ext --inplace")
-                
-        # Create .npy file with indices for all RO2 species
-        print("Creating file that holds RO2 species indices")
-        Parse_eqn_file.write_RO2_indices(filename,species_dict2array)
-        
-        # Create jacobian 
-        #Parse_eqn_file.write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,openMP)
-        #print("Compiling jacobian function using f2py")      
-        #os.system("python f2py_jacobian.py build_ext --inplace")
-
     else:
         
         # You have already parsed the .eqn file and stored relevant information. 
@@ -262,6 +214,8 @@ if __name__=='__main__':
         #    property_dict2= pickle.load(f) 
         with open(filename+'_num_species_gas.pickle', 'rb') as f:
             num_species= pickle.load(f) 
+        with open(filename+'concentration_dict.pickle', 'rb') as f:
+            concentration_dict= pickle.load(f) 
             
         print("Calculating properties that dictate gas-to-particle partitioning")
         property_dict1=Property_calculation.Pure_component1(num_species,species_dict,
@@ -289,6 +243,20 @@ if __name__=='__main__':
         Latent_heat_gas=numpy.array(Latent_heat_gas)[include_index].tolist()
         
     
+    # Now deal with the files that treat gas-to-particle partitioning
+    
+    #-------------------------------------------------------------------------------------
+    # 7) Define species concetrations     
+    #-------------------------------------------------------------------------------------
+    # Define initial concentration of TOTAL species
+    total_voc_mass =30.0 #microgram/m3
+    voc_mw=136.24 #g/mol - assumed molecular weight of parent VOC
+    total_voc_ppb = total_voc_mass*(273.15+(temp-273.15))/(12.187*voc_mw)#total_voc_mass** ( (22.41 * temp / 273.0) / voc_mw )  #Assuming molecular weight alpha-pinene   
+    y_gas=[0.0]*num_species
+    for smiles, Pybel_object in Pybel_object_dict.items():
+        y_gas[species_dict2array[smiles]]=concentration_dict[Pybel_object]*total_voc_ppb*2.46E10 # ppb to molecules per cc [assuming 25C and 1atm - make this variable]
+    
+    # Add water    
     sat_vap_water = numpy.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * numpy.log(temp)))
     y_density_array.append(1000.0E0) #Append density of water to array [kg/m3]
     y_mw.append(18.0E0) #Append mw of water to array [g/mol]
@@ -304,6 +272,7 @@ if __name__=='__main__':
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
     include_index.append(num_species-1)
+    y_gas.append(H2O)
     
     #-------------------------------------------------------------------------------------
     # 6) Now calculate the additional properties that dictate gas-to-particle partitioning [inc water]
@@ -314,19 +283,6 @@ if __name__=='__main__':
     mean_them_vel=property_dict2['mean_them_vel']
     gamma_gas=property_dict2['gamma_gas']
     
-    # Now deal with the files that treat gas-to-particle partitioning
-    
-    #-------------------------------------------------------------------------------------
-    # 7) Define species concetrations     
-    #-------------------------------------------------------------------------------------
-    # Define initial concentrations, in pbb, of species using names from KPP file
-    species_initial_conc=dict()
-    species_initial_conc['O3']=18.0
-    species_initial_conc['APINENE']=30.0
-    #species_initial_conc['BCARY']=20.0
-
-    # Add water
-    species_initial_conc['H2O']=H2O
 
     #-------------------------------------------------------------------------------------
     # 8) Define an initial size distribution. 
@@ -397,7 +353,8 @@ if __name__=='__main__':
         y_cond[(num_species_condensed-1)+(step*num_species_condensed)]=water_moles #Add this water to the distribution. 
         #                                                       Note this dosnt yet account for a kelvin factor
         step+=1
-        
+    
+    pdb.set_trace()
     #-------------------------------------------------------------------------------------
     # 9) Create partitioning module if it dosnt exist
     # IMPORTANT - if you change the number of size bins this needs re-compiling
@@ -418,8 +375,6 @@ if __name__=='__main__':
     input_dict=dict()
     input_dict['species_dict']=species_dict
     input_dict['species_dict2array']=species_dict2array
-    input_dict['species_initial_conc']=species_initial_conc
-    input_dict['equations']=equations
     input_dict['num_species']=num_species
     input_dict['num_species_condensed']=num_species_condensed
     input_dict['y_density_array_asnumpy']=numpy.array(y_density_array)
@@ -451,16 +406,17 @@ if __name__=='__main__':
     input_dict['core_dissociation']=core_dissociation
     input_dict['N_perbin']=N_perbin
     input_dict['include_index']=include_index
-    
-    RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
-    
+    input_dict['y_gas_initial']=y_gas
+        
     pdb.set_trace()
 
     #Do you want to save the output from the simulation as a .npy file?
     save_output=True
     #-------------------------------------------------------------------------------------
     # 11) Run the simulation
-    run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict)
+    run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict)
     #-------------------------------------------------------------------------------------
     
+    
 
+    

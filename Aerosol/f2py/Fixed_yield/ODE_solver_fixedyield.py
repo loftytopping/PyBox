@@ -35,8 +35,9 @@ import numpy
 import pylab as P
 import pdb
 import pickle
+import Plotting
 
-def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict):
+def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict):
 
     from assimulo.solvers import RodasODE, CVode, RungeKutta4, LSODAR #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -62,31 +63,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # make sure the y array is not a list. Assimulo uses lists
         y_asnumpy=numpy.array(y)
         Model_temp = temp
-        #pdb.set_trace()
-        #Calculate the concentration of RO2 species, using an index file created during parsing
-        RO2=numpy.sum(y[RO2_indices])
 
-        #Calculate reaction rate for each equation.
-        # Note that H2O will change in parcel mode
-        # The time_of_day_seconds is used for photolysis rates - need to change this if want constant values
-        rates=evaluate_rates_fortran(RO2,H2O,Model_temp,time_of_day_seconds)
-        #pdb.set_trace()
-        # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc]        
-        reactants=reactants_fortran(y_asnumpy[0:num_species-1])
-        #pdb.set_trace()
-        #Multiply product of reactants with rate coefficient to get reaction rate            
-        reactants = numpy.multiply(reactants,rates)
-        #pdb.set_trace()
-        # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
-        # With the assimulo solvers we need to output numpy arrays
-        dydt_gas=loss_gain_fortran(reactants)
-        #pdb.set_trace()
-        
-        dy_dt[0:num_species-1,0]=dydt_gas
-        
-        # Change the saturation vapour pressure of water
-        # Need to re-think the change of organic vapour pressures with temperature.
-        # At the moment this is kept constant as re-calulation using UManSysProp very slow
         sat_vap_water = numpy.exp((-0.58002206E4 / Model_temp) + 0.13914993E1 - \
         (0.48640239E-1 * Model_temp) + (0.41764768E-4 * (Model_temp**2.0E0))- \
         (0.14452093E-7 * (Model_temp**3.0E0)) + (0.65459673E1 * numpy.log(Model_temp)))
@@ -111,9 +88,6 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #Set the values for oxidants etc to 0 as will force no mass transfer
         #C_g_i_t[ignore_index]=0.0
         C_g_i_t=C_g_i_t[include_index]
-        
-    
-        #pdb.set_trace()
                 
         total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy,ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
@@ -146,16 +120,11 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
 
     #import static compilation of Fortran functions for use in ODE solver
     print("Importing pre-compiled Fortran modules")
-    from rate_coeff_f2py import evaluate_rates as evaluate_rates_fortran
-    from reactants_conc_f2py import reactants as reactants_fortran
-    from loss_gain_f2py import loss_gain as loss_gain_fortran  
     from partition_f2py import dydt_partition as dydt_partition_fortran
     
     # 'Unpack' variables from input_dict
     species_dict=input_dict['species_dict']
     species_dict2array=input_dict['species_dict2array']
-    species_initial_conc=input_dict['species_initial_conc']
-    equations=input_dict['equations']
     num_species=input_dict['num_species']
     num_species_condensed=input_dict['num_species_condensed']
     y_density_array_asnumpy=input_dict['y_density_array_asnumpy']
@@ -187,6 +156,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     core_dissociation=input_dict['core_dissociation']
     N_perbin=input_dict['N_perbin']
     include_index=input_dict['include_index']
+    y_gas=input_dict['y_gas_initial']
     
     # pdb.set_trace()
     
@@ -194,28 +164,15 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     Cfactor= 2.55e+10 #ppb-to-molecules/cc
     
     # Create variables required to initialise ODE
-    y0 = [0]*(num_species+num_species_condensed*num_bins) #Initial concentrations, set to 0
+    y0 = y_gas+y_cond #Initial concentrations
     t0 = 0.0 #T0
-        
-    # Define species concentrations in ppb fr the gas phase
-    # You have already set this in the front end script, and now we populate the y array with those concentrations
-    for specie in species_initial_conc.keys():
-        if specie is not 'H2O':
-            y0[species_dict2array[specie]]=species_initial_conc[specie]*Cfactor #convert from pbb to molcules/cc
-        elif specie is 'H2O':
-            y0[species_dict2array[specie]]=species_initial_conc[specie]
-
-    # Now add the initial condensed phase [including water]
-    #pdb.set_trace()
-    y0[num_species:num_species_condensed+((num_bins)*num_species_condensed)]=y_cond[:]
-    #pdb.set_trace()
-    
+            
     #Set the total_time of the simulation to 0 [havent done anything yet]
     total_time=0.0
     
     # Define a 'key' that represents the end of the composition variables to track
     total_length_y=len(y0)
-    key=num_species+((num_bins)*num_species)-1
+    key=num_species+((num_bins)*num_species_condensed)-1
     
     #pdb.set_trace()
     
@@ -263,7 +220,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         exp_sim = LSODAR(exp_mod) 
         tol_list=[1.0e-2]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
-        exp_sim.rtol = 1.0e-4 #Default 1e-6
+        exp_sim.rtol = 1.0e-6 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
         #exp_sim.discr = 'Adams'
         exp_sim.maxh = 100.0
@@ -282,8 +239,12 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         y_matrix[time_step,:]=y_output[-1,:]
         SOA_matrix[time_step,0]=dydt_func.total_SOA_mass
         size_matrix[time_step,:]=dydt_func.size_array
-        print("SOA [micrograms/m3] = ", dydt_func.total_SOA_mass)
-                
+        print ("Predicted SOA mass from end of dynamic calculation [microgram/m3] = ", dydt_func.total_SOA_mass)
+        print ("Predicted size range from end of dynamic calculation = ", dydt_func.size_array)
+        print ("Predicted temperature from end of dynamic calculation = ", dydt_func.temp)
+        print ("Predicted RH from end of dynamic calculation = ", dydt_func.RH)
+        print ("Predicted water activity from end of dynamic calculation = ", dydt_func.water_activity)
+    
         #now save this information into a matrix for later plotting.
         time_step+=1
 
@@ -308,10 +269,6 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
     if with_plots:
-        P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
-        P.title(exp_mod.name)
-        P.ylabel("State: $y_1$")
-        P.xlabel("Time")
-        P.show()
         
-    
+        Plotting.stacked_bar(t_array,y_matrix,num_species_condensed,num_bins,numpy.array(y_mw[include_index]),NA)
+        

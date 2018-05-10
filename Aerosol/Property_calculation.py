@@ -27,7 +27,7 @@
 
 import sys
 import numpy 
-sys.path.append('/Users/davidtopping/Code/Git_repos/UManSysProp_public/')
+sys.path.append('/Users/mccikdt3/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
 from umansysprop import vapour_pressures
 from umansysprop import critical_properties
@@ -35,6 +35,7 @@ from umansysprop import liquid_densities
 from umansysprop import partition_models
 from umansysprop import activity_coefficient_models_dev as aiomfac
 from umansysprop.forms import CoreAbundanceField
+import pdb
 
 def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff):
     
@@ -44,7 +45,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     sat_vp_org=dict() #Recorded seperately and will not include the extension for water. This is used for any checks with equilibrium partitioning predictions
     y_gas=[0.0]*num_species
     species_step=0
-    ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties.
+    ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties. OR are species that will be ignored in partitioning
     include_index=[]
     include_dict=dict()
     ignore_index_fortran=numpy.zeros((num_species+1),)
@@ -78,6 +79,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
         if compound in SMILES_dict.keys():
             
             # Calculate a boiling point with Nanoolal for density methods
+            #pdb.set_trace()
             b1 = boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])
             y_density_array[species_dict2array[compound]]=liquid_density(Pybel_object_dict[SMILES_dict[compound]], temp, critical_property(Pybel_object_dict[SMILES_dict[compound]], b1))
             
@@ -97,6 +99,8 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
                     ignore_index_fortran[species_dict2array[compound]]=1.0
                 else:
                     include_index.append(species_dict2array[compound])
+            else:
+                include_index.append(species_dict2array[compound])
                     
             #sat_vp[species_dict2array[compound]]=(vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]])))
             #sat_vp_org[Pybel_object_dict[SMILES_dict[compound]]]=vapour_pressures.nannoolal(Pybel_object_dict[SMILES_dict[compound]], temp, boiling_points.nannoolal(Pybel_object_dict[SMILES_dict[compound]]))

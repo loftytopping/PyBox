@@ -340,6 +340,7 @@ def extract_species(filename):
     #This function is used to test box-models by extracting from a pre-defined chemical mechanism snapshot
     smiles_array=[]
     concentration_array=[]
+    concentration_dict=collections.defaultdict()
     SMILES_dict=collections.defaultdict()
     Pybel_object_dict=collections.defaultdict()
     Pybel_object_activity=collections.defaultdict()
@@ -360,6 +361,7 @@ def extract_species(filename):
         #pdb.set_trace()
         if smiles not in species_dict.values():
             smiles_array.append(smiles)
+            SMILES_dict[smiles]=smiles
             concentration_array.append(float(input[1]))
             # Now create Pybel objects which are used in all property predictive techniquexs
             Pybel_object=pybel.readstring('smi',input[0])
@@ -367,7 +369,8 @@ def extract_species(filename):
             Pybel_object_dict[smiles]=Pybel_object
             Pybel_object_activity[Pybel_object]=float(input[1])
             species_dict[species_step]=smiles # useful for checking all parsed species
-            species_dict2array[Pybel_object]=species_step #useful for converting a dict to array
+            species_dict2array[smiles]=species_step #useful for converting a dict to array
+            concentration_dict[Pybel_object]=float(input[1])
             species_step+=1
             
     print("Total number of species = ", species_step)
@@ -377,9 +380,11 @@ def extract_species(filename):
     output_dict['species_dict2array']=species_dict2array
     output_dict['Pybel_object_dict']=Pybel_object_dict
     output_dict['smiles_array']=smiles_array
+    output_dict['SMILES_dict']=SMILES_dict
     output_dict['concentration_array']=concentration_array
     output_dict['species_number']=species_step
     output_dict['Pybel_object_activity']=Pybel_object_activity
+    output_dict['concentration_dict']=concentration_dict
 
     return output_dict
     
@@ -389,14 +394,25 @@ def write_rate_file(filename,rate_dict):
     f = open('Rate_coefficients.py','w')
     f.write('##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('# Python function to hold expressions for calculating rate coefficients for a given equation number # \n') # python will convert \n to os.linesep
-    f.write('#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
     f.write('#                                      : davetopp80@gmail.com                                       # \n')
     f.write('#    Personal website: davetoppingsci.com                                                           # \n')
     f.write('#                                                                                                   # \n')
-    f.write('#    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    f.write('#    Only users who have access to the private repository that holds this file may                  # \n')
-    f.write('#    use it or develop it, but may not distribute it.                                               # \n')
+    f.write('#    All Rights Reserved.                                                                           # \n')
+    f.write('#    This file is part of PyBox.                                                                    # \n')
     f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('#    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('#    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('#    version.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('#    details.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
     f.write('#                                                                                                   # \n')
     f.write('##################################################################################################### \n')    
     f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
@@ -748,15 +764,26 @@ def write_rate_file_numba(filename,rate_dict):
     #Put all of the rate coefficient functional forms into a new python file.
     f = open('Rate_coefficients_numba.py','w')
     f.write('##################################################################################################### \n') # python will convert \n to os.linesep
-    f.write('# Python function to hold expressions for calculating rate coefficients for a given equation number # \n') # python will convert \n to os.linesep
-    f.write('#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('#    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
     f.write('#                                      : davetopp80@gmail.com                                       # \n')
     f.write('#    Personal website: davetoppingsci.com                                                           # \n')
     f.write('#                                                                                                   # \n')
-    f.write('#    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    f.write('#    Only users who have access to the private repository that holds this file may                  # \n')
-    f.write('#    use it or develop it, but may not distribute it.                                               # \n')
+    f.write('#    All Rights Reserved.                                                                           # \n')
+    f.write('#    This file is part of PyBox.                                                                    # \n')
     f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('#    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('#    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('#    version.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('#    details.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
     f.write('#                                                                                                   # \n')
     f.write('##################################################################################################### \n')    
     f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
@@ -2034,15 +2061,25 @@ def write_reactants_indices(filename,equations,num_species,species_dict2array,ra
     #The following commented out code puts all of the rate coefficient functional forms into a new python file.
     f = open('Reactants_conc_numba.py','w')
     f.write('##################################################################################################### \n') # python will convert \n to os.linesep
-    f.write('# Python function to hold indices for calculating reactant contributions to each equation           # \n') # python will convert \n to os.linesep
-    f.write('#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
     f.write('#                                      : davetopp80@gmail.com                                       # \n')
     f.write('#    Personal website: davetoppingsci.com                                                           # \n')
     f.write('#                                                                                                   # \n')
-    f.write('#    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    f.write('#    Only users who have access to the private repository that holds this file may                  # \n')
-    f.write('#    use it or develop it, but may not distribute it.                                               # \n')
+    f.write('#    All Rights Reserved.                                                                           # \n')
+    f.write('#    This file is part of PyBox.                                                                    # \n')
     f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('#    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('#    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('#    version.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('#    details.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
     f.write('#                                                                                                   # \n')
     f.write('##################################################################################################### \n')    
     f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
@@ -2112,17 +2149,30 @@ def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_d
     f = open('Reactants_conc.f90','w')
     #f.write('!#################################################################################################### \n') # python will convert \n to os.linesep
     #f.write('! Fortran function to hold indices for calculating reactant contributions to each equation           # \n') # python will convert \n to os.linesep
-    #f.write('!    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
-    #f.write('!                                      : davetopp80@gmail.com                                       # \n')
-    #f.write('!    Personal website: davetoppingsci.com                                                           # \n')
-    #f.write('!                                                                                                   # \n')
-    #f.write('!    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    #f.write('!    Only users who have access to the private repository that holds this file may                  # \n')
-    #f.write('!    use it or develop it, but may not distribute it.                                               # \n')
-    #f.write('!                                                                                                   # \n')
-    #f.write('!                                                                                                   # \n')
-    #f.write('!#################################################################################################### \n')    
-    #f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
+    f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
+    f.write('! Fortran function to hold indices for calculating reactant contributions to each equation          # \n') # python will convert \n to os.linesep
+    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('!                                      : davetopp80@gmail.com                                       # \n')
+    f.write('!    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    All Rights Reserved.                                                                           # \n')
+    f.write('!    This file is part of PyBox.                                                                    # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('!    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('!    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('!    version.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('!    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('!    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('!    details.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('!    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!##################################################################################################### \n')    
+    f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
     #f.write('\n') 
     #f.write('import numpy as np\n') 
     f.write('\n')
@@ -2206,15 +2256,25 @@ def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,sp
     # Placeholder for future development - create specific reactants file for speed improvement
     f = open('Loss_Gain_numba.py','w')
     f.write('##################################################################################################### \n') # python will convert \n to os.linesep
-    f.write('# Python function to hold indices for calculating loss and gain for each species                    # \n') # python will convert \n to os.linesep
-    f.write('#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
     f.write('#                                      : davetopp80@gmail.com                                       # \n')
     f.write('#    Personal website: davetoppingsci.com                                                           # \n')
     f.write('#                                                                                                   # \n')
-    f.write('#    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    f.write('#    Only users who have access to the private repository that holds this file may                  # \n')
-    f.write('#    use it or develop it, but may not distribute it.                                               # \n')
+    f.write('#    All Rights Reserved.                                                                           # \n')
+    f.write('#    This file is part of PyBox.                                                                    # \n')
     f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('#    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('#    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('#    version.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('#    details.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
     f.write('#                                                                                                   # \n')
     f.write('##################################################################################################### \n')    
     f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
@@ -2288,15 +2348,26 @@ def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,s
     f = open('Loss_Gain.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to hold indices for calculating loss and gain for each species                    # \n') # python will convert \n to os.linesep
-    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                              # \n')
-    f.write('!                                      : davetopp80@gmail.com                                        # \n')
-    f.write('!    Personal website: davetoppingsci.com                                                            # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!    This program does not have a license, meaning the deault copyright law applies.                 # \n')
-    f.write('!    Only users who have access to the private repository that holds this file may                   # \n')
-    f.write('!    use it or develop it, but may not distribute it.                                                # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!                                                                                                    # \n')
+    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('!                                      : davetopp80@gmail.com                                       # \n')
+    f.write('!    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    All Rights Reserved.                                                                           # \n')
+    f.write('!    This file is part of PyBox.                                                                    # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('!    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('!    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('!    version.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('!    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('!    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('!    details.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('!    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('!                                                                                                   # \n')
     f.write('!##################################################################################################### \n')    
     f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
     f.write('\n') 
@@ -2401,14 +2472,26 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
     f = open('Jacobian.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to calculate jacobian function                                                    # \n') # python will convert \n to os.linesep
-    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                              # \n')
-    f.write('!                                      : davetopp80@gmail.com                                        # \n')
-    f.write('!    Personal website: davetoppingsci.com                                                            # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!    This program does not have a license, meaning the deault copyright law applies.                 # \n')
-    f.write('!    Only users who have access to the private repository that holds this file may                   # \n')
-    f.write('!    use it or develop it, but may not distribute it.                                                # \n')
-    f.write('!                                                                                                    # \n')
+    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('!                                      : davetopp80@gmail.com                                       # \n')
+    f.write('!    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    All Rights Reserved.                                                                           # \n')
+    f.write('!    This file is part of PyBox.                                                                    # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('!    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('!    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('!    version.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('!    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('!    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('!    details.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('!    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('!                                                                                                   # \n')
     f.write('!§# \n')
     f.write('!##################################################################################################### \n')    
     f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
@@ -2651,15 +2734,26 @@ def write_partitioning_section_fortran(total_length_y,num_bins,num_species):
     f = open('Partitioning.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to calculating dy/dt according to gas-to-particle partitioning                    # \n') # python will convert \n to os.linesep
-    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                              # \n')
-    f.write('!                                      : davetopp80@gmail.com                                        # \n')
-    f.write('!    Personal website: davetoppingsci.com                                                            # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!    This program does not have a license, meaning the deault copyright law applies.                 # \n')
-    f.write('!    Only users who have access to the private repository that holds this file may                   # \n')
-    f.write('!    use it or develop it, but may not distribute it.                                                # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!                                                                                                    # \n')
+    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('!                                      : davetopp80@gmail.com                                       # \n')
+    f.write('!    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    All Rights Reserved.                                                                           # \n')
+    f.write('!    This file is part of PyBox.                                                                    # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('!    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('!    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('!    version.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('!    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('!    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('!    details.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('!    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('!                                                                                                   # \n')
     f.write('!##################################################################################################### \n')    
     f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
     f.write('\n') 
@@ -2825,15 +2919,26 @@ def write_partitioning_section_fortran_ignore(total_length_y,num_bins,num_specie
     f = open('Partitioning.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to calculating dy/dt according to gas-to-particle partitioning                    # \n') # python will convert \n to os.linesep
-    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                              # \n')
-    f.write('!                                      : davetopp80@gmail.com                                        # \n')
-    f.write('!    Personal website: davetoppingsci.com                                                            # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!    This program does not have a license, meaning the deault copyright law applies.                 # \n')
-    f.write('!    Only users who have access to the private repository that holds this file may                   # \n')
-    f.write('!    use it or develop it, but may not distribute it.                                                # \n')
-    f.write('!                                                                                                    # \n')
-    f.write('!                                                                                                    # \n')
+    f.write('!    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('!                                      : davetopp80@gmail.com                                       # \n')
+    f.write('!    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    All Rights Reserved.                                                                           # \n')
+    f.write('!    This file is part of PyBox.                                                                    # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('!    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('!    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('!    version.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('!    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('!    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('!    details.                                                                                       # \n')
+    f.write('!                                                                                                   # \n')
+    f.write('!    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('!    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('!                                                                                                   # \n')
     f.write('!##################################################################################################### \n')    
     f.write('! File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
     f.write('\n') 
