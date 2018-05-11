@@ -64,6 +64,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         y_asnumpy=numpy.array(y)
         Model_temp = temp
 
+
         sat_vap_water = numpy.exp((-0.58002206E4 / Model_temp) + 0.13914993E1 - \
         (0.48640239E-1 * Model_temp) + (0.41764768E-4 * (Model_temp**2.0E0))- \
         (0.14452093E-7 * (Model_temp**3.0E0)) + (0.65459673E1 * numpy.log(Model_temp)))
@@ -88,6 +89,8 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         #Set the values for oxidants etc to 0 as will force no mass transfer
         #C_g_i_t[ignore_index]=0.0
         C_g_i_t=C_g_i_t[include_index]
+
+        #pdb.set_trace()
                 
         total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy,ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
@@ -187,7 +190,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
     simulation_time= 3600.0
-    batch_step=300.0
+    batch_step=100.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -210,15 +213,15 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
             exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
             
         else:
-            y0 = y_output[-1,:] # Take the output from the last batch as the start of this
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
+            #y0 = y_output[-1,:] # Take the output from the last batch as the start of this
+            exp_mod = Explicit_Problem(dydt_func,y_output[-1],t0, name = filename)
             
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.
         #exp_mod.jac = dydt_jac
         # Define which ODE solver you want to use
-        exp_sim = LSODAR(exp_mod) 
-        tol_list=[1.0e-2]*len(y0)
+        exp_sim = CVode(exp_mod) 
+        tol_list=[1.0e-3]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
         exp_sim.rtol = 1.0e-6 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
@@ -244,7 +247,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         print ("Predicted temperature from end of dynamic calculation = ", dydt_func.temp)
         print ("Predicted RH from end of dynamic calculation = ", dydt_func.RH)
         print ("Predicted water activity from end of dynamic calculation = ", dydt_func.water_activity)
-    
+        pdb.set_trace()
         #now save this information into a matrix for later plotting.
         time_step+=1
 
@@ -265,7 +268,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         
     with_plots=True
     
-    #pdb.set_trace()
+    pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
     if with_plots:

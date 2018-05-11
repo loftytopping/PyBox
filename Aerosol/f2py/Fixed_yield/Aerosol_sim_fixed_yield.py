@@ -85,7 +85,7 @@ if __name__=='__main__':
     #Convert from m3 to cm3
     Wconc=Wconc*1.0e-6
     #Convert from kg to molecules/cc
-    H2O=Wconc*(1.0/(18.0e-3))*6.0221409e+23
+    #H2O=Wconc*(1.0/(18.0e-3))*6.0221409e+23
     
     #-------------------------------------------------------------------------------------
     #2) General aerosol partitioning constants
@@ -100,6 +100,10 @@ if __name__=='__main__':
     sigma=72.0e-3 # Assume surface tension of water (mN/m)
     NA=6.0221409e+23 #Avogadros number
     kb=1.380648E-23 #Boltzmanns constant
+
+    sat_vap_water = numpy.exp((-0.58002206E4 / temp) + 0.13914993E1 - (0.48640239E-1 * temp) + (0.41764768E-4 * (temp**2.0E0))- (0.14452093E-7 * (temp**3.0E0)) + (0.65459673E1 * numpy.log(temp)))
+    #Abundance of water vapour [molecules/cc]
+    H2O = (RH) * NA * sat_vap_water * 1.0E-6 / (8.314472 * temp)
     
     #-------------------------------------------------------------------------------------
     # 3) Choose methods used for calculating properties that dictate gas-to-particle partitioning
@@ -107,7 +111,7 @@ if __name__=='__main__':
     # The default are set below, with options given 
     # More information on each method can be found on the UManSysProp website and/or the source code
     vp_method='nannoolal' # Saturation vapour pressure ['nannoolal': 'myrdal_and_yalkowsky': 'evaporation']
-    bp_method='joback_and_reid' # Boiling point ['joback_and_reid': 'stein_and_brown': 'nannoolal']
+    bp_method='nannoolal' # Boiling point ['joback_and_reid': 'stein_and_brown': 'nannoolal']
     critical_method='nannoolal' # Critical properties for density ['nannoolal':'joback_and_reid']
     density_method='girolami' # Pure component liquid density ['girolami': 'schroeder':'le_bas':'tyn_and_calus']
     # Some species will have no vapour pressure data associaed with them by using the .xml file. This
