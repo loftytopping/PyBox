@@ -2730,6 +2730,244 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
     f.write('end subroutine \n') 
     f.close()  
 
+def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants):
+    
+    # Function to calculate the jacobian for the gas phase only model. Designed to provide some
+    # improvements in comp efficiency. Cant be done for the full aerosol model due to dependency on
+    # properties/processes that will change
+    
+    f = open('Jacobian_numba.py','w')
+    f.write('###################################################################################################### \n') # python will convert \n to os.linesep
+    f.write('# Numba function to calculate jacobian function                                                    # \n') # python will convert \n to os.linesep
+    f.write('#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                             # \n')
+    f.write('#                                      : davetopp80@gmail.com                                       # \n')
+    f.write('#    Personal website: davetoppingsci.com                                                           # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    All Rights Reserved.                                                                           # \n')
+    f.write('#    This file is part of PyBox.                                                                    # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is free software: you can redistribute it and/or modify it under                         # \n')
+    f.write('#    the terms of the GNU General Public License as published by the Free Software                  # \n')
+    f.write('#    Foundation, either version 3 of the License, or (at your option) any later                     # \n')
+    f.write('#    version.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    PyBox is distributed in the hope that it will be useful, but WITHOUT                           # \n')
+    f.write('#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS                  # \n')
+    f.write('#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more                         # \n')
+    f.write('#    details.                                                                                       # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
+    f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
+    f.write('#                                                                                                   # \n')
+    f.write('#§# \n')
+    f.write('###################################################################################################### \n')    
+    f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
+    f.write('\n') 
+    f.write('import numpy as np\n') 
+    f.write('import numba as nb')
+    f.write('\n')
+    f.write('@nb.jit(\'float64[:,:](float64[:],float64[:],float64[:,:])\', nopython=True, cache=True)\n')
+    f.write('def jacobian(r,y,dy_dy):\n')
+    for species, species_step in species_dict2array.items():
+
+        #pdb.set_trace()
+
+        if species not in ['AIR','H2O','O2','hv']:
+
+            # Now we need to extract other species that affect this specie
+            # To do this we collect all reactions that this is involved in.
+            # Then, pull out each other specie in those reactins to calculate d-species_d-otherspecie
+            
+            if species in loss_dict.keys():
+                equations_list_loss=[num for num, stoich in loss_dict[species].items()]
+                # Now extract all reactants in these equations as a list
+                reactants_list_loss=[]
+                for equation in equations_list_loss:
+                    reactants_list_loss=reactants_list_loss+[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                # Now turn this into a unique list
+                reactants_list_loss=set(reactants_list_loss)
+                reactants_list_loss=list(reactants_list_loss)
+            
+            if species in gain_dict.keys():
+                equations_list_gain=[num for num, stoich in gain_dict[species].items()]
+                # Now extract all reactants in these equations as a list
+                reactants_list_gain=[]
+                for equation in equations_list_gain:
+                    reactants_list_gain=reactants_list_gain+[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                # Now turn this into a unique list
+                reactants_list_gain=set(reactants_list_gain)
+                reactants_list_gain=list(reactants_list_gain)
+            
+            # Now combine these two lists and again merge into a unique one
+            final_list=reactants_list_loss+reactants_list_gain
+            final_list=set(final_list)
+            final_list=list(final_list)
+            
+            # Now cycle through each of these species to calculate dy_dt_dx
+            
+            for reactant in final_list:
+                species_step2=species_dict2array[reactant]
+                f.write('    dy_dy[%s,%s]='%(species_step+1,species_step2+1)) #+1 due to change in indexing from Python to Fortran
+                equation_flag=0
+                loss_step=0
+                gain_step=0
+
+                if len(equations_list_loss) > 0:
+                    for equation in equations_list_loss:
+                        reactants_list_loss_temp=[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                        reactants_list_loss_temp=list(set(reactants_list_loss_temp))
+                        # Check if 'otherspecie' is in this reaction
+                        if reactant in reactants_list_loss_temp:
+                            if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
+                                f.write(' & \n')
+                                f.write('    ')  
+                                equation_flag=0
+                            step=1
+                            stoich_first=loss_dict[reactant][equation]
+                            # we now check the stochiometry to see if we need a variable before and reduction in power
+                            # if our specie only has a stoich of 1 we dont need to consider it in the proceeding calculations
+                            if stoich_first==1:
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
+                                
+                                    if reactant2 not in ['hv'] and reactant2 != reactant:
+                                        stoich=loss_dict[reactant2][equation]
+                                        if stoich == 1:
+                                            if step == 1:
+                                                f.write('-1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                step+=1
+                                            else:
+                                                f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                        else:
+                                            if step == 1:
+                                                f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                step+=1
+                                            else:
+                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                            else: # If our specie has a stoich of > 1 we need to include it in the expression
+                                #f.write('-%s*'%(stoich_first))
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
+                                    #step=1
+                                    if reactant2 not in ['hv']:
+                                        if reactant2 == reactant:
+                                            if stoich_first == 2:
+                                                if step == 1:
+                                                    f.write('-%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                            elif stoich_first > 2:
+                                                if step == 1:
+                                                    f.write('-%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                        elif reactant2 != reactant:
+                                            stoich=loss_dict[reactant2][equation]
+                                            if stoich == 1:
+                                                if step == 1:
+                                                    f.write('-1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                            else:
+                                                if step == 1:
+                                                    f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                    step+=1
+                                                else:
+                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich)) 
+                                        
+                            # Now at the end of the reactant multiplication, introduce reaction rate
+                            if step > 1:
+                                f.write('*r[%s]'%(equation+1))
+                            elif step == 1:
+                                f.write('-1.0*r[%s]'%(equation+1))
+                            equation_flag+=1
+                            
+                # Now repeat the above procedure but for reactions that lead to concentration gain    
+                if len(equations_list_gain) > 0:
+                    for equation in equations_list_gain:
+                        reactants_list_gain_temp=[reactant for step, reactant in rate_dict_reactants[equation].items()]
+                        reactants_list_gain_temp=list(set(reactants_list_gain_temp))
+                        if reactant in reactants_list_gain_temp:
+                            if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
+                                f.write(' & \n')
+                                f.write('    ')  
+                                equation_flag=0
+                            stoich_first=loss_dict[reactant][equation]
+                            #except:
+                            #    pdb.set_trace()
+                            #if loss_step=0:
+                                #f.write('-')
+                            #    loss_step+=
+                            step=1
+                            if stoich_first==1:
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
+                                    #step=1
+                                    if reactant2 not in ['hv'] and reactant2 != reactant:
+                                        stoich=loss_dict[reactant2][equation]
+                                        if stoich == 1:
+                                            if step == 1:
+                                                f.write('+1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                step+=1
+                                            else:
+                                                f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                        else:
+                                            if step == 1:
+                                                f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                step+=1
+                                            else:
+                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                            else:
+                                #f.write('-%s*'%(stoich_first))
+                                temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
+                                for reactant2 in list(set(temp_list)):
+                                    #step=1
+                                    if reactant2 not in ['hv']:
+                                        if reactant2 == reactant:
+                                            if stoich_first == 2:
+                                                if step == 1:
+                                                    f.write('+%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                            elif stoich_first > 2:
+                                                if step == 1:
+                                                    f.write('+%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                        elif reactant2 != reactant:
+                                            stoich=loss_dict[reactant2][equation]
+                                            if stoich == 1:
+                                                if step == 1:
+                                                    f.write('+1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    step+=1
+                                                else:
+                                                    f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                            else:
+                                                if step == 1:
+                                                    f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                    step+=1
+                                                else:
+                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich)) 
+                                        
+
+                            if step > 1:
+                                f.write('*r[%s]'%(equation+1))
+                            elif step == 1:
+                                f.write('+1.0*r[%s]'%(equation+1))
+                            equation_flag+=1
+
+
+                f.write(' \n')
+                check_step+=1
+    f.write('    return dy_dy \n') 
+    f.close()  
+
+
 def write_partitioning_section_fortran(total_length_y,num_bins,num_species):
     f = open('Partitioning.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
