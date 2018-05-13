@@ -2537,6 +2537,10 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
             # Now we need to extract other species that affect this specie
             # To do this we collect all reactions that this is involved in.
             # Then, pull out each other specie in those reactins to calculate d-species_d-otherspecie
+            reactants_list_gain=[]
+            reactants_list_loss=[]
+            equations_list_gain=[]
+            equations_list_loss=[]
             
             if species in loss_dict.keys():
                 equations_list_loss=[num for num, stoich in loss_dict[species].items()]
@@ -2774,6 +2778,11 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
 
         if species not in ['AIR','H2O','O2','hv']:
 
+            reactants_list_gain=[]
+            reactants_list_loss=[]
+            equations_list_gain=[]
+            equations_list_loss=[]
+
             # Now we need to extract other species that affect this specie
             # To do this we collect all reactions that this is involved in.
             # Then, pull out each other specie in those reactins to calculate d-species_d-otherspecie
@@ -2807,7 +2816,7 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
             
             for reactant in final_list:
                 species_step2=species_dict2array[reactant]
-                f.write('    dy_dy[%s,%s]='%(species_step+1,species_step2+1)) #+1 due to change in indexing from Python to Fortran
+                f.write('    dy_dy[%s,%s]='%(species_step,species_step2)) #+1 due to change in indexing from Python to Fortran
                 equation_flag=0
                 loss_step=0
                 gain_step=0
@@ -2819,8 +2828,8 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                         # Check if 'otherspecie' is in this reaction
                         if reactant in reactants_list_loss_temp:
                             if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
-                                f.write(' & \n')
-                                f.write('    ')  
+                                #f.write('\\n')
+                                #f.write('    ')  
                                 equation_flag=0
                             step=1
                             stoich_first=loss_dict[reactant][equation]
@@ -2834,16 +2843,16 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                                         stoich=loss_dict[reactant2][equation]
                                         if stoich == 1:
                                             if step == 1:
-                                                f.write('-1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                f.write('-1.0*y[%s]'%(species_dict2array[reactant2]))
                                                 step+=1
                                             else:
-                                                f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                                f.write('*y[%s]'%(species_dict2array[reactant2]))
                                         else:
                                             if step == 1:
-                                                f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                                                 step+=1
                                             else:
-                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                             else: # If our specie has a stoich of > 1 we need to include it in the expression
                                 #f.write('-%s*'%(stoich_first))
                                 temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
@@ -2853,36 +2862,36 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                                         if reactant2 == reactant:
                                             if stoich_first == 2:
                                                 if step == 1:
-                                                    f.write('-%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('-%s*y[%s]'%(stoich_first,species_dict2array[reactant2]))
                                                     step+=1
                                                 else:
-                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]))
                                             elif stoich_first > 2:
                                                 if step == 1:
-                                                    f.write('-%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('-%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2],stoich_first-1))
                                                     step+=1
                                                 else:
-                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2],stoich_first-1))
                                         elif reactant2 != reactant:
                                             stoich=loss_dict[reactant2][equation]
                                             if stoich == 1:
                                                 if step == 1:
-                                                    f.write('-1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    f.write('-1.0*y[%s]'%(species_dict2array[reactant2]))
                                                     step+=1
                                                 else:
-                                                    f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    f.write('*y[%s]'%(species_dict2array[reactant2]))
                                             else:
                                                 if step == 1:
-                                                    f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                    f.write('-1.0*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                                                     step+=1
                                                 else:
-                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich)) 
+                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2],stoich)) 
                                         
                             # Now at the end of the reactant multiplication, introduce reaction rate
                             if step > 1:
-                                f.write('*r[%s]'%(equation+1))
+                                f.write('*r[%s]'%(equation))
                             elif step == 1:
-                                f.write('-1.0*r[%s]'%(equation+1))
+                                f.write('-1.0*r[%s]'%(equation))
                             equation_flag+=1
                             
                 # Now repeat the above procedure but for reactions that lead to concentration gain    
@@ -2892,8 +2901,8 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                         reactants_list_gain_temp=list(set(reactants_list_gain_temp))
                         if reactant in reactants_list_gain_temp:
                             if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
-                                f.write(' & \n')
-                                f.write('    ')  
+                                #f.write(' \\n')
+                                #f.write('    ')  
                                 equation_flag=0
                             stoich_first=loss_dict[reactant][equation]
                             #except:
@@ -2910,16 +2919,16 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                                         stoich=loss_dict[reactant2][equation]
                                         if stoich == 1:
                                             if step == 1:
-                                                f.write('+1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                f.write('+1.0*y[%s]'%(species_dict2array[reactant2]))
                                                 step+=1
                                             else:
-                                                f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                                f.write('*y[%s]'%(species_dict2array[reactant2]))
                                         else:
                                             if step == 1:
-                                                f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                                                 step+=1
                                             else:
-                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                f.write('*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                             else:
                                 #f.write('-%s*'%(stoich_first))
                                 temp_list=[reactant2 for reactant_step, reactant2 in rate_dict_reactants[equation].items()]
@@ -2929,41 +2938,41 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                                         if reactant2 == reactant:
                                             if stoich_first == 2:
                                                 if step == 1:
-                                                    f.write('+%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('+%s*y[%s]'%(stoich_first,species_dict2array[reactant2]))
                                                     step+=1
                                                 else:
-                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]+1))
+                                                    f.write('*%s*y[%s]'%(stoich_first,species_dict2array[reactant2]))
                                             elif stoich_first > 2:
                                                 if step == 1:
-                                                    f.write('+%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('+%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2],stoich_first-1))
                                                     step+=1
                                                 else:
-                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2]+1,stoich_first-1))
+                                                    f.write('*%s*y[%s]**%s'%(stoich_first,species_dict2array[reactant2],stoich_first-1))
                                         elif reactant2 != reactant:
                                             stoich=loss_dict[reactant2][equation]
                                             if stoich == 1:
                                                 if step == 1:
-                                                    f.write('+1.0*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    f.write('+1.0*y[%s]'%(species_dict2array[reactant2]))
                                                     step+=1
                                                 else:
-                                                    f.write('*y[%s]'%(species_dict2array[reactant2]+1))
+                                                    f.write('*y[%s]'%(species_dict2array[reactant2]))
                                             else:
                                                 if step == 1:
-                                                    f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich))
+                                                    f.write('+1.0*y[%s]**%s'%(species_dict2array[reactant2],stoich))
                                                     step+=1
                                                 else:
-                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2]+1,stoich)) 
+                                                    f.write('*y[%s]**%s'%(species_dict2array[reactant2],stoich)) 
                                         
 
                             if step > 1:
-                                f.write('*r[%s]'%(equation+1))
+                                f.write('*r[%s]'%(equation))
                             elif step == 1:
-                                f.write('+1.0*r[%s]'%(equation+1))
+                                f.write('+1.0*r[%s]'%(equation))
                             equation_flag+=1
 
 
                 f.write(' \n')
-                check_step+=1
+                
     f.write('    return dy_dy \n') 
     f.close()  
 
