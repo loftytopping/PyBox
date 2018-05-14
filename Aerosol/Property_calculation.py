@@ -48,7 +48,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     ignore_index=[] #Append to this to identify any compounds that do not have automated calculation of properties. OR are species that will be ignored in partitioning
     include_index=[]
     include_dict=dict()
-    ignore_index_fortran=numpy.zeros((num_species+1),)
+    ignore_index_fortran=numpy.zeros((num_species),)
     print("Calculating component properties using UManSysProp")
     
     # Which boiling point method has been chosen

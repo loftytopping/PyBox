@@ -27,6 +27,7 @@ sys.path.append(os.path.abspath('../Aerosol/'))
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
 import rate_coeff_conversion # [•] Converts standard text rate coefficients into Python/Fortran
 import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
+import Size_distributions # [•] Create size distribution according to number of bins and core-material
 import collections
 import pdb
 from datetime import datetime
@@ -46,6 +47,7 @@ def setup():
     #Define a start time 
     hour_of_day=12.0
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
+    time_of_day_seconds=start_time
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
     temp_celsius=temp-273.15
     # Saturation VP of water vapour, to get concentration of H20
@@ -57,6 +59,7 @@ def setup():
     Wconc=Wconc*1.0e-6
     #Convert from kg to molecules/cc
     H2O=Wconc*(1.0/(18.0e-3))*6.0221409e+23
+    Model_temp=temp
     
     Lv_water_vapour=2.5e3 # Latent heat of vapourisation of water [J/g] 
     Rv=461.0 #Individual gas constant of water vapour [J/Kg.K]
@@ -68,7 +71,6 @@ def setup():
     sigma=72.0e-3 # Assume surface tension of water (mN/m)
     NA=6.0221409e+23 #Avogadros number
     kb=1.380648E-23 #Boltzmanns constant
-	
 
     # check if __pycache__ exists
     if os.path.isdir("__pycache__"):
@@ -146,6 +148,16 @@ def setup():
     
 
     num_bins=16
+    y_cond=[0.0]*num_species_condensed*num_bins #array that contains all species in all bins
+                                      #water is the final component
+    total_conc=100 #Total particles per cc
+    std=2.2 #Standard Deviation
+    lowersize=0.01 #microns
+    uppersize=1.0 #microns
+    meansize=0.2 #microns
+    #Create a number concentration for a lognormal distribution
+    N_perbin,x=Size_distributions.lognormal(num_bins,total_conc,meansize,std,lowersize,uppersize)
+
     openMP=True
 
     # Convert the rate coefficient expressions into Fortran commands
@@ -218,7 +230,7 @@ def setup():
 
     # Run the function tests and save data to files. These files wll be compared with the test output
     # in individual functions.
-    y_asnumpy=numpy.array([1.0]*num_species)
+    y_asnumpy=numpy.array([1.0e12]*num_species)
     RO2=numpy.sum(y_asnumpy[RO2_indices])
 
     # Fortran modules
@@ -229,23 +241,23 @@ def setup():
     reactants_fortran = numpy.multiply(reactants_fortran,rates_fortran)
     # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
     # With the assimulo solvers we need to output numpy arrays
-    dydt_fortran=loss_gain_fortran(reactants)
+    dydt_fortran=loss_gain_fortran(reactants_fortran)
     dydt_dydt_fortran=jacobian_fortran(rates_fortran,y_asnumpy)
 
     # Numba modules
-    rates_numba=evaluate_rates_numba(RO2,H2O,temp,time_of_day_seconds)
+    rates_numba=evaluate_rates_numba(RO2,H2O,temp,time_of_day_seconds,numpy.zeros((equations)),numpy.zeros((63)))
     # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc]        
-    reactants_numba=reactant_numba(y_asnumpy)
+    reactants_numba=reactant_numba(y_asnumpy,equations,numpy.zeros((equations)))
     #Multiply product of reactants with rate coefficient to get reaction rate            
     reactants_numba = numpy.multiply(reactants_numba,rates_numba)
     # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
     # With the assimulo solvers we need to output numpy arrays
-    dydt_numba=loss_gain_numba(reactants_numba)
-    dydt_dydt_numba=jacobian_numba(rates_numba,y_asnumpy)
+    dydt_numba=loss_gain_numba(numpy.zeros((len(y_asnumpy))),reactants_numba)
+    dydt_dydt_numba=jacobian_numba(rates_numba,y_asnumpy,numpy.zeros((len(y_asnumpy),len(y_asnumpy))))
 
     y_asnumpy_full=numpy.zeros((num_species+num_species_condensed*num_bins,1),)
+    y_asnumpy_full[:]=1.0e12
     Pressure_gas=(y_asnumpy[0:num_species,]/NA)*8.314E+6*Model_temp #[using R]
-    core_mass_array=numpy.multiply(ycore_asnumpy/NA,core_molw_asnumpy)
 
     y_core=[1.0e-3]*num_bins #Will hold concentration of core material, only initialise here [molecules/cc] 
     core_density_array=[1770.0]*num_bins #[kg/m3] - need to make sure this matches core definition above
@@ -257,6 +269,10 @@ def setup():
     y_core=y_core/(numpy.array(core_mw)*1.0e-3) #moles per particle, changing mw from g/mol to kg/mol
     y_core=y_core*NA #molecules per particle
     y_core=y_core*numpy.array(N_perbin) #molecules/cc representing each size range
+    ycore_asnumpy=numpy.array(y_core)
+    core_molw_asnumpy=numpy.array(core_mw)
+
+    core_mass_array=numpy.multiply(ycore_asnumpy/NA,core_molw_asnumpy)
 
     ####### Calculate the thermal conductivity of gases according to the new temperature ########
     K_water_vapour = (5.69+0.017*(Model_temp-273.15))*1e-3*4.187 #[W/mK []has to be in W/m.K]
@@ -268,10 +284,10 @@ def setup():
     C_g_i_t = y_asnumpy[0:num_species,]
     #Set the values for oxidants etc to 0 as will force no mass transfer
     #C_g_i_t[ignore_index]=0.0
-    C_g_i_t=C_g_i_t[include_index]
+    #C_g_i_t=C_g_i_t[include_index]
 
-    #pdb.set_trace()         
-    total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy,ycore_asnumpy,core_dissociation, \
+    pdb.set_trace()         
+    total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy_full,ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
         DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV, \
         Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
