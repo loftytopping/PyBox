@@ -19,15 +19,14 @@ Where the equation number is first defined, then the reactants/products along wi
 ## Folder Structure 
 ============================
 
-> Folder structure and naming conventions 
-
 ### Top-level directory layout
 
     .                           # Gas phase only model [using Numba]
     ├── f2py                    # Gas phase only model [using f2py Fortran to Python Interface Generator] 
     ├── Aerosol                 # Coupled gas and gas-to-particle partitioning routines
-    |------f2py                  # Coupled gas and gas-to-particle partitioning routines [using f2py]
+    |------f2py                 # Coupled gas and gas-to-particle partitioning routines [using f2py]
     ├── test                    # Automated unit tests
+    |------data                 # Data used in the automated unit tests
     ├── LICENSE
     └── README.md
    
@@ -63,6 +62,12 @@ Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anac
 
 -[GCC with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.
 
+## Automated unit tests 
+============================
 
-Happy coding!
+Within the folder tests, run the following command:
+
+> python test_modules.py -v
+
+This will use the unittest Python module to test the output of generated functions used within the ODE solvers against pre-generated .npy files provided in the data subfolder of tests.
 
