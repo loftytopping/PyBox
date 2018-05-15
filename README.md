@@ -19,7 +19,7 @@ Where the equation number is first defined, then the reactants/products along wi
 ## Folder Structure 
 ============================
 
-### Top-level directory layout
+### Directory layout
 
     .                           # Gas phase only model [using Numba]
     ├── f2py                    # Gas phase only model [using f2py Fortran to Python Interface Generator] 
