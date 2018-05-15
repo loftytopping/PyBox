@@ -46,6 +46,7 @@ Thumbs.db
 ######################
 *.npz
 *.npy
+!test/data/*.npy
 *.pickle
 
 # Folders
