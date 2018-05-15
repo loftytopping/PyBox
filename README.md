@@ -1,4 +1,4 @@
-PyBox
+# PyBox
 
 This repository holds model variants that couple gas/aerosol chemistry, gas-to-particle partitioning and varying phase state through the full humidity cycle in the atmosphere. The first phase of the project is to develop and profile a gas phase only model, using the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis. The model will also relate component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to agreement from any partner contributions and associated papers.
 
@@ -33,7 +33,9 @@ Where the equation number is first defined, then the reactants/products along wi
    
 ### Python only variants [using Numba]
 This is the default version in the main folder. Using the [Numba](https://numba.pydata.org) package, the set of functions that define the ODEs being solved are compiled before the first simulation. This allows an improvement in computational speed over pure python functions. I do have the option to use standard Numpy libraries and sparse matrices, but please check the wiki for news on this release for any educational/training purposes. You will therefore find the first simulation will take some time to compile the relevant libraries, but once compiled will provide a benefit. To run the model, simply run:
+
 > python Gas_simulation.py
+
 from the command line. Please check the ambient conditions and species concentrations within both 'Gas_simulation.py' and 'ODE_solver.py'. In the former, you can define the starting conditions for species using names explicitly defined in the above equation file. For example, the default option is provided as:
 
     # Define initial concentrations, in pbb, of species using names from KPP file
