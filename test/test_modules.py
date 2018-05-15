@@ -34,11 +34,13 @@ from datetime import datetime
 import time
 import Property_calculation
 import pickle
+import shutil
+import numpy.testing as npt
+import unittest
 
-def setup():
+def setup(filename):
     # setup here..
     # Create modules through parsing routine and compile where needed
-    filename='MCM_APINENE'    
 
     # Define standard variables used in testing
     temp=288.15
@@ -83,6 +85,14 @@ def setup():
         #if "f2py.cpython" in fname:
         #    os.remove(fname)
         if ".f90" in fname:
+            os.remove(fname)
+    
+    for fname in os.listdir('.'):
+        if ".npy" in fname:
+            os.remove(fname)
+        if ".pickle" in fname:
+            os.remove(fname)
+        if ".npz" in fname:
             os.remove(fname)
     
     # Define the .eqn file to be used in the following
@@ -232,33 +242,69 @@ def setup():
     # in individual functions.
     y_asnumpy=numpy.array([1.0e12]*num_species)
     RO2=numpy.sum(y_asnumpy[RO2_indices])
+    
+    #numpy.save(filename+'_RO2_base', RO2)
+    #shutil.move(filename+'_RO2_base.npy','./data')
+    numpy.save(filename+'_RO2', RO2)
 
     # Fortran modules
     rates_fortran=evaluate_rates_fortran(RO2,H2O,temp,time_of_day_seconds)
+    #numpy.save(filename+'rates_fortran_base', rates_fortran)
+    #shutil.move(filename+'rates_fortran_base.npy','./data')
+    numpy.save(filename+'rates_fortran', rates_fortran)
+    
     # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc]        
     reactants_fortran=reactants_fortran(y_asnumpy)
     #Multiply product of reactants with rate coefficient to get reaction rate            
     reactants_fortran = numpy.multiply(reactants_fortran,rates_fortran)
+    #numpy.save(filename+'reactants_fortran_base', reactants_fortran)
+    #shutil.move(filename+'reactants_fortran_base.npy','./data')
+    numpy.save(filename+'reactants_fortran', reactants_fortran)
     # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
     # With the assimulo solvers we need to output numpy arrays
     dydt_fortran=loss_gain_fortran(reactants_fortran)
+    #numpy.save(filename+'dydt_fortran_base', dydt_fortran)
+    #shutil.move(filename+'dydt_fortran_base.npy','./data')
+    numpy.save(filename+'dydt_fortran', dydt_fortran)
+    
     dydt_dydt_fortran=jacobian_fortran(rates_fortran,y_asnumpy)
-
+    #numpy.save(filename+'dydt_dydt_fortran_base', dydt_dydt_fortran)
+    #shutil.move(filename+'dydt_dydt_fortran_base.npy','./data')
+    numpy.save(filename+'dydt_dydt_fortran', dydt_dydt_fortran)
+    
     # Numba modules
     rates_numba=evaluate_rates_numba(RO2,H2O,temp,time_of_day_seconds,numpy.zeros((equations)),numpy.zeros((63)))
+    #numpy.save(filename+'rates_numba_base', rates_numba)
+    #shutil.move(filename+'rates_numba_base.npy','./data')
+    numpy.save(filename+'rates_numba', rates_numba)
+    
     # Calculate product of all reactants and stochiometry for each reaction [A^a*B^b etc]        
     reactants_numba=reactant_numba(y_asnumpy,equations,numpy.zeros((equations)))
     #Multiply product of reactants with rate coefficient to get reaction rate            
     reactants_numba = numpy.multiply(reactants_numba,rates_numba)
+    #numpy.save(filename+'reactants_numba_base', reactants_numba)
+    #shutil.move(filename+'reactants_numba_base.npy','./data')
+    numpy.save(filename+'reactants_numba', reactants_numba)
+    
     # Now use reaction rates with the loss_gain matri to calculate the final dydt for each compound
     # With the assimulo solvers we need to output numpy arrays
     dydt_numba=loss_gain_numba(numpy.zeros((len(y_asnumpy))),reactants_numba)
+    #numpy.save(filename+'dydt_numba_base', dydt_numba)
+    #shutil.move(filename+'dydt_numba_base.npy','./data')
+    numpy.save(filename+'dydt_numba', dydt_numba)
+    
     dydt_dydt_numba=jacobian_numba(rates_numba,y_asnumpy,numpy.zeros((len(y_asnumpy),len(y_asnumpy))))
-
+    #numpy.save(filename+'dydt_dydt_numba_base', dydt_dydt_numba)
+    #shutil.move(filename+'dydt_dydt_numba_base.npy','./data')
+    numpy.save(filename+'dydt_dydt_numba', dydt_dydt_numba)
+    
     y_asnumpy_full=numpy.zeros((num_species+num_species_condensed*num_bins,1),)
     y_asnumpy_full[:]=1.0e12
     Pressure_gas=(y_asnumpy[0:num_species,]/NA)*8.314E+6*Model_temp #[using R]
-
+    #numpy.save(filename+'Pressure_gas_base', Pressure_gas)
+    #shutil.move(filename+'Pressure_gas_base.npy','./data')
+    numpy.save(filename+'Pressure_gas', Pressure_gas)
+    
     y_core=[1.0e-3]*num_bins #Will hold concentration of core material, only initialise here [molecules/cc] 
     core_density_array=[1770.0]*num_bins #[kg/m3] - need to make sure this matches core definition above
     core_density_array_asnumpy=numpy.array(core_density_array)
@@ -286,34 +332,115 @@ def setup():
     #C_g_i_t[ignore_index]=0.0
     #C_g_i_t=C_g_i_t[include_index]
 
-    pdb.set_trace()         
+    #pdb.set_trace()         
     total_SOA_mass,aw_array,size_array,dy_dt_calc = dydt_partition_fortran(y_asnumpy_full,ycore_asnumpy,core_dissociation, \
         core_mass_array,y_density_array_asnumpy,core_density_array_asnumpy,ignore_index_fortran,y_mw,Psat, \
         DStar_org_asnumpy,alpha_d_org_asnumpy,C_g_i_t,N_perbin,gamma_gas_asnumpy,Latent_heat_asnumpy,GRAV, \
         Updraft,sigma,NA,kb,Rv,R_gas,Model_temp,cp,Ra,Lv_water_vapour)
-
-    pdb.set_trace()
+    
+    #numpy.save(filename+'total_SOA_mass_base', total_SOA_mass)
+    #shutil.move(filename+'total_SOA_mass_base.npy','./data')
+    numpy.save(filename+'total_SOA_mass', total_SOA_mass)
+    
+    #numpy.save(filename+'aw_array_base', aw_array)
+    #shutil.move(filename+'aw_array_base.npy','./data')
+    numpy.save(filename+'aw_array', aw_array)
+    
+    #numpy.save(filename+'size_array_base', size_array)
+    #shutil.move(filename+'size_array_base.npy','./data')
+    numpy.save(filename+'size_array', size_array)
+    
+    #numpy.save(filename+'dy_dt_calc_base', dy_dt_calc)
+    #shutil.move(filename+'dy_dt_calc_base.npy','./data')
+    numpy.save(filename+'dy_dt_calc', dy_dt_calc)
+    
+    #pdb.set_trace()
     
     pass
 
-
-    #pass
+class TestParsing(unittest.TestCase):
+    """
+    Test the output from the derived functions used within the ODE solvers
+    """
+    
+    def test_RO2(self):
+        RO2_base=numpy.load('./data/'+filename+'_RO2_base.npy')
+        RO2=numpy.load(filename+'_RO2.npy')
+        npt.assert_almost_equal(RO2_base, RO2)
+    
+    def test_rates_fortran(self):
+        rates_fortran_base=numpy.load('./data/'+filename+'rates_fortran_base.npy')
+        rates_fortran=numpy.load(filename+'rates_fortran.npy')
+        npt.assert_almost_equal(rates_fortran_base, rates_fortran)
+    
+    def test_reactants_fortran(self):
+        reactants_fortran_base=numpy.load('./data/'+filename+'reactants_fortran_base.npy')
+        reactants_fortran=numpy.load(filename+'reactants_fortran.npy')
+        npt.assert_almost_equal(reactants_fortran_base, reactants_fortran)
+    
+    def test_dydt_fortran(self):
+        dydt_fortran_base=numpy.load('./data/'+filename+'dydt_fortran_base.npy')
+        dydt_fortran=numpy.load(filename+'dydt_fortran.npy')
+        npt.assert_almost_equal(dydt_fortran_base, dydt_fortran)
+    
+    def test_dydt_dydt_fortran(self):
+        dydt_dydt_fortran_base=numpy.load('./data/'+filename+'dydt_dydt_fortran_base.npy')    
+        dydt_dydt_fortran=numpy.load(filename+'dydt_dydt_fortran.npy') 
+        npt.assert_almost_equal(dydt_dydt_fortran_base, dydt_dydt_fortran)   
+    
+    def test_rates_numba(self):
+        rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
+        rates_numba=numpy.load(filename+'rates_numba.npy')
+        npt.assert_almost_equal(rates_numba_base, rates_numba)
+    
+    def test_reactants_numba(self):
+        reactants_numba_base=numpy.load('./data/'+filename+'reactants_numba_base.npy')
+        reactants_numba=numpy.load(filename+'reactants_numba.npy')
+        npt.assert_almost_equal(reactants_numba_base, reactants_numba)
+    
+    def test_dydt_numba(self):
+        dydt_numba_base=numpy.load('./data/'+filename+'dydt_numba_base.npy')
+        dydt_numba=numpy.load(filename+'dydt_numba.npy')
+        npt.assert_almost_equal(dydt_numba_base, dydt_numba)
+    
+    def test_dydt_dydt_numba(self):
+        dydt_dydt_numba_base=numpy.load('./data/'+filename+'dydt_dydt_numba_base.npy')
+        dydt_dydt_numba=numpy.load(filename+'dydt_dydt_numba.npy')
+        npt.assert_almost_equal(dydt_dydt_numba_base, dydt_dydt_numba)
+    
+    def test_pressure_gas(self):
+        Pressure_gas_base=numpy.load('./data/'+filename+'Pressure_gas_base.npy')
+        Pressure_gas=numpy.load(filename+'Pressure_gas.npy')
+        npt.assert_almost_equal(Pressure_gas_base, Pressure_gas)
+    
+    def test_SOA_mass(self):
+        total_SOA_mass_base=numpy.load('./data/'+filename+'total_SOA_mass_base.npy')
+        total_SOA_mass=numpy.load(filename+'total_SOA_mass.npy')
+        npt.assert_almost_equal(total_SOA_mass_base, total_SOA_mass)
+    
+    def test_aw_array(self):
+        aw_array_base=numpy.load('./data/'+filename+'aw_array_base.npy')
+        aw_array=numpy.load(filename+'aw_array.npy')
+        npt.assert_almost_equal(aw_array_base, aw_array)
+    
+    def test_size_array(self):
+        size_array_base=numpy.load('./data/'+filename+'size_array_base.npy')
+        size_array=numpy.load(filename+'size_array.npy')
+        npt.assert_almost_equal(size_array_base, size_array)
+    
+    def test_dy_dt_calc(self):
+        dy_dt_calc_base=numpy.load('./data/'+filename+'dy_dt_calc_base.npy')
+        dy_dt_calc=numpy.load(filename+'dy_dt_calc.npy')    
+        npt.assert_almost_equal(dy_dt_calc_base, dy_dt_calc)
+    
 
 # Start of the main body of code
 if __name__=='__main__':
     
-    setup()
-
-    #def test_numba_reactants():
-
-    #def test_numba_loss_gain():
-
-    #def test_numba_gas_jacobian():
-
-    #def test_numba_gas_jacobian():
-
-    #def teardown():
-        # teardown here..
-    #    pass
+    filename='MCM_APINENE'    
     
-    #    assertAlmostEqual(first, second, places=7, msg=None, delta=None)
+    setup(filename)
+    
+    # Now run the testing suite
+    unittest.main()
+    
