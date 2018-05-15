@@ -50,6 +50,8 @@ Whilst the above variant uses the Numba package, in the folder 'f2py' the same m
 ## Dependencies
 ============================
 
+PyBox has been and is continually built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). Specific packages required are:
+
 -[Assimulo](http://www.jmodelica.org/assimulo). The model currently relies on the Assimulo ODE solver package.  This allows us to use multiple ODE solvers designed for stiff systems. See the project website for installation instruction.
 
 -[UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package.
