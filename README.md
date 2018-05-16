@@ -69,7 +69,7 @@ Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anac
     ├── LICENSE
     └── README.md
     
-As noted above, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model contruction within the root directory before we consider gas-to-particle partitioning. Currently there are two variants provided to solve the gas phase model:
+As noted in the model overview, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model contruction within the root directory before we consider gas-to-particle partitioning. Currently there are two variants provided to solve the gas phase model:
    
 #### 1) Python [using Numba]
 This is the default version in the root directory. Recall the parsing of the equation file? After this, using the [Numba](https://numba.pydata.org) package, the set of functions that define the ODEs being solved are written as new Python files and then compiled before the first simulation. Numba does this as the modules are imported. This allows an improvement in computational speed over pure python functions. You will therefore find the first simulation will take some time to compile the relevant libraries, but once compiled will provide a benefit. Indeed, if you retain the specifica chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. The current version provides you with an example. Specifically, it is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). To run the model, once you are happy all dependecies are installed, type the following from the root directory:
@@ -83,11 +83,14 @@ You can modify the ambient conditions and species concentrations within both 'Ga
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
 
+After which you will see a simple plot of Alpha-Pinene concentration decay over 1 hour.
+
 #### 2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run. To run this simulation, type the following from the f2py directory:
 
 > python Gas_simulation_f2py.py
 
+### Aerosol
 
 ## Automated unit tests 
 ============================
