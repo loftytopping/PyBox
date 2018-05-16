@@ -1,20 +1,20 @@
 # PyBox
 
-This repository holds model variants that couple gas/aerosol chemistry, gas-to-particle partitioning and varying phase state through the full humidity cycle in the atmosphere. The first phase of the project is to develop and profile a gas phase only model, using the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis. The model will also relate component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to agreement from any partner contributions and associated papers.
+This repository holds model variants that couple gas-phase chemistry, gas-to-particle partitioning and varying phase state through the full humidity cycle in the atmosphere. The first phase of the project is to develop and profile a gas phase model, using the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, with an idealised sectional aerosol model. The model will also relate component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release beyond the base variant will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
 
 Please check the project wiki page for more inforamtion on updates and planned releases.
 
 ## Model overview
 ============================
 
-The model works on the basis of reading a file that defines reactions in the gas phase. Within this repository, examples are taken from the MCM. For example, take the mixed VOC file given by 'MCM_mixed_test.eqn.txt'. This contains the following snippet:
+The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the mixed VOC file given by 'MCM_mixed_test.eqn.txt' in the root directory of PyBox. This contains the following snippet of text:
 
 ##### {46.} 	 CH3OH + OH = HO2 + HCHO : 	2.85D-12*EXP(-345/TEMP) 	;
 ##### {47.} 	 C2H5OH + OH = C2H5O : 	3.0D-12*EXP(20/TEMP)*0.05 	;
 ##### {48.} 	 C2H5OH + OH = CH3CHO + HO2 : 	3.0D-12*EXP(20/TEMP)*0.9 	;
 ##### {49.} 	 C2H5OH + OH = HOCH2CH2O2 : 	3.0D-12*EXP(20/TEMP)*0.05 	;
 
-Where the equation number is first defined, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. This file is first parsed using the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs). 
+Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. These are also included in PyBox. This equation file is first parsed using the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the entire chemical mechanism.  Each component, or specie, in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we discuss which dependencies we need to run PyBox, lets have a look at the directory structure provided in this repository so you know where everything is.
 
 ## Folder Structure 
 ============================
@@ -29,21 +29,22 @@ Where the equation number is first defined, then the reactants/products along wi
     |------data                 # Data used in the automated unit tests
     ├── LICENSE
     └── README.md
+    
+As noted above, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model contruction within the root directory before we consider gas-to-particle partitioning. Currently there are two variants provided to solve the gas phase model:
    
-### Python only variants [using Numba]
-This is the default version in the main folder. Using the [Numba](https://numba.pydata.org) package, the set of functions that define the ODEs being solved are compiled before the first simulation. This allows an improvement in computational speed over pure python functions. I do have the option to use standard Numpy libraries and sparse matrices, but please check the wiki for news on this release for any educational/training purposes. You will therefore find the first simulation will take some time to compile the relevant libraries, but once compiled will provide a benefit. To run the model, simply run:
+###1) Python [using Numba]
+This is the default version in the root directory. Recall the parsing of the equation file? After this, using the [Numba](https://numba.pydata.org) package, the set of functions that define the ODEs being solved are written as new Python files and then compiled before the first simulation. Numba does this as the modules are imported. This allows an improvement in computational speed over pure python functions. You will therefore find the first simulation will take some time to compile the relevant libraries, but once compiled will provide a benefit. Indeed, if you retain the specifica chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. The current version provides you with an example. Specifically, it is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). To run the model, once you are happy all dependecies are installed, type the following from the root directory:
 
 > python Gas_simulation.py
 
-from the command line. Please check the ambient conditions and species concentrations within both 'Gas_simulation.py' and 'ODE_solver.py'. In the former, you can define the starting conditions for species using names explicitly defined in the above equation file. For example, the default option is provided as:
+You can modify the ambient conditions and species concentrations within both 'Gas_simulation.py' and 'ODE_solver.py'. In the former, you can define the starting conditions for species using names explicitly defined in the above equation file. For example, the default option is provided as:
 
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
-    species_initial_conc['BCARY']=20.0
 
-### Python + Fortran [using f2py Fortran to Python Interface Generator] 
+###2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run.
 
 
