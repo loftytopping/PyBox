@@ -21,15 +21,31 @@ Where the equation number is defined first, then the reactants/products along wi
 
 PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). This allows me to use the Numpy and Scipy modules contained within it amongst others listed below. However, even if you do use the Anaconda distribution, PyBox required specific packages:
 
--[Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo ODE solver package allows us to use multiple ODE solvers designed for stiff systems, including the Rosenbrock method. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) from both package managers to compiling from source.  From my own experience, it is better to build from source against the Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
+- [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo ODE solver package allows us to use multiple ODE solvers designed for stiff systems, including the Rosenbrock method. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) from both package managers to compiling from source.  From my own experience, it is better to build from source against the Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
 > from assimulo.solvers import RodasODE, CVode
 
 to test import of both the Rosenbrock and CVode ODE method.
 
--[UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package.
+- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/). You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of the suite in the python script 'Property_calculation.py' within the 'Aerosol' directory of the PyBox repository. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
 
-Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos), or now included in existing Python packages, are:
+> import sys
+
+> sys.path.append('<-- add your path here -->/UManSysProp_public/')
+
+> from umansysprop import boiling_points
+
+> from umansysprop import vapour_pressures
+
+> from umansysprop import critical_properties
+
+> from umansysprop import liquid_densities
+
+> from umansysprop import partition_models
+
+> from umansysprop.forms import CoreAbundanceField
+
+Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos), or now included in existing Python packages, include:
 
 -[f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator which is now included in the Scipy distribution.
 
