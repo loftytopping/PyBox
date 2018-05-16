@@ -19,7 +19,7 @@ Where the equation number is defined first, then the reactants/products along wi
 ## Dependencies
 ============================
 
-PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). This allows me to use the Numpy and Scipy modules contained within it amongst others listed below. However, even if you do use the Anaconda distribution, PyBox required specific packages:
+PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). This allows me to use both Numpy and Scipy modules contained within it, whilst using the Numba package as detailed shortly. However, even if you do use the Anaconda distribution, additonal packages reuired to use PyBox are:
 
 - [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo ODE solver package allows us to use multiple ODE solvers designed for stiff systems, including the Rosenbrock method. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) from both package managers to compiling from source.  From my own experience, it is better to build from source against the Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
@@ -47,11 +47,13 @@ to test import of both the Rosenbrock and CVode ODE method.
 
 Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos), or now included in existing Python packages, include:
 
--[f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator which is now included in the Scipy distribution.
+- [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator which is now included in the Numpy distribution. 
 
--[Numba](https://numba.pydata.org) installed through the conda package manager to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically.
+- [Numba](https://numba.pydata.org) to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically. As noted on the project website, the easiest way to install numba and get updates is by using the Anaconda Distribution:
 
--[GCC with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.
+> conda install numba
+
+- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  I have not yet tested PyBox using proprietary compilers.
 
 ## Folder Structure 
 ============================
