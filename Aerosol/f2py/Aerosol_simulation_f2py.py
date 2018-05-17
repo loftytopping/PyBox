@@ -353,7 +353,7 @@ if __name__=='__main__':
     total_number=sum(N_perbin)
 
     # - Specify the core material. 
-    # This code is currently setup to consider mmonium sulphate as the core
+    # This code is currently setup to consider ammonium sulphate as the core
     y_core=[1.0e-3]*num_bins #Will hold concentration of core material, only initialise here [molecules/cc] 
     core_density_array=[1770.0]*num_bins #[kg/m3] - need to make sure this matches core definition above
     core_mw=[132.14]*num_bins #[g/mol]

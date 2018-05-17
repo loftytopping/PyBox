@@ -154,8 +154,8 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
-    simulation_time= 3600.0
-    batch_step=100.0
+    simulation_time= 3600.0 # seconds
+    batch_step=100.0 # seconds
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution

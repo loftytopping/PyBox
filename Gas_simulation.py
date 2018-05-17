@@ -49,10 +49,10 @@ if __name__=='__main__':
     #-------------------------------------------------------------------------------------
 
     #1)Define starting ambient conditions
-    temp=288.15
-    RH=0.5 #RH/100%
+    temp=288.15 # Kelvin
+    RH=0.5 # RH/100%
     #Define a start time 
-    hour_of_day=12.0
+    hour_of_day=12.0 # 24 hr format
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
     #2)Generate constants used in rate of reaction calculations
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
