@@ -17,7 +17,6 @@ The model works on the basis of reading a file that defines reactions in the gas
 Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. These are also included in PyBox. This equation file is first parsed using the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the entire chemical mechanism.  Each component, or specie, in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
 
 ## Dependencies
-============================
 
 PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). This allows me to use both Numpy and Scipy modules contained within it, whilst using the Numba package as detailed shortly. However, even if you do use the Anaconda distribution, additonal packages reuired to use PyBox are:
 
@@ -56,7 +55,6 @@ Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anac
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  All such variants are included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
 ## Folder Structure 
-============================
 
 Now we can discuss the directory layout of the current repository.
 
@@ -119,7 +117,6 @@ In addition to the species concentrations and ambient conditions, you can change
 Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on 
 
 ## Automated unit tests 
-============================
 
 Within the folder tests, run the following command:
 
@@ -137,6 +134,5 @@ Contributions to PyBox are more than welcome. Box-models of aerosol systems can 
 Please use the issue tracker at  if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. 
 
 ## Code of Conduct
-============================
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](https://www.contributor-covenant.org/version/1/4/code-of-conduct).
