@@ -18,7 +18,20 @@ Where the equation number is defined first, then the reactants/products along wi
 
 ## Dependencies
 
-PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). This allows me to use both Numpy and Scipy modules contained within it, whilst using the Numba package as detailed shortly. However, even if you do use the Anaconda distribution, additonal packages reuired to use PyBox are:
+PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). Utilised modules included within the Anaconda environment are:
+
+ - Numpy
+ - Scipy
+ - os
+ - sys
+ - collections
+ - pdb
+ - datetime
+ - time
+ - pickle
+ - Matplotlib
+
+Even if you do use the Anaconda distribution, additional packages required to use PyBox are:
 
 - [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo ODE solver package allows us to use multiple ODE solvers designed for stiff systems, including the Rosenbrock method. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) from both package managers to compiling from source.  From my own experience, it is better to build from source against the Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
@@ -44,7 +57,7 @@ to test import of both the Rosenbrock and CVode ODE method.
 
 > from umansysprop.forms import CoreAbundanceField
 
-Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos), or now included in existing Python packages, include:
+Other dependecies include:
 
 - [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator, which is now included in Numpy. 
 
