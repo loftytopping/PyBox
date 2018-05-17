@@ -127,3 +127,16 @@ Within the folder tests, run the following command:
 
 This will use the unittest Python module to test the output of generated functions used within the ODE solvers against pre-generated .npy files provided in the data subfolder of tests.
 
+## Contributing
+
+Contributions to PyBox are more than welcome. Box-models of aerosol systems can rely on many different process representations. It is thus difficult to define a 'standard' full complexity model. There are many developments planned for PyBox, and I am therefore very happy to discuss ideas for improvement and how to add/remove features.  There are two key rules to follow:
+
+ - Any addition must include appropriate unit tests
+ - Any addition must include a link to a peer-reviewed paper before it is accepted into the public branch
+
+Please use the issue tracker at  if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. 
+
+## Code of Conduct
+============================
+
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](https://www.contributor-covenant.org/version/1/4/code-of-conduct).
