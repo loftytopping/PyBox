@@ -2,7 +2,7 @@
 
 This repository holds model variants that couple gas-phase chemistry, gas-to-particle partitioning and varying phase state through the full humidity cycle in the atmosphere. The first phase of the project is to develop and profile a gas phase model, using the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, with an idealised sectional aerosol model. The model will also relate component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release beyond the base variant will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
 
-Please check the project wiki page for more inforamtion on updates and planned releases.
+Please check the project wiki page for more information on updates and planned releases.
 
 ## Model overview
 ============================
