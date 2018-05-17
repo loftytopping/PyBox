@@ -14,7 +14,7 @@ Please check the project wiki page for more information on updates and planned r
 
 ## Model overview<a name="Model-overview"></a>
 
-The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene) chemical mechanism file given by 'MCM_APINENE.eqn.txt' in the root directory of PyBox. This contains the following snippet of text:
+The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene) chemical mechanism file given by 'MCM_APINENE.eqn.txt' in the 'mechanism_files' directory of PyBox. This contains the following snippet of text:
 
      {125.} 	 C96OOH + OH = C96O2 : 	1.90D-12*EXP(190/TEMP) 	;
      {126.} 	 C96OOH + OH = NORPINAL + OH : 	1.30D-11 	;
