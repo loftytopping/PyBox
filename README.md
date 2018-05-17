@@ -90,6 +90,7 @@ Now we can discuss the directory layout of the current repository.
     |------f2py                 # Coupled gas and gas-to-particle partitioning routines [using f2py]
     ├── test                    # Automated unit tests
     |------data                 # Data used in the automated unit tests
+    ├── mechanism_files         # Copies of chemical mechanisms
     ├── LICENSE
     └── README.md
     
