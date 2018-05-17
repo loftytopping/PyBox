@@ -4,7 +4,15 @@ This repository holds model variants that couple gas-phase chemistry, gas-to-par
 
 Please check the project wiki page for more information on updates and planned releases.
 
-## Model overview
+# Table of contents
+1. [Model overview](#Model-overview)
+2. [Dependencies](#Dependencies)
+3. [Folder Structure](#Folder-Structure)
+4. [Automated unit tests](#Automated-unit-tests)
+5. [Contributing](#Contributing)
+6. [Code of Conduct](#Code-of-Conduct)
+
+## Model overview<a name="Model-overview"></a>
 
 The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene) chemical mechanism file given by 'MCM_APINENE.eqn.txt' in the root directory of PyBox. This contains the following snippet of text:
 
@@ -19,7 +27,7 @@ The model works on the basis of reading a file that defines reactions in the gas
 
 Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. These are also included in PyBox. This equation file is first parsed using the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the entire chemical mechanism.  Each component, or specie, in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
 
-## Dependencies
+## Dependencies<a name="Dependencies"></a>
 
 PyBox has been, and is continually, built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). Utilised modules included within the Anaconda environment are:
 
@@ -70,7 +78,7 @@ Other dependecies include:
 
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  All such variants are included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
-## Folder Structure 
+## Folder Structure<a name="Folder-Structure"></a>
 
 Now we can discuss the directory layout of the current repository.
 
@@ -132,7 +140,7 @@ In addition to the species concentrations and ambient conditions, you can change
 
 Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on 
 
-## Automated unit tests 
+## Automated unit tests<a name="Automated-unit-tests"></a> 
 
 Within the folder tests, run the following command:
 
@@ -140,7 +148,7 @@ Within the folder tests, run the following command:
 
 This will use the unittest Python module to test the output of generated functions used within the ODE solvers against pre-generated .npy files provided in the data subfolder of tests.
 
-## Contributing
+## Contributing<a name="Contributing"></a>
 
 Contributions to PyBox are more than welcome. Box-models of aerosol systems can rely on many different process representations. It is thus difficult to define a 'standard' full complexity model. There are many developments planned for PyBox, which you can follow from a scientific perspective in the project wiki. I am therefore very happy to discuss ideas for improvement and how to add/remove features.  There are two key rules to follow:
 
@@ -149,6 +157,6 @@ Contributions to PyBox are more than welcome. Box-models of aerosol systems can 
 
 Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. 
 
-## Code of Conduct
+## Code of Conduct<a name="Code-of-Conduct"></a>
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](https://www.contributor-covenant.org/version/1/4/code-of-conduct).
