@@ -78,7 +78,16 @@ This is the default version in the root directory. Recall the parsing of the equ
 
 > python Gas_simulation.py
 
-You can modify the ambient conditions and species concentrations within both 'Gas_simulation.py' and 'ODE_solver.py'. In the former, you can define the starting conditions for species using names explicitly defined in the above equation file. For example, the default option is provided as:
+You can modify the ambient conditions and species concentrations in 'Gas_simulation.py'. First you can define ambient conditions and simulation time, the default given as :
+
+    temp=288.15 # Kelvin
+    RH=0.5 # RH/100%
+    #Define a start time 
+    hour_of_day=12.0 # 24 hr format
+    simulation_time= 3600.0 # seconds
+    batch_step=100.0 # seconds
+    
+The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can output at every internal time-step, so it is up to the user to use this information, or not, within the output of the ODE_solver.py script.  Following this, the default option for species concentrations is provided as:
 
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
