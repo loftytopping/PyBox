@@ -117,7 +117,7 @@ The 'batch_step' variable allows us to define when to stop/start/record outputs 
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
 
-After which you will see a simple plot of Alpha-Pinene concentration decay over 1 hour.
+If you run the script provided, as noted above, you will see a simple plot of Alpha-Pinene concentration decay over 1 hour.
 
 #### 2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run. To run this simulation, type the following from the f2py directory:
