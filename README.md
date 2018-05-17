@@ -103,6 +103,21 @@ Whilst the above variant uses the Numba package, in the folder 'f2py' the same m
 
 ### Aerosol
 
+In the Aerosol folder you can find some basic gas-to-particle partitioning frameworks. There are two examples provided. The first, within the f2py folder, simulates the partitioning of compounds to 16 size bins from the Alpha-Pinene chemical mechanism. This uses properties calculated from the UManSysProp suite. To run the model, once you are happy all dependecies are installed, type the following from the Aerosol/f2py directory:
+
+> python Aerosol_simulation_f2py
+
+In addition to the species concentrations and ambient conditions, you can change the size distribution and number of size bins in the following:
+
+    num_bins=16 #Number of size bins
+    total_conc=100 #Total particles per cc
+    std=2.2 #Standard Deviation
+    lowersize=0.01 #microns
+    uppersize=1.0 #microns
+    meansize=0.2 #microns
+
+Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on 
+
 ## Automated unit tests 
 ============================
 
