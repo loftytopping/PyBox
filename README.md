@@ -129,7 +129,7 @@ This will use the unittest Python module to test the output of generated functio
 Contributions to PyBox are more than welcome. Box-models of aerosol systems can rely on many different process representations. It is thus difficult to define a 'standard' full complexity model. There are many developments planned for PyBox, which you can follow from a scientific perspective in the project wiki. I am therefore very happy to discuss ideas for improvement and how to add/remove features.  There are two key rules to follow:
 
  - Any addition must include appropriate unit tests
- - Any addition must include a link to a peer-reviewed paper before it is accepted into the public branch
+ - Any addition from a scientific process perspective must include a link to a peer-reviewed paper before it is accepted into the public branch
 
 Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. 
 
