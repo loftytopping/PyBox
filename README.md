@@ -7,12 +7,16 @@ Please check the project wiki page for more information on updates and planned r
 ## Model overview
 ============================
 
-The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the mixed VOC file given by 'MCM_mixed_test.eqn.txt' in the root directory of PyBox. This contains the following snippet of text:
+The model works on the basis of reading a file that defines reactions in the gas phase. For those familiar with using the [Kinetic PreProcessor (KPP) software](http://people.cs.vt.edu/~asandu/Software/Kpp/), this file defined the reactants and products for each reaction within a chemical mechanism along with an associated rate coefficient. For example, take the [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene) chemical mechanism file given by 'MCM_APINENE.eqn.txt' in the root directory of PyBox. This contains the following snippet of text:
 
-##### {46.} 	 CH3OH + OH = HO2 + HCHO : 	2.85D-12*EXP(-345/TEMP) 	;
-##### {47.} 	 C2H5OH + OH = C2H5O : 	3.0D-12*EXP(20/TEMP)*0.05 	;
-##### {48.} 	 C2H5OH + OH = CH3CHO + HO2 : 	3.0D-12*EXP(20/TEMP)*0.9 	;
-##### {49.} 	 C2H5OH + OH = HOCH2CH2O2 : 	3.0D-12*EXP(20/TEMP)*0.05 	;
+#### {125.} 	 C96OOH + OH = C96O2 : 	1.90D-12*EXP(190/TEMP) 	;
+#### {126.} 	 C96OOH + OH = NORPINAL + OH : 	1.30D-11 	;
+#### {127.} 	 C96OOH = C96O + OH : 	J(41)+J(22) 	;
+#### {128.} 	 C96NO3 + OH = NORPINAL + NO2 : 	2.88D-12 	;
+#### {129.} 	 C96NO3 = C96O + NO2 : 	J(53)+J(22) 	;
+#### {130.} 	 C96O = C97O2 : 	4.20D+10*EXP(-3523/TEMP) 	;
+#### {131.} 	 C96OH + OH = NORPINAL + HO2 : 	7.67D-12 	;
+#### {132.} 	 C96OH = C96O + HO2 : 	J(22) 	;
 
 Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. Some reactions rely on coefficients defined elsewhere, according to the MCM version number. These are also included in PyBox. This equation file is first parsed using the file 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the entire chemical mechanism.  Each component, or specie, in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
 
