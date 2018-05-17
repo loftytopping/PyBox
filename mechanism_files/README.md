@@ -10,3 +10,8 @@ The reference should be:
 ##### (Jenkin et al., Atmos. Chem. Phys., 3, 181, 2003; Bloss et al., Atmos. Chem. Phys., 5, 641, 2005), for aromatic schemes; 
 ##### (Jenkin et al., Atmos. Chem. Phys.,  12, 5275, 2012), for the beta-caryophyllene scheme and 
 ##### (Jenkin et al.,Atmos. Chem. Phys., 15, 11433, 2015), for the isoprene scheme.    
+
+## Current mechanism store list:
+
+ - 'MCM_APINENE..' - Alpha Pinene [Monoterpenes]
+ - 'MCM_BCARY..' -  Beta-Caryophyllene [Sesquiterpenes]
