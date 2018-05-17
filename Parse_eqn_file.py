@@ -54,6 +54,7 @@ def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change t
 
     print("Opening file ", str(filename), "for parsing")
   
+    #pdb.set_trace()
     text=open(filename,'rU')
     with open (filename, "r") as myfile:
         data=myfile.read().replace('\n', '')

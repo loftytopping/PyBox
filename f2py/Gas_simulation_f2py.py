@@ -15,16 +15,30 @@
 #                                      : davetopp80@gmail.com                            #
 #    Personal website: davetoppingsci.com                                                #
 #                                                                                        #
-#    This program does not yet have a license, meaning the deault copyright law applies. #
-#    I will add an appropriate open-source icense once made public with paper            #
-#    Only users who have access to the private repository that holds this file may       #
-#    use it, but may not distribute it without explicit permission.                      #
+#    All Rights Reserved.                                                                #
+#    This file is part of PyBox.                                                         #
 #                                                                                        #
+#    PyBox is free software: you can redistribute it and/or modify it under              #
+#    the terms of the GNU General Public License as published by the Free Software       #
+#    Foundation, either version 3 of the License, or (at your option) any later          #
+#    version.                                                                            #
+#                                                                                        #
+#    PyBox is distributed in the hope that it will be useful, but WITHOUT                #
+#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS       #
+#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more              #
+#    details.                                                                            #
+#                                                                                        #
+#    You should have received a copy of the GNU General Public License along with        #
+#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                 #
 #                                                                                        #
 ##########################################################################################
+# Developed using the Anaconda Python 3 distribution and with the Assimulo ODE solver    # 
+# suite: http://www.jmodelica.org/assimulo                                               #
+# In the import statements, all files developed specifically for this project            #
+# as marked [•]                                                                          #
+##########################################################################################
 
-# VERSION 0.9
-# - Not fit for public release.
+# VERSION 1.0
 
 # Developed using the Anaconda Python distribution and with the Assimulo ODE solver suite: http://www.jmodelica.org/assimulo
 # Assimulo gives a Python front-end acces to stiff solvers so this can be merged with aerosol developments in a seperate branch.
@@ -46,7 +60,8 @@ from datetime import datetime
 import time
 from ODE_solver import run_simulation # [•] Contains routines to run ODE solver
 import pickle
-            
+from shutil import copy2
+   
 # Start of the main body of code
 if __name__=='__main__':
    
@@ -58,6 +73,8 @@ if __name__=='__main__':
     #Define a start time 
     hour_of_day=12.0
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
+    simulation_time= 3600.0 # seconds
+    batch_step=100.0 # seconds
     #2)Generate constants used in rate of reaction calculations
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
     temp_celsius=temp-273.15
@@ -77,7 +94,7 @@ if __name__=='__main__':
     # This is important since the species-2-dict array maps extracted species to array numbers. This
     # can change with each parse
 
-    filename='MCM_mixed_test'    
+    filename='MCM_APINENE'    
 
     files_exist = False
     
@@ -89,6 +106,11 @@ if __name__=='__main__':
             #    os.remove(fname)
             if ".f90" in fname:
                 os.remove(fname)
+            if ".eqn.txt" in fname:
+                os.remove(fname)
+
+        # Copy mechanism file into working directory
+        copy2('../mechanism_files/'+filename+'.eqn.txt','.')
 
         # Parse equation file and store relevant dictionaries for later retrieval
         print_options=dict()
@@ -170,7 +192,7 @@ if __name__=='__main__':
             equations = pickle.load(f) 
         
     print("Ready to run simulation") 
-    pdb.set_trace()
+    #pdb.set_trace()
             
     # Now load the numpy arrays generated in the parsing script for use in the simulations. Again, these are named to
     # match this particular code. However the ordering is not important.
@@ -180,7 +202,6 @@ if __name__=='__main__':
     species_initial_conc=dict()
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
-    species_initial_conc['BCARY']=20.0
     
     # Save this information to a dictionary to pass to ODE solver
     input_dict=dict()
@@ -193,7 +214,7 @@ if __name__=='__main__':
     save_output=True
     #-------------------------------------------------------------------------------------
     #3) Run the simulation
-    run_simulation(start_time, save_output, temp, RH, RO2_indices, H2O, input_dict)
+    run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step)
     #-------------------------------------------------------------------------------------
     
 
