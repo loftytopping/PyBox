@@ -27,7 +27,7 @@ PyBox has been, and is continually, built in the [Anaconda Python 3.6 environmen
 
 to test import of both the Rosenbrock and CVode ODE method.
 
-- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/). You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of the suite in the python script 'Property_calculation.py' within the 'Aerosol' directory of the PyBox repository. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
+- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/). You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of the suite in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
 
 > import sys
 
@@ -47,16 +47,18 @@ to test import of both the Rosenbrock and CVode ODE method.
 
 Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos), or now included in existing Python packages, include:
 
-- [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator which is now included in the Numpy distribution. 
+- [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator, which is now included in Numpy. 
 
 - [Numba](https://numba.pydata.org) to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically. As noted on the project website, the easiest way to install numba and get updates is by using the Anaconda Distribution:
 
 > conda install numba
 
-- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  I have not yet tested PyBox using proprietary compilers.
+- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  All such variants are included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
 ## Folder Structure 
 ============================
+
+Now we can discuss the directory layout of the current repository.
 
 ### Directory layout
 
@@ -69,10 +71,10 @@ Other dependecies used in the [Anaconda Python 3.6 environment](https://www.anac
     ├── LICENSE
     └── README.md
     
-As noted in the model overview, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model contruction within the root directory before we consider gas-to-particle partitioning. Currently there are two variants provided to solve the gas phase model:
+As noted in the model overview, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model held within the root directory before we consider gas-to-particle partitioning [in the folder 'Aerosol']. Currently there are two variants used to solve the gas phase model:
    
 #### 1) Python [using Numba]
-This is the default version in the root directory. Recall the parsing of the equation file? After this, using the [Numba](https://numba.pydata.org) package, the set of functions that define the ODEs being solved are written as new Python files and then compiled before the first simulation. Numba does this as the modules are imported. This allows an improvement in computational speed over pure python functions. You will therefore find the first simulation will take some time to compile the relevant libraries, but once compiled will provide a benefit. Indeed, if you retain the specifica chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. The current version provides you with an example. Specifically, it is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). To run the model, once you are happy all dependecies are installed, type the following from the root directory:
+This is the default version in the root directory. Recall the parsing of the equation file? After new python scripts are created for use within the ODE solvers, the [Numba](https://numba.pydata.org) package then compiles these before the first simulation. Numba does this as the modules are imported. You will therefore find the initial pre-simulation stages of the first simulation will take some time, but not in subsequent model simulations. Indeed, if you retain a specific chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. The current version provides you with an example. Specifically, it is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). To run the model, once you are happy all dependecies are installed, type the following from the root directory:
 
 > python Gas_simulation.py
 
