@@ -139,7 +139,7 @@ In addition to the species concentrations and ambient conditions, you can change
     uppersize=1.0 #microns
     meansize=0.2 #microns
 
-Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on 
+Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on contributing to the project.
 
 ## Automated unit tests<a name="Automated-unit-tests"></a> 
 
