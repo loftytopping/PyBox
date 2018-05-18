@@ -36,7 +36,7 @@ import pylab as P
 import pdb
 import pickle
 
-def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict):
+def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict, simulation_time, batch_step):
 
     from assimulo.solvers import RodasODE, CVode, RungeKutta4, LSODAR #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -207,7 +207,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
 
     # Now add the initial condensed phase [including water]
     #pdb.set_trace()
-    y0[num_species:num_species_condensed+((num_bins)*num_species_condensed)]=y_cond[:]
+    y0[num_species:num_species+((num_bins)*num_species_condensed)]=y_cond[:]
     #pdb.set_trace()
     
     #Set the total_time of the simulation to 0 [havent done anything yet]
@@ -229,8 +229,8 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
-    simulation_time= 3600.0
-    batch_step=300.0
+    # simulation_time= 3600.0
+    # batch_step=300.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -260,7 +260,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # Initial steps might be slower than mid-simulation. It varies.
         #exp_mod.jac = dydt_jac
         # Define which ODE solver you want to use
-        exp_sim = LSODAR(exp_mod) 
+        exp_sim = CVode(exp_mod) 
         tol_list=[1.0e-2]*len(y0)
         exp_sim.atol = tol_list #Default 1e-6
         exp_sim.rtol = 1.0e-4 #Default 1e-6

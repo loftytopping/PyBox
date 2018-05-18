@@ -65,6 +65,7 @@ import pickle
 # You will also need the UManSysProp package and need to change the directory location of that package
 # This code relies on UManSysProp to calculate properties - change the link below to where your copy of UManSysProp_public is stored
 import pybel
+from shutil import copy2
             
 # Start of the main body of code
 if __name__=='__main__':
@@ -78,6 +79,8 @@ if __name__=='__main__':
     #Define a start time 
     hour_of_day=12.0
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
+    simulation_time= 3600.0 # seconds
+    batch_step=100.0 # seconds
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
     temp_celsius=temp-273.15
     # Saturation VP of water vapour, to get concentration of H20
@@ -152,6 +155,11 @@ if __name__=='__main__':
                 os.remove(fname)
             if ".npz" in fname:
                 os.remove(fname)
+            if ".eqn.txt" in fname:
+                os.remove(fname)
+
+        # Copy mechanism file into working directory
+        copy2('../../mechanism_files/'+filename+'.eqn.txt','.')
                 
         # Parse equation file and store relevant dictionaries for later retrieval
         print_options=dict()
@@ -304,7 +312,9 @@ if __name__=='__main__':
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
     include_index.append(num_species-1)
-    
+    #pdb.set_trace()
+    ignore_index_fortran=numpy.append(ignore_index_fortran,0.0)
+    #pdb.set_trace()
     #-------------------------------------------------------------------------------------
     # 6) Now calculate the additional properties that dictate gas-to-particle partitioning [inc water]
     #-------------------------------------------------------------------------------------
@@ -454,13 +464,13 @@ if __name__=='__main__':
     
     RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
     
-    pdb.set_trace()
+    #pdb.set_trace()
 
     #Do you want to save the output from the simulation as a .npy file?
     save_output=True
     #-------------------------------------------------------------------------------------
     # 11) Run the simulation
-    run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict)
+    run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict, simulation_time, batch_step)
     #-------------------------------------------------------------------------------------
     
 
