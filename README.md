@@ -97,7 +97,7 @@ Now we can discuss the directory layout of the current repository.
 Currently there are two versions of the gas phase model, one held within the root directory and the other in folder 'f2py':
    
 #### 1) Python [using Numba]
-This is the default version in the root directory. Recall the parsing of the equation file? After new python scripts are created for use within the ODE solvers, the [Numba](https://numba.pydata.org) package then compiles these before the first simulation. Numba does this as the modules are imported. You will therefore find the initial pre-simulation stages of the first simulation will take some time, but not in subsequent model simulations. Indeed, if you wish to study a fixed chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. Once you have conducted your first simulation, you may change the following within 'Gas_simulation.py':
+This is the default version in the root directory. Recall the parsing of the equation file? After new python scripts are created for use within the ODE solvers, the [Numba](https://numba.pydata.org) package then compiles these before the first simulation. Numba does this as the modules are imported. You will therefore find the initial pre-simulation stages of the first simulation will take some time, but not in subsequent model simulations if you wish to study a fixed chemical mechanism. In this case Numba will not need to re-compile even when you start with new initial conditions. Once you have conducted your first simulation, you may change the following within 'Gas_simulation.py':
 
     files_exist = False
 
@@ -119,7 +119,7 @@ You can modify the ambient conditions and species concentrations in 'Gas_simulat
     RH=0.5 # RH/100%
     #Define a start time 
     hour_of_day=12.0 # 24 hr format
-    simulation_time= 3600.0 # seconds
+    simulation_time= 7200.0 # seconds
     batch_step=100.0 # seconds
     
 The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can output at every internal time-step, so it is up to the user to use this information, or not, within the output of the ODE_solver.py script.  Following this, the default option for species concentrations is provided as:
@@ -129,7 +129,7 @@ The 'batch_step' variable allows us to define when to stop/start/record outputs 
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
 
-If you run the script provided, as noted above, you will see a simple plot of Alpha-Pinene concentration decay over 1 hour.
+If you run the script provided, as noted above, you will see a simple plot of Alpha-Pinene concentration decay over 2 hours.
 
 #### 2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run. To run this simulation, type the following from the f2py directory:
@@ -141,7 +141,7 @@ Whilst the above variant uses the Numba package, in the folder 'f2py' the same m
 
 ### Aerosol
 
-In the Aerosol folder you can find some basic gas-to-particle partitioning frameworks. There are two examples provided. The first, within the f2py folder, simulates the partitioning of compounds to 16 size bins from the Alpha-Pinene chemical mechanism. This uses properties calculated from the UManSysProp suite. To run the model, once you are happy all dependecies are installed, type the following from the Aerosol/f2py directory:
+In the Aerosol folder you can find gas-to-particle partitioning frameworks. There are two examples provided. The first, within the f2py folder, simulates the partitioning of compounds to 16 size bins from the Alpha-Pinene chemical mechanism as this evolves over time. This uses properties calculated from the UManSysProp suite. To run the model, once you are happy all dependencies are installed, type the following from the Aerosol/f2py directory:
 
 > python Aerosol_simulation_f2py
 
@@ -154,13 +154,14 @@ In addition to the species concentrations and ambient conditions, you can change
     uppersize=1.0 #microns
     meansize=0.2 #microns
 
-Much more work is planned on the aerosol modules since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the following section on contributing to the project.
-
 <img src="images/Example_SOA_simulation.png" width="600">
 <em>Example total organic aerosol loading from the default aerosol simulation of Alpha-Pinene</em>
 
 <img src="images/Example_SOA_contributions.png" width="600">
 <em>Example normalised contributions per size bin for the default fixed yield simulations</em>
+
+
+Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the proceeding note on contributing to the project.
 
 ## Automated unit tests<a name="Automated-unit-tests"></a> 
 
