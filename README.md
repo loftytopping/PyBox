@@ -94,7 +94,7 @@ Now we can discuss the directory layout of the current repository.
     ├── LICENSE
     └── README.md
     
-As noted in the model overview, everything is driven by a gas-phase chemical mechanism. It therefore makes sense to have this model held within the root directory before we consider gas-to-particle partitioning [in the folder 'Aerosol']. Currently there are two variants used to solve the gas phase model:
+Currently there are two versions of the gas phase model, one held within the root directory and the other in folder 'f2py':
    
 #### 1) Python [using Numba]
 This is the default version in the root directory. Recall the parsing of the equation file? After new python scripts are created for use within the ODE solvers, the [Numba](https://numba.pydata.org) package then compiles these before the first simulation. Numba does this as the modules are imported. You will therefore find the initial pre-simulation stages of the first simulation will take some time, but not in subsequent model simulations. Indeed, if you wish to study a fixed chemical mechanism, Numba will not need to re-compile even when you start with new initial conditions. Once you have conducted your first simulation, you may change the following within 'Gas_simulation.py':
