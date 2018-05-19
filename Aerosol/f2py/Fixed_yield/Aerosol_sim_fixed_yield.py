@@ -74,6 +74,8 @@ if __name__=='__main__':
     PInit=98000 #Pascals - Starting pressure of parcel expansion [if run in Parcel model mode]
     #Define a start time 
     hour_of_day=12.0
+    simulation_time= 3600.0
+    batch_step=100.0
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
     temp_celsius=temp-273.15
@@ -276,6 +278,7 @@ if __name__=='__main__':
     #Pybel_object_activity.update({key:Water_Abun})
     species_dict2array.update({'H2O':num_species-1})
     include_index.append(num_species-1)
+    ignore_index_fortran=numpy.append(ignore_index_fortran,0.0)
     y_gas.append(H2O)
     
     #-------------------------------------------------------------------------------------
@@ -358,7 +361,7 @@ if __name__=='__main__':
         #                                                       Note this dosnt yet account for a kelvin factor
         step+=1
     
-    pdb.set_trace()
+    #pdb.set_trace()
     #-------------------------------------------------------------------------------------
     # 9) Create partitioning module if it dosnt exist
     # IMPORTANT - if you change the number of size bins this needs re-compiling
@@ -370,7 +373,7 @@ if __name__=='__main__':
         print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
         Parse_eqn_file.write_partitioning_section_fortran_ignore(num_species+num_species_condensed*num_bins,num_bins,num_species,num_species_condensed,include_index)
         print("Compiling gas-to-particle partitioning file using f2py")
-        os.system("python f2py_partition.py build_ext --inplace")        
+        os.system("python f2py_partition.py build_ext --inplace --fcompiler=gfortran")        
 
     #-------------------------------------------------------------------------------------
     # 10) Save this information to a dictionary to pass to ODE solver
@@ -412,13 +415,13 @@ if __name__=='__main__':
     input_dict['include_index']=include_index
     input_dict['y_gas_initial']=y_gas
         
-    pdb.set_trace()
+    #pdb.set_trace()
 
     #Do you want to save the output from the simulation as a .npy file?
     save_output=True
     #-------------------------------------------------------------------------------------
     # 11) Run the simulation
-    run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict)
+    run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict, simulation_time, batch_step)
     #-------------------------------------------------------------------------------------
     
     

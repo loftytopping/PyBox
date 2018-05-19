@@ -73,7 +73,7 @@ if __name__=='__main__':
     #Define a start time 
     hour_of_day=12.0
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
-    simulation_time= 3600.0 # seconds
+    simulation_time= 7200.0 # seconds
     batch_step=100.0 # seconds
     #2)Generate constants used in rate of reaction calculations
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
@@ -157,19 +157,19 @@ if __name__=='__main__':
         Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
         print("Compiling rate coefficient file using f2py")
         #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
-        os.system("python f2py_rate_coefficient.py build_ext --inplace")
+        os.system("python f2py_rate_coefficient.py build_ext --inplace --fcompiler=gfortran")
         
         # Create Fortran file for calculating prodcts all of reactants for all reactions
         print("Creating Fortran file to calculate reactant contribution to equation")
         Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
         print("Compiling reactant product file using f2py")
-        os.system("python f2py_reactant_conc.py build_ext --inplace")
+        os.system("python f2py_reactant_conc.py build_ext --inplace --fcompiler=gfortran")
         
         # Create Fortran file for calculating dy_dt
         print("Creating Fortran file to calculate dy_dt for each reaction")
         Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
         print("Compiling dydt file using f2py")
-        os.system("python f2py_loss_gain.py build_ext --inplace")
+        os.system("python f2py_loss_gain.py build_ext --inplace --fcompiler=gfortran")
 
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
@@ -178,7 +178,7 @@ if __name__=='__main__':
         # Create jacobian 
         Parse_eqn_file.write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,openMP)
         print("Compiling jacobian function using f2py")      
-        os.system("python f2py_jacobian.py build_ext --inplace")
+        os.system("python f2py_jacobian.py build_ext --inplace --fcompiler=gfortran")
 
     else:
         

@@ -36,7 +36,7 @@ import pylab as P
 import pdb
 import pickle
 
-def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict, simulation_time, batch_step):
+def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, PInit, y_cond, input_dict, simulation_time, batch_step, plot_mass):
 
     from assimulo.solvers import RodasODE, CVode, RungeKutta4, LSODAR #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -302,16 +302,14 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         with open(filename+'include_index.pickle', 'wb') as handle:
             pickle.dump(include_index, handle, protocol=pickle.HIGHEST_PROTOCOL)
         
-    with_plots=True
-    
     #pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
-    if with_plots:
-        P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
+    if plot_mass is True:
+        P.plot(t_array,SOA_matrix[:,0], marker='o')
         P.title(exp_mod.name)
-        P.ylabel("State: $y_1$")
-        P.xlabel("Time")
+        P.ylabel("SOA mass [micrograms/m3]")
+        P.xlabel("Time [seconds] since start of simulation")
         P.show()
         
     

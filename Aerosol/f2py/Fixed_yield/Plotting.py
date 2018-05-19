@@ -28,7 +28,9 @@ from scipy import stats # Import the scipy.stats module
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.pyplot import cm 
+from matplotlib.animation import FuncAnimation
 import pdb
+import time as time_func
 
 def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
     #This function plots the stacked contributions from each component [or top x%]
@@ -37,7 +39,8 @@ def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
     
     #y_matrix is a matrix of outputs from the simulation. The specific time stamps have 
     #been chosen prior to this function call. Thus, here, we cycle through all entries.
-        
+
+	
     for time_step in range(len(time)):
         
         #Define a range of colours to represent every compound
@@ -74,10 +77,10 @@ def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
                 ax.bar(bar_locations, y_norm_matrix[org,:],bottom=np.array(y_cummulative[0,:]),color=c)
     
         plt.title('SOA mass = {:.2f}'.format(np.sum(np.sum(y_abs_matrix))))
+        plt.ylabel('Normalised SOA contribution')
+        plt.xlabel('Size bin')
         fig.show()
-        pdb.set_trace()
+        time_func.sleep(3)
         plt.close(fig)
     
     
-#def gas_phase():
-#    #This function plots the change in gas phase concentrations over time

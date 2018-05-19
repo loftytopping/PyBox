@@ -37,7 +37,7 @@ import pdb
 import pickle
 import Plotting
 
-def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict):
+def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict, simulation_time, batch_step):
 
     from assimulo.solvers import RodasODE, CVode, RungeKutta4, LSODAR #Choose solver accoring to your need. 
     from assimulo.problem import Explicit_Problem
@@ -189,8 +189,6 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
     
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
-    simulation_time= 3600.0
-    batch_step=100.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -247,7 +245,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         print ("Predicted temperature from end of dynamic calculation = ", dydt_func.temp)
         print ("Predicted RH from end of dynamic calculation = ", dydt_func.RH)
         print ("Predicted water activity from end of dynamic calculation = ", dydt_func.water_activity)
-        pdb.set_trace()
+        #pdb.set_trace()
         #now save this information into a matrix for later plotting.
         time_step+=1
 

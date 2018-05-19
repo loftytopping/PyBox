@@ -205,10 +205,12 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
     if with_plots:
-        P.plot(t_array,y_matrix[:,species_dict2array['APINENE']], marker='o')
+        P.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['APINENE']]), marker='o',label="APINENE")
+        P.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['PINONIC']]), marker='o',label="PINONIC")
         P.title(exp_mod.name)
-        P.ylabel("State: $y_1$")
-        P.xlabel("Time")
+        P.legend(loc='upper left')
+        P.ylabel("Concetration log10[molecules/cc]")
+        P.xlabel("Time [seconds] since start of simulation")
         P.show()
         
     
