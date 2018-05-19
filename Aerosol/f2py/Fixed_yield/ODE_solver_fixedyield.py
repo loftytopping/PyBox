@@ -266,7 +266,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
         
     with_plots=True
     
-    pdb.set_trace()
+    #pdb.set_trace()
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
     if with_plots:
