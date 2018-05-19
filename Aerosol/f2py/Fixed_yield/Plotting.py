@@ -79,8 +79,9 @@ def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
         plt.title('SOA mass = {:.2f}'.format(np.sum(np.sum(y_abs_matrix))))
         plt.ylabel('Normalised SOA contribution')
         plt.xlabel('Size bin')
-        fig.show()
-        time_func.sleep(3)
+        plt.show()
+        #time_func.sleep(3) 
+        pdb.set_trace()
         plt.close(fig)
     
     

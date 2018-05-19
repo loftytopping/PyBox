@@ -49,6 +49,16 @@ Thumbs.db
 !test/data/*.npy
 *.pickle
 
+# Images
+#####################
+*.png
+!images/Example_SOA_contributions.png
+!images/Example_SOA_simulation.png
+!images/Example_deafult_gas_simulation.png
+*.jpeg
+
+
+
 # Folders
 ######################
 __pycache__
