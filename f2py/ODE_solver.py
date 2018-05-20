@@ -143,8 +143,8 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
     
     # Note also that the current module outputs solver information after each batch step. This can be turned off and the
     # the batch step change for increased speed
-    simulation_time= 3600.0
-    batch_step=100.0
+    #simulation_time= 3600.0
+    #batch_step=100.0
     t_array=[]
     time_step=0
     number_steps=int(simulation_time/batch_step) # Just cycling through 3 steps to get to a solution
@@ -161,11 +161,11 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
         if total_time == 0.0:
             #Define an Assimulo problem
             #Define an explicit solver
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
             
         else:
             y0 = y_output[-1,:] # Take the output from the last batch as the start of this
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
             
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.

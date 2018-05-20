@@ -126,7 +126,8 @@ def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change t
         rate_full=equation_full.split(':',1)[1]
         #but as a text string
         rate_full=rate_full.strip() #[x.strip(' ') for x in rate_full]
-        rate_dict[equation_step]=rate_full
+        #rate_dict[equation_step]=rate_full
+        rate_dict[equation_step]="".join(rate_full.split())
         #This assumes everyline, as in KPP, finishes with a ';' character
 
         #pdb.set_trace()
@@ -2296,10 +2297,10 @@ def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,sp
                 if species in loss_dict.keys():
                     loss_step=0
                     for equation_step, stoich in loss_dict[species].items():
-                        if flag > 4:
-                            f.write(' \n')
-                            f.write('    ')
-                            flag=0
+                        #if flag > 4:
+                        #    f.write(' \n')
+                        #    f.write('    ')
+                        #    flag=0
                         if loss_step==0:
                             if stoich==1:
                                 f.write('-1.0*r[%s]'%(equation_step))
@@ -2312,15 +2313,15 @@ def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,sp
                             else:
                                 f.write('-r[%s]*%s'%(equation_step,stoich))
                             loss_step+=1
-                        flag+=1
+                        #flag+=1
                         #loss[species_step]+=reactants[equation_step]*stoich
                 if species in gain_dict.keys():
                     gain_step=0
                     for equation_step, stoich in gain_dict[species].items():
-                        if flag > 4:
-                            f.write(' \n')
-                            f.write('    ')
-                            flag=0
+                        #if flag > 4:
+                        #    f.write(' \n')
+                        #    f.write('    ')
+                        #    flag=0
                         if gain_step==0:
                              if stoich==1:
                                 f.write('+r[%s]'%(equation_step))
@@ -2333,7 +2334,7 @@ def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,sp
                              else:
                                 f.write('+r[%s]*%s'%(equation_step,stoich))
                              gain_step+=1
-                        flag+=1
+                        #flag+=1
                         #gain[species_step]+=reactants[equation_step]*stoich
         f.write('\n')
          #dydt_list[species_step]+=(gain[species_step]-loss[species_step])

@@ -93,6 +93,8 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # Now use reaction rates with the loss_gain information in a pre-created Numba file to calculate the final dydt for each compound
         dydt=dydt_eval(numpy.zeros((len(y_asnumpy))),reactants)
 
+        #pdb.set_trace()
+
         # ----------------------------------------------------------------------------------
         # The following demonstrates the same procedure but using only Numpy and pure python
         # For the full MCM this is too slow, but is useful for demonstrations and testing
@@ -189,11 +191,11 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
             #Define an Assimulo problem
             #Define an explicit solver
             #pdb.set_trace()
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
             
         else:
             y0 = y_output[-1,:] # Take the output from the last batch as the start of this
-            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = 'MCM simulation')
+            exp_mod = Explicit_Problem(dydt_func,y0,t0, name = filename)
             
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.
