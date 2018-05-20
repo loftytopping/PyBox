@@ -33,24 +33,15 @@ PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anacon
 
  - Numpy
  - Scipy
- - os
- - sys
- - collections
- - pdb
- - datetime
- - time
- - pickle
  - Matplotlib
 
 Additional dependencies are:
 
-- [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo ODE solver package allows us to use multiple ODE solvers designed for stiff systems, including the Rosenbrock method. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) from both package managers to compiling from source.  From my own experience, it is better to build from source against the Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
+- [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  From my own experience, it is better to build from source against your Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
 > from assimulo.solvers import RodasODE, CVode
 
-to test import of both the Rosenbrock and CVode ODE method.
-
-- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/). You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of the suite in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
+- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of it in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
 
 > import sys
 
@@ -72,11 +63,11 @@ Other dependecies include:
 
 - [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator, which is now included in Numpy. 
 
-- [Numba](https://numba.pydata.org) to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically. As noted on the project website, the easiest way to install numba and get updates is by using the Anaconda Distribution:
+- [Numba](https://numba.pydata.org) to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically. As noted on the project website, the easiest way to install numba is by using the Anaconda Distribution:
 
 > conda install numba
 
-- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants described below.  All such variants are included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
+- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
 ## Folder Structure<a name="Folder-Structure"></a>
 
@@ -94,7 +85,7 @@ Now we can discuss the directory layout of the current repository.
     ├── LICENSE
     └── README.md
     
-Currently there are two versions of the gas phase model, one held within the root directory and the other in folder 'f2py':
+Currently there are two versions of the gas phase only model; one held within the root directory and the other in folder 'f2py':
    
 #### 1) Python [using Numba]
 This is the default version in the root directory. Recall the parsing of the equation file? After new python scripts are created for use within the ODE solvers, the [Numba](https://numba.pydata.org) package then compiles these before the first simulation. Numba does this as the modules are imported. You will therefore find the initial pre-simulation stages of the first simulation will take some time, but not in subsequent model simulations if you wish to study a fixed chemical mechanism. In this case Numba will not need to re-compile even when you start with new initial conditions. Once you have conducted your first simulation, you may change the following within 'Gas_simulation.py':
@@ -105,7 +96,7 @@ to
 
     files_exist = True
 
-The current version of PyBox provides you with an example. Specifically, it is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). The Alpha-Pinene mechanism file is stored within the 'mechanism_files' folder and referenced in the 'Gas_simulation.py' file through: 
+The current version of PyBox provides you with an out-of-the-box example. It is based on the MCM representation of the degredation of [Alpha-Pinene](https://en.wikipedia.org/wiki/Alpha-Pinene). The Alpha-Pinene mechanism file is stored within the 'mechanism_files' folder and referenced in the 'Gas_simulation.py' file through: 
 
     filename='MCM_APINENE'
 
@@ -116,20 +107,20 @@ To run the model, once you are happy all dependecies are installed, type the fol
 You can modify the ambient conditions and species concentrations in 'Gas_simulation.py'. First you can define ambient conditions and simulation time, the default given as :
 
     temp=288.15 # Kelvin
-    RH=0.5 # RH/100%
+    RH=0.5 # RH/100% [range 0-0.99]
     #Define a start time 
     hour_of_day=12.0 # 24 hr format
     simulation_time= 7200.0 # seconds
     batch_step=100.0 # seconds
     
-The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can output at every internal time-step, so it is up to the user to use this information, or not, within the output of the ODE_solver.py script.  Following this, the default option for species concentrations is provided as:
+The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can output at every internal time-step, so it is up to the user to use this information, or not, within the output of the 'ODE_solver.py' script.  Following this, the default option for species concentrations is provided as:
 
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
 
-If you run the script provided, as noted above, you will see a simple plot of Alpha-Pinene concentration decay over 2 hours.
+If you run 'Gas_simulation.py' as provided you will see a simple plot of Alpha-Pinene concentration decay over 2 hours.
 
 #### 2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run. To run this simulation, type the following from the f2py directory:
@@ -161,7 +152,7 @@ In addition to the species concentrations and ambient conditions, you can change
 <em>Example normalised contributions per size bin for the default fixed yield simulations</em>
 
 
-Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. This ethos is captured in the proceeding note on contributing to the project.
+Please note this does require some knowledge of typical aerosol dise distributions and reasonable number concentrations. Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. The current version is beyond the most basic used in atmospheric research. Nonetheless, PyBox is designed with the community in mind and my goal is to include all relevant processes. This ethos is captured in the proceeding note on contributing to the project.
 
 ## Automated unit tests<a name="Automated-unit-tests"></a> 
 
