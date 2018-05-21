@@ -7,7 +7,7 @@ Please check the project wiki page for more information on updates and planned r
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies](#Dependencies)
-3. [Folder Structure](#Folder-Structure)
+3. [Folder Structure and running the model](#Folder-Structure)
 4. [Automated unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
 6. [Code of Conduct](#Code-of-Conduct)
@@ -71,7 +71,11 @@ Other dependecies include:
 
 ## Folder Structure and running the model <a name="Folder-Structure"></a>
 
-Now we can discuss the directory layout of the current repository.
+If you are happy all dependencies are installed and working, to run PyBox 'out of the box', type the following in the root directory:
+
+> python Gas_simulation.py
+
+You will see a plot of the concentration of two compounds changing over time. To understand what this simulation has actually done, let us now understand the repository structure.
 
 ### Directory layout
 
