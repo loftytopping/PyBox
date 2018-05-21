@@ -69,7 +69,7 @@ Other dependecies include:
 
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
-## Folder Structure<a name="Folder-Structure"></a>
+## Folder Structure and running the model <a name="Folder-Structure"></a>
 
 Now we can discuss the directory layout of the current repository.
 
