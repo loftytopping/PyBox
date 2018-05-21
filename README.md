@@ -104,7 +104,7 @@ The current version of PyBox provides you with an out-of-the-box example. It is 
 
     filename='MCM_APINENE'
 
-To run the model, once you are happy all dependecies are installed, type the following from the root directory:
+As already noted, to run the model, once you are happy all dependecies are installed, type the following from the root directory:
 
 > python Gas_simulation.py
 
