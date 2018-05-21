@@ -15,9 +15,14 @@ authors:
   - name: Paul Connolly
     orcid: 0000-0002-3294-7405
     affiliation: 1
+  - name: Jonathan Reid
+    orcid: 0000-0001-6022-1778
+    affiliation: 2
 affiliations:
  - name: School of Earth and Environmental Science, University of Manchester, M13 9PL
    index: 1
+ - name: School of Chemistry, University of Bristol, BS8 1TS
+   index: 2
 
 date: 18 May 2018
 bibliography: paper.bib
