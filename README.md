@@ -184,4 +184,4 @@ Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if 
 
 ## Code of Conduct<a name="Code-of-Conduct"></a>
 
-Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](https://www.contributor-covenant.org/version/1/4/code-of-conduct). There needs to be greater support and recognition for software development and developers. PyBox can act as a vehicle for enabling better collaboration and therefore better science.
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](code-of-conduct.md). There needs to be greater support and recognition for software development and developers. PyBox can act as a vehicle for enabling better collaboration and therefore better science.
