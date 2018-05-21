@@ -1,6 +1,6 @@
 # PyBox
 
-PyBox is a Python based box-model generator and simulator designed for atmospheric chemistry and aerosol simulations. The first phase of the PyBox project is to develop a gas phase model, using the reaction information within the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, coupled with an idealised sectional aerosol model. The model will also relate component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
+PyBox is a Python based box-model generator and simulator designed for atmospheric chemistry and aerosol studies. The first phase of the PyBox project is to develop a gas phase model, using the reaction information within the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, coupled with an idealised sectional aerosol model. PyBox also relates component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
 
 Please check the project wiki page for more information on updates and planned releases.
 
@@ -25,7 +25,7 @@ PyBox works on the basis of reading a file that defines reactions between compou
      {131.} 	 C96OH + OH = NORPINAL + HO2 : 	7.67D-12 	;
      {132.} 	 C96OH = C96O + HO2 : 	J(22) 	;
 
-Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. This equation file is first parsed by functions in 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the entire chemical mechanism.  Each component in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
+Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. This equation file is parsed by functions in 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the evolution of the chemical mechanism.  Each component in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
 
 ## Dependencies<a name="Dependencies"></a>
 
@@ -76,7 +76,7 @@ If you are happy all dependencies are installed and working, to run PyBox 'out o
 
 > python Gas_simulation.py
 
-You will see a plot of the concentration of two compounds changing over time. To understand what this simulation has actually done, let us now understand the repository structure.
+You will see a plot displaying the concentration of two compounds over time. To understand what this simulation has actually done, let us now discuss the repository structure.
 
 ### Directory layout
 
@@ -118,7 +118,7 @@ You can modify the ambient conditions and species concentrations in 'Gas_simulat
     simulation_time= 7200.0 # seconds
     batch_step=100.0 # seconds
     
-The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can output at every internal time-step, so it is up to the user to use this information, or not, within the output of the 'ODE_solver.py' script.  Following this, the default option for species concentrations is provided as:
+The 'batch_step' variable allows us to define when to stop/start/record outputs from our simulation for later use. The ODE methods can provide output at every internal time-step, so it is up to the user to use this information, or not, within the output of the 'ODE_solver.py' script.  Following this, the default option for species concentrations is provided as:
 
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
@@ -137,7 +137,7 @@ Whilst the above variant uses the Numba package, in the folder 'f2py' the same m
 
 ### Aerosol
 
-In the Aerosol folder you can find gas-to-particle partitioning frameworks. There are two examples provided. The first, within the f2py folder, simulates the partitioning of compounds to 16 size bins from the Alpha-Pinene chemical mechanism as this evolves over time. This uses properties calculated from the UManSysProp suite. To run the model, once you are happy all dependencies are installed, type the following from the Aerosol/f2py directory:
+In the Aerosol folder you can find gas-to-particle partitioning frameworks. There are two examples provided. The first, within the f2py folder, simulates the partitioning of compounds to 16 size bins again from the Alpha-Pinene chemical mechanism as this evolves over time. This uses properties calculated from the UManSysProp suite. To run the model, once you are happy all dependencies are installed, type the following from the Aerosol/f2py directory:
 
 > python Aerosol_simulation_f2py
 
