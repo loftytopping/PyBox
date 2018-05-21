@@ -4,6 +4,8 @@ PyBox is a Python based box-model generator and simulator designed for atmospher
 
 Please check the project wiki page for more information on updates and planned releases.
 
+This project is licensed under the terms of the GNU General Public License v3.0, as provided with this repository.
+
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies](#Dependencies)
@@ -35,14 +37,17 @@ PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anacon
  - Scipy
  - Matplotlib
  - unittest
-
+ - shutil
+ - xml.dom
+ - multiprocessing
+ 
 Additional dependencies are:
 
 - [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  From my own experience, it is better to build from source against your Anaconda Python environment. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
 > from assimulo.solvers import RodasODE, CVode
 
-- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. You can clone the suite from the [project github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of it in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
+- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. You can clone the suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of it in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
 
 > import sys
 
@@ -149,6 +154,9 @@ In addition to the species concentrations and ambient conditions, you can change
     lowersize=0.01 #microns
     uppersize=1.0 #microns
     meansize=0.2 #microns
+    
+Please note this does require some knowledge of typical aerosol size distributions and reasonable number concentrations. Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. The current version is beyond the most basic used in atmospheric research. Nonetheless, PyBox is designed with the community in mind and my goal is to include all relevant processes. This ethos is captured in the proceeding note on contributing to the project.
+
 
 <img src="images/Example_SOA_simulation.png" width="600">
 <em>Example total organic aerosol loading from the default aerosol simulation of Alpha-Pinene</em>
@@ -156,8 +164,6 @@ In addition to the species concentrations and ambient conditions, you can change
 <img src="images/Example_SOA_contributions.png" width="600">
 <em>Example normalised contributions per size bin for the default fixed yield simulations</em>
 
-
-Please note this does require some knowledge of typical aerosol size distributions and reasonable number concentrations. Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. The current version is beyond the most basic used in atmospheric research. Nonetheless, PyBox is designed with the community in mind and my goal is to include all relevant processes. This ethos is captured in the proceeding note on contributing to the project.
 
 ## Automated unit tests<a name="Automated-unit-tests"></a> 
 
