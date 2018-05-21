@@ -180,7 +180,7 @@ Contributions to PyBox are more than welcome. Box-models of aerosol systems can 
  - Any addition must include appropriate unit tests
  - Any addition from a scientific process perspective must include a link to a peer-reviewed paper before it is accepted into the public branch
 
-Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. 
+Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if you want to notify me of an issue or need support. If you want to contribute, please either create an issue or make a pull request. Alternatively, come and see us in Manchester and/or lets meet for a coffee and a chat!
 
 ## Code of Conduct<a name="Code-of-Conduct"></a>
 
