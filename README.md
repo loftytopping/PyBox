@@ -4,6 +4,8 @@ PyBox is a Python based box-model generator and simulator designed for atmospher
 
 Please check the project wiki page for more information on updates and planned releases.
 
+This project is licensed under the terms of the GNU General Public License v3.0, as provided with this repository.
+
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies](#Dependencies)
