@@ -7,7 +7,7 @@ Please check the project wiki page for more information on updates and planned r
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies](#Dependencies)
-3. [Folder Structure and running the model](#Folder-Structure)
+3. [Folder structure and running the model](#Folder-Structure)
 4. [Automated unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
 6. [Code of Conduct](#Code-of-Conduct)
@@ -69,7 +69,7 @@ Other dependecies include:
 
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
-## Folder Structure and running the model <a name="Folder-Structure"></a>
+## Folder structure and running the model <a name="Folder-Structure"></a>
 
 If you are happy all dependencies are installed and working, to run PyBox 'out of the box', type the following in the root directory:
 
@@ -104,7 +104,7 @@ The current version of PyBox provides you with an out-of-the-box example. It is 
 
     filename='MCM_APINENE'
 
-To run the model, once you are happy all dependecies are installed, type the following from the root directory:
+As already noted, to run the model, once you are happy all dependecies are installed, type the following from the root directory:
 
 > python Gas_simulation.py
 

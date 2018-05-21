@@ -1,7 +1,6 @@
 ## Chemical mechanism store
 
-Please note, any file that starts with 'MCM_..' has been extracted from the [Master Chemical Mechanism website](http://mcm.leeds.ac.uk/MCM/). As noted in those extracted files, 
-Please add a citation to the MCM website and the relevant mechanism  construction protocols using the following or comparable wording:                                               
+Please note, any file that starts with 'MCM_..' has been extracted from the [Master Chemical Mechanism website](http://mcm.leeds.ac.uk/MCM/). As noted via the MCM project website, please add a citation to the MCM website and the relevant mechanism  construction protocols using the following or comparable wording:                                               
 
     The chemical mechanistic information was taken from the Master Chemical Mechanism, MCM v3.3.1 (ref), via website:
     http://mcm.leeds.ac.uk/MCM.                                       * ;
