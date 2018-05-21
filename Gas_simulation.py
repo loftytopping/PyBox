@@ -48,7 +48,6 @@
 import numpy 
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
 import rate_coeff_conversion # [•] Converts standard text rate coefficients into Numba/Fortran
-import MCM_constants # [•] holds more pre-defined rate coefficients and photolysis rates not provided in .eqn file. 
 import collections
 import pdb
 from datetime import datetime
