@@ -38,6 +38,33 @@ from umansysprop.forms import CoreAbundanceField
 import pdb
 
 def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff):
+
+    """ This function takes the defintions of rate coefficients and converts to Fortran command
+
+    inputs:
+    • num_species - number of compounds used in the calculations
+    • species_dict - dict holding names of all compounds
+    • species_dict2array - dict that mapes compound name to array index
+    • Pybel_object_dict - dict holding all Pybel objects of each compound [used in UManSysProp]
+    • SMILES_dict - dict containing all SMILES strings of each compound
+    • temp - temperature [K]
+    • vp_method - choice of vapour pressure method [see calling function and/or UManSysProp]
+    • bp_method - choice of boiling point method [see calling function and/or UManSysProp]
+    • critical_method - choice of criticl property method [see calling function and/or UManSysProp]
+    • density_method - choice of density method [see calling function and/or UManSysProp]
+    • ignore_vp - flag to ignore compounds with vapour pressure above a defined value given by 'vp_cutoff'
+    • vp_cutoff - log10 value of vapour pressure above which the odel will ignore partitioning
+    outputs:
+    • return_dict['y_density_array']=y_density_array - density of each condensing compound
+    • return_dict['y_mw']=y_mw - molecular weight of each condensing compound
+    • return_dict['sat_vp']=sat_vp - saturation vapour pressure of each condensing compound
+    • return_dict['Delta_H']=Delta_H - enthalpy of vapourisation of each condensing compound
+    • return_dict['Latent_heat_gas']=Latent_heat_gas - latent hear of condensation of each condensing compound   
+    • return_dict['ignore_index']=ignore_index - array that holds information on which compounds to ignore for partitioning
+    • return_dict['ignore_index_fortran']=ignore_index_fortran - dense array that holds information on which compounds to ignore for partitioning in Fortran functions
+    • return_dict['include_index']=include_index - array that holds information on which compounds to include for partitioning
+  
+    """
     
     y_density_array=[1000.0]*num_species
     y_mw=[200.0]*num_species
@@ -125,6 +152,23 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     return return_dict
     
 def Pure_component2(num_species,y_mw,R_gas,temp):
+
+    """ This function takes the defintions of rate coefficients and converts to Fortran command
+
+    inputs:
+    • num_species - number of compounds used in the calculations
+    • y_mw - molecular weight array of each condensing compound
+    • R_gas - ideal gas constant [see calling routine]
+    • temp - temperature
+    outputs:
+    • return_dict['alpha_d_org']=alpha_d_org - accomodation coefficient
+    • return_dict['DStar_org']=DStar_org - gas phase diffusivity
+    • return_dict['mean_them_vel']=mean_them_vel - mean thermal velocity
+    • return_dict['gamma_gas']=gamma_gas - mean free path for each compound
+  
+    """
+
+
     #----------------------------------------------------------------------------
     #2e) Kinetic properties of all species ######
     #sat_vp = [-12.0]*num_species # np.random.random_sample((num_species,))*-12.0 #log10 atm

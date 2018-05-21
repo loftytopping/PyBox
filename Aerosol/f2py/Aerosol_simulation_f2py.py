@@ -119,7 +119,7 @@ if __name__=='__main__':
     # Some species will have no vapour pressure data associaed with them by using the .xml file. This
     # includes oxidants. These are then ignored in the partitioning calculations. In addtion, you
     # can also define a calulated vapour pressure above which partitioning can be ignored. This should
-    # be set to 'high', given calculated values are given in Log10(atmospehres). By doing this you
+    # be set to a relatively high value, given calculated values are given in Log10(atmospehres). By doing this you
     # can significantly decrease the size of of the resultant jacobian and speed-up calculations
     # This information is compiled in the call to Property_calculation.Pure_component1
     ignore_vp=True
