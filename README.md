@@ -37,6 +37,7 @@ PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anacon
  - Scipy
  - Matplotlib
  - unittest
+ - shutil
 
 Additional dependencies are:
 
