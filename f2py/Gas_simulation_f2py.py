@@ -118,11 +118,11 @@ if __name__=='__main__':
         outputdict=Parse_eqn_file.extract_mechanism(filename+'.eqn.txt',print_options)
 
         # Collect the dictionaries generated
-        reaction_dict=outputdict['reaction_dict']
+        #reaction_dict=outputdict['reaction_dict']
         rate_dict=outputdict['rate_dict']
         rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
         rate_dict_reactants=outputdict['rate_dict_reactants']
-        rate_def=outputdict['rate_def']
+        #rate_def=outputdict['rate_def']
         loss_dict=outputdict['loss_dict']
         gain_dict=outputdict['gain_dict']
         stoich_dict=outputdict['stoich_dict']
