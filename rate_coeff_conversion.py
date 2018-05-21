@@ -1,3 +1,34 @@
+##########################################################################################
+#                                                                                        #
+#    Scripts to convert a text string definition of a rate coefficient and convert to    #
+#    a format that can be used by a Python and/or Fortran environment                    #
+#                                                                                        #
+#                                                                                        #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
+#                                      : davetopp80@gmail.com                            #
+#    Personal website: davetoppingsci.com                                                #
+#                                                                                        #
+#    All Rights Reserved.                                                                #
+#    This file is part of PyBox.                                                         #
+#                                                                                        #
+#    PyBox is free software: you can redistribute it and/or modify it under              #
+#    the terms of the GNU General Public License as published by the Free Software       #
+#    Foundation, either version 3 of the License, or (at your option) any later          #
+#    version.                                                                            #
+#                                                                                        #
+#    PyBox is distributed in the hope that it will be useful, but WITHOUT                #
+#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS       #
+#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more              #
+#    details.                                                                            #
+#                                                                                        #
+#    You should have received a copy of the GNU General Public License along with        #
+#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                 #
+#                                                                                        #
+##########################################################################################
+# Developed using the Anaconda Python 3 distribution and with the Assimulo ODE solver    # 
+# suite: http://www.jmodelica.org/assimulo                                               #
+##########################################################################################
+
 # This script takes a chemical equation file, following the standard KPP format, and generates 
 # information used to create an ODE instance to solver for set of specific conditions. 
 # The rules used to generate this instance have been based on standard KPP examples. 
@@ -8,63 +39,19 @@
 
 import pdb
 
-def convert_rate_general(rate_dict,print_options): #rate_dict contains a list of rate constant text strings
-                                           #as extracted by the Parse_eqn_file.py script
-
-    # Create dictionaries used when calculating final rates in ODE solvers
-    rate_dict_converted=collections.defaultdict(lambda: collections.defaultdict())
-
-    for equation_step, rate_full in rate_dict.iteritems():
-        print("Extracting equation :",equation_step)
-        print("Given rate string of:",rate_full)
-
-        #1) Check for standard rate coefficient definitions
-        if 'ARR' in rate_full:
-            rate_def[equation_step]='ARR'
-            numbers=rate_full.split('(',1)[1].split(')',1)[0].split(',') #take out numbers in the brackets
-            rate_dict[equation_step]['a']=float(numbers[0])
-            rate_dict[equation_step]['b']=float(numbers[1])
-            rate_dict[equation_step]['c']=float(numbers[2])
-        elif 'FALL' in rate_full:
-            rate_def[equation_step]='FALL'
-            numbers=rate_full.split('(',1)[1].split(')',1)[0].split(',')
-            rate_dict[equation_step]['a']=float(numbers[0])
-            rate_dict[equation_step]['b']=float(numbers[1])
-            rate_dict[equation_step]['c']=float(numbers[2])
-            rate_dict[equation_step]['d']=float(numbers[3])
-            rate_dict[equation_step]['e']=float(numbers[4])
-            rate_dict[equation_step]['f']=float(numbers[5])
-            rate_dict[equation_step]['g']=float(numbers[6])
-        elif 'EP2' in rate_full:
-            rate_def[equation_step]='EP2'
-            numbers=rate_full.split('(',1)[1].split(')',1)[0].split(',')
-            rate_dict[equation_step]['a']=float(numbers[0])
-            rate_dict[equation_step]['b']=float(numbers[1])
-            rate_dict[equation_step]['c']=float(numbers[2])
-            rate_dict[equation_step]['d']=float(numbers[3])
-            rate_dict[equation_step]['e']=float(numbers[4])
-            rate_dict[equation_step]['f']=float(numbers[5])
-        elif 'EP3' in rate_full:
-            rate_def[equation_step]='EP3'
-            numbers=rate_full.split('(',1)[1].split(')',1)[0].split(',')
-            rate_dict[equation_step]['a']=float(numbers[0])
-            rate_dict[equation_step]['b']=float(numbers[1])
-            rate_dict[equation_step]['c']=float(numbers[2])
-            rate_dict[equation_step]['d']=float(numbers[3])
-        elif 'SUN' in rate_full:
-            rate_def[equation_step]='SUN'
-            rate_dict[equation_step]['a']=float(rate_full.split('*',1)[0])
-            rate_dict[equation_step]['b']=float(rate_full.split('/',1)[1].split(')',1)[0])
-        else:
-            rate_def[equation_step]='constant'
-            try:
-                rate_dict[equation_step]['a']=float(rate_full.split('(',1)[1].split(')',1)[0])
-            except: 
-                rate_dict[equation_step]['a']=float(rate_full)
                 
 def convert_rate_mcm(rate_dict):
 
-    #2) KPP formats for a specific mechanism also tend to use pre-requisite constants. 
+    """ This function takes the defintions of rate coefficients and converts to Python command
+
+    inputs:
+    • rate_dict - parsed string representations of rate coefficients
+    outputs:
+    • rate_dict - converted defintions for use in Python
+  
+    """
+	
+    # KPP formats for a specific mechanism also tend to use pre-requisite constants. 
     # For example, the MCM often uses formats for rate coefficients as follows:
     # K234*J(0)*J(3)
     # J(4)+J(5)*EXP(234/TEMP)
@@ -127,7 +114,16 @@ def convert_rate_mcm(rate_dict):
 
 def convert_rate_mcm_numba(rate_dict):
 
-    #2) KPP formats for a specific mechanism also tend to use pre-requisite constants. 
+    """ This function takes the defintions of rate coefficients and converts to Python [Numba] command
+
+    inputs:
+    • rate_dict - parsed string representations of rate coefficients
+    outputs:
+    • rate_dict - converted defintions for use in Python
+  
+    """
+
+    # KPP formats for a specific mechanism also tend to use pre-requisite constants. 
     # For example, the MCM often uses formats for rate coefficients as follows:
     # K234*J(0)*J(3)
     # J(4)+J(5)*EXP(234/TEMP)
@@ -221,7 +217,17 @@ def convert_rate_mcm_numba(rate_dict):
 
 def convert_rate_mcm_fortran(rate_dict):
 
-    #2) KPP formats for a specific mechanism also tend to use pre-requisite constants. 
+    """ This function takes the defintions of rate coefficients and converts to Fortran command
+
+    inputs:
+    • rate_dict - parsed string representations of rate coefficients
+    outputs:
+    • rate_dict - converted defintions for use in Fortran
+  
+    """
+
+
+    # KPP formats for a specific mechanism also tend to use pre-requisite constants. 
     # For example, the MCM often uses formats for rate coefficients as follows:
     # K234*J(0)*J(3)
     # J(4)+J(5)*EXP(234/TEMP)
