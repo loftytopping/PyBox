@@ -31,4 +31,8 @@ However, it is becoming extremely hard to develop models that can respond to our
 
 ``PyBox`` is a 0-D box model, where all species are homogeneously distributed, built around a chemical mechanism file; a file that represents all the individual chemical reactions taking place starting from a wide range of precursors. By parsing a chemical equation file, obtained from the MCM project, ``PyBox`` creates files that account for the gas phase chemistry as well as automatically calculating properties that dictate gas-to-particle partitioning through connection with the ``UManSysProp`` informatics suite [@Topping2016]. Written in Python, ``PyBox`` uses ``Numba`` [@Lam2015] or the Fortran-to-Python-Generator ``f2py`` [@Peterson2009] to perform calculations currently within a library of ODE solvers provided by the ``Assimulo`` package [@Andersson2015]. 
 
+# Acknowledgements
+
+This project was partly supported through NERC grant NE/N013794/1 which funded me to spend time developing new community models for sensitivity studies. 
+
 # References
