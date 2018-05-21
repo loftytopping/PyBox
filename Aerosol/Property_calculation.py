@@ -39,7 +39,7 @@ import pdb
 
 def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dict,SMILES_dict,temp,vp_method,bp_method,critical_method,density_method,ignore_vp,vp_cutoff):
 
-    """ This function takes the defintions of rate coefficients and converts to Fortran command
+    """ This function calculates properties that dictate gas-to-particle partitioning
 
     inputs:
     • num_species - number of compounds used in the calculations
@@ -153,7 +153,7 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     
 def Pure_component2(num_species,y_mw,R_gas,temp):
 
-    """ This function takes the defintions of rate coefficients and converts to Fortran command
+    """ This function calculates properties that dictate gas-to-particle partitioning
 
     inputs:
     • num_species - number of compounds used in the calculations
