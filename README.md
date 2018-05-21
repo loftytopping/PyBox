@@ -2,9 +2,9 @@
 
 PyBox is a Python based box-model generator and simulator designed for atmospheric chemistry and aerosol studies. The first phase of the PyBox project is to develop a gas phase model, using the reaction information within the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, coupled with an idealised sectional aerosol model. PyBox also relates component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
 
-Please check the project wiki page for more information on updates and planned releases.
+Please check the project wiki page for more information on updates and planned releases. 
 
-This project is licensed under the terms of the GNU General Public License v3.0, as provided with this repository.
+This project is licensed under the terms of the GNU General Public License v3.0, as provided with this repository. 
 
 # Table of contents
 1. [Model overview](#Model-overview)
