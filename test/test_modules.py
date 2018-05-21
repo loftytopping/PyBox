@@ -39,7 +39,11 @@ import numpy.testing as npt
 import unittest
 
 def setup(filename):
-    # setup here..
+
+    """
+    Function that is used to setup the parsed routines to check expected output via unitttests
+    """
+
     # Create modules through parsing routine and compile where needed
 
     # Define standard variables used in testing
@@ -359,6 +363,7 @@ def setup(filename):
     pass
 
 class TestParsing(unittest.TestCase):
+
     """
     Test the output from the derived functions used within the ODE solvers
     """
