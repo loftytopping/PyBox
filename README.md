@@ -149,6 +149,9 @@ In addition to the species concentrations and ambient conditions, you can change
     lowersize=0.01 #microns
     uppersize=1.0 #microns
     meansize=0.2 #microns
+    
+Please note this does require some knowledge of typical aerosol size distributions and reasonable number concentrations. Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. The current version is beyond the most basic used in atmospheric research. Nonetheless, PyBox is designed with the community in mind and my goal is to include all relevant processes. This ethos is captured in the proceeding note on contributing to the project.
+
 
 <img src="images/Example_SOA_simulation.png" width="600">
 <em>Example total organic aerosol loading from the default aerosol simulation of Alpha-Pinene</em>
@@ -156,8 +159,6 @@ In addition to the species concentrations and ambient conditions, you can change
 <img src="images/Example_SOA_contributions.png" width="600">
 <em>Example normalised contributions per size bin for the default fixed yield simulations</em>
 
-
-Please note this does require some knowledge of typical aerosol size distributions and reasonable number concentrations. Within the folder 'Fixed_yield' is a partitioning only model, using fixed total concentrations of compounds in the gas phase. It is important to note that much more work is planned on the aerosol model since there are multiple properties and processes that affect gas-to-particle partitioning. The current version is beyond the most basic used in atmospheric research. Nonetheless, PyBox is designed with the community in mind and my goal is to include all relevant processes. This ethos is captured in the proceeding note on contributing to the project.
 
 ## Automated unit tests<a name="Automated-unit-tests"></a> 
 
