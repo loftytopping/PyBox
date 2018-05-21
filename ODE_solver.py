@@ -2,7 +2,7 @@
 #                                                                                        #
 #    Contains definitions of functions use in RHS of ODE                                 #
 #                                                                                        #
-#    By default relies on pre-compiled Numba modules, but can be used with Numpy/Scipy   #
+#    By default relies on pre-written Numba modules, but can be used with Numpy/Scipy    #
 #    This will be provided as a seperate module for teaching/training but too slow for   #
 #    'production' runs                                                                   #
 #                                                                                        #
@@ -62,6 +62,15 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # define the ODE function to be called
     def dydt_func(t,y):
 
+        """
+        This function defines the right-hand side [RHS] of the ordinary differential equations [ODEs] to be solved
+        input:
+        • t - time variable [internal to solver]
+        • y - array holding concentrations of all compounds in both gas and particulate [molecules/cc]
+        output:
+        dydt - the dy_dt of each compound in both gas and particulate phase [molecules/cc.sec]
+        """
+
         #pdb.set_trace()
         #Here we use the pre-created Numba based functions to arrive at our value for dydt
         # Calculate time of day
@@ -95,6 +104,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
 
         #pdb.set_trace()
 
+        ############ Development place-holder ##############
         # ----------------------------------------------------------------------------------
         # The following demonstrates the same procedure but using only Numpy and pure python
         # For the full MCM this is too slow, but is useful for demonstrations and testing
@@ -125,9 +135,8 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #-------------------------------------------------------------------------------------
 
     print("Importing Numba modules [compiling if first import or clean build...please be patient]")
-    #import static compilation of Numba functions for use in ODE solver
+    #import Numba functions for use in ODE solver
     from Rate_coefficients_numba import evaluate_rates 
-    # from Rate_coefficients import evaluate_rates # - Non Numba for testing
     from Reactants_conc_numba import reactants as reactant_product
     from Loss_Gain_numba import dydt as dydt_eval
     

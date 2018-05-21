@@ -52,6 +52,15 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
     # define the ODE function to be called
     def dydt_func(t,y):
 
+        """
+        This function defines the right-hand side [RHS] of the ordinary differential equations [ODEs] to be solved
+        input:
+        • t - time variable [internal to solver]
+        • y - array holding concentrations of all compounds in both gas and particulate [molecules/cc]
+        output:
+        dydt - the dy_dt of each compound in both gas and particulate phase [molecules/cc.sec]
+        """
+
         #pdb.set_trace()
         # Calculate time of day
         time_of_day_seconds=start_time+t
@@ -83,6 +92,16 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
     #-------------------------------------------------------------------------------------
     # define jacobian function to be called
     def jacobian(t,y):    
+
+        """
+        This function defines Jacobian of the ordinary differential equations [ODEs] to be solved
+        input:
+        • t - time variable [internal to solver]
+        • y - array holding concentrations of all compounds in both gas and particulate [molecules/cc]
+        output:
+        dydt_dydt - the N_compounds x N_compounds matrix of Jacobian values
+        """
+
         # Different solvers might call jacobian at different stages, so we have to redo some calculations here 
         # Calculate time of day
         time_of_day_seconds=start_time+t

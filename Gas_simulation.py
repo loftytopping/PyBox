@@ -65,7 +65,7 @@ if __name__=='__main__':
 
     #1)Define starting ambient conditions
     temp=288.15 # Kelvin
-    RH=0.5 # RH/100%
+    RH=0.5 # RH/100% [0 - 0.99]
     #Define a start time 
     hour_of_day=12.0 # 24 hr format
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
@@ -88,7 +88,7 @@ if __name__=='__main__':
     # Do files already exist? If so, you can bypass this stage and proceed with simulation
     # Note, this is for you to manage. If unsure which files are available, re-parse and re-compile
     # This is important since the species-2-dict array maps extracted species to array numbers. This
-    # can change with each parse
+    # can change with each parse and depends on the choice of mechanism.
 
     filename='MCM_APINENE'    
 

@@ -45,8 +45,6 @@
 # The Assimulo package does not allow extra argument passing, and thus defines the structure of the code. 
 # In the import statements, all files developed specifically for this project as marked [•]
 
-# I keep all Parse/conversion files in the parent directory hence the 'from . import' statements
-
 import numpy 
 import sys
 import os

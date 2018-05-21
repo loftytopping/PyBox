@@ -43,7 +43,30 @@ import os
 from xml.dom import minidom
 import multiprocessing
 
-def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change to the filename of interest
+def extract_mechanism(filename,print_options): #Change to the filename of interest
+
+    """ This reads the mechanism equation file, held in the the 'mechanisms_file' folder and extracts
+    reactants, products and a definition of the rate coefficient for each reaction. This is the information
+    that is then stored in dictionaries used to create files that define the ordinary differential equations
+    [ODEs] being solved by PyBox.
+
+    inputs:
+    • filename - name of mechanism file [pre .eqn.txt extension]
+    • print_options - flag to define verbosity of extraction process
+    outputs:
+    • output_dict['rate_dict']=rate_dict - string of reaction rate coefficient [to be converted]
+    • output_dict['rate_dict_reactants'] - rate_dict_reactants [reactants involved in each reaction]
+    • output_dict['loss_dict']=loss_dict - compounds lost in each reaction
+    • output_dict['gain_dict']=gain_dict - compounds produced in each reaction
+    • output_dict['stoich_dict']=stoich_dict - stoichiometry of each reactant/product in each reaction
+    • output_dict['species_dict']=species_dict - dict listing all compounds
+    • output_dict['species_dict2array']=species_dict2array - dict that maps compound name to array index for use in numerical simulations
+    • output_dict['species_hess_data']=species_hess_data - hessian compound listing [not used in current version]
+    • output_dict['species_hess_loss_data']=species_hess_loss_data - hessian loss information [not used in current version]
+    • output_dict['species_hess_gain_data']=species_hess_gain_data - hessian gain information [not used in current version]
+    • output_dict['max_equations']=max_equations - total nummer of reactions
+  
+    """
 
     # The following steps are used:
     # 1) Read the equation file
@@ -88,9 +111,9 @@ def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change t
     #{4}  RH + OH = RO2 + H2O :	3.775E+3 ;
     #
     #Dictionaries used to store information about reactants/products/equations
-    reaction_dict=collections.defaultdict(lambda: collections.defaultdict())
+    #reaction_dict=collections.defaultdict(lambda: collections.defaultdict())
     rate_dict=collections.defaultdict(lambda: collections.defaultdict())
-    rate_def=collections.defaultdict()
+    #rate_def=collections.defaultdict()
     loss_dict=collections.defaultdict(lambda: collections.defaultdict())
     gain_dict=collections.defaultdict(lambda: collections.defaultdict())
     stoich_dict=collections.defaultdict(lambda: collections.defaultdict())
@@ -270,10 +293,10 @@ def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change t
     print("Total number of species = ", len(species_dict.keys()))
     print("Saving all equation information to dictionaries")
     output_dict=dict()
-    output_dict['reaction_dict']=reaction_dict
+    #output_dict['reaction_dict']=reaction_dict
     output_dict['rate_dict']=rate_dict
     output_dict['rate_dict_reactants']=rate_dict_reactants
-    output_dict['rate_def']=rate_def
+    #output_dict['rate_def']=rate_def
     output_dict['loss_dict']=loss_dict
     output_dict['gain_dict']=gain_dict
     output_dict['stoich_dict']=stoich_dict
@@ -284,23 +307,19 @@ def extract_mechanism(filename,print_options): #filename='saprc99.eqn' #Change t
     output_dict['species_hess_gain_data']=species_hess_gain_data
     output_dict['max_equations']=max_equations
     
-    #Now you need to create a new function file for calculating rate coefficients. This will store the 
-    #equation rates as 'hardcoded' representations. The benefit is not having to loop through dictionary
-    #entries that can become very slow
-    #call another funtion for this
-    #rate_function(rate_dict)
-    
-    #Also create the function for the gas phase 
-
     return output_dict
 
 def extract_smiles_species(output_dict, SMILES_filename):
-    #Here we map the SMILES to a species name. For the MCM, this information is stored in an XML file.
-    #This is the name of the filename you need to provide.
-    #This information would be seperate from the information provided in extract species, and you would run this function instead
-    #For development purposes the default XML file has been MCM331.xml
-    
-    #output_dict is generated through a moulde that reads an equation file
+
+    """ Function to map the SMILES string of a given molecule to its name. 
+    For the MCM, this information is stored in an XML file.
+
+    inputs:
+    • SMILES_filename - the name of the .xml file you need to provide [stored in root directory]
+    outputs:
+    • output_dict['SMILES_dict']=SMILES_dict - dict of SMILES strings for a given compound name
+    • output_dict['Pybel_object_dict']=Pybel_object_dict - Pybel object of each SMILES string [needed for properties calculated in UManSysProp]
+    """
     
     print('Mapping species names to SMILES and Pybel objects')
     
@@ -338,6 +357,23 @@ def extract_smiles_species(output_dict, SMILES_filename):
         
 
 def extract_species(filename):
+
+    """ Function used to test box-models by extracting from a pre-defined chemical mechanism snapshot.
+    In PyBox, this function is used within the 'Fixed_yield' folder variants
+
+    inputs:
+    • filename - File that defines SMILES strings and concetrations
+    outputs:
+    • output_dict['species_dict']=species_dict -  dict of all compounds
+    • output_dict['species_dict2array']=species_dict2array - dict that maps compound name to array index for use in numerical simulations
+    • output_dict['Pybel_object_dict']=Pybel_object_dict - dict of Pybel objects for each compound [required for UManSysProp]
+    • output_dict['smiles_array']=smiles_array - array of all SMILES strings
+    • output_dict['SMILES_dict']=SMILES_dict - dict of all SMILES strings
+    • output_dict['concentration_array']=concentration_array - extracted concetration from [filename]
+    • output_dict['species_number']=species_step - total number of compounds
+    • output_dict['Pybel_object_activity']=Pybel_object_activity - special PyBel dict used in activity coefficients [not used in this version]
+    • output_dict['concentration_dict']=concentration_dict - dict of compound concetrations 
+	"""
     
     #This function is used to test box-models by extracting from a pre-defined chemical mechanism snapshot
     smiles_array=[]
@@ -391,6 +427,16 @@ def extract_species(filename):
     return output_dict
     
 def write_rate_file(filename,rate_dict):
+
+    """ Function to write a .py file that defines rate coefficients for each reaction
+
+    inputs:
+    • filename - name that will define the extension of the produced module
+    • rate_dict - dictionary that holds reaction number and associated string [Python command friendly] of calculations required to predict the rate coefficient
+    outputs:
+    • N/A - generates a .py file for later use
+	"""
+	
     
     #Put all of the rate coefficient functional forms into a new python file.
     f = open('Rate_coefficients.py','w')
@@ -762,6 +808,16 @@ def write_rate_file(filename,rate_dict):
     f.close()  
    
 def write_rate_file_numba(filename,rate_dict):
+
+    """ Function to write a Numba enabled .py file that defines rate coefficients for each reaction
+
+    inputs:
+    • filename - name that will define the extension of the produced module
+    • rate_dict - dictionary that holds reaction number and associated string [Python command friendly] of calculations required to predict the rate coefficient
+    outputs:
+    • N/A - generates a .py file for later use
+    """
+
     
     #Put all of the rate coefficient functional forms into a new python file.
     f = open('Rate_coefficients_numba.py','w')
@@ -1168,6 +1224,17 @@ def write_rate_file_numba(filename,rate_dict):
     f.close()  
 
 def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
+
+    """ Function to write a Fortran .f90 file that defines rate coefficients for each reaction
+
+    inputs:
+    • filename - name that will define the extension of the produced module
+    • rate_dict - dictionary that holds reaction number and associated string [Python command friendly] of calculations required to predict the rate coefficient
+    • openMP - flag to define whether OpenMP pragama statements used
+    outputs:
+    • N/A - generates a .py file for later use
+    """
+
     
     #Put all of the rate coefficient functional forms into a new Fortran file.
     f = open('Rate_coefficients.f90','w')
@@ -1607,42 +1674,18 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
 
     
 def write_RO2_indices(filename,species_dict2array):
+
+    """ Function to generate a .npy file that holds indices of RO2 species to use within the ODE solver
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • species_dict2array - dict that maps compound names onto array indices
+    outputs:
+    • N/A - generates a .npy file for later use
+    """
+	
     
     #The following is a list of species defined as contributing to total RO2 concetrations [old MCM]
-    #RO2_names = ['NBUTOLAO2','HO3C4O2','BU1ENO3O2','C43NO34O2','BZBIPERO2','CH3O2','C2H5O2','HOCH2CH2O2',
-    #'ETHENO3O2','C6H5C2H4O2','EBZBIPERO2','ISOPAO2','ISOPBO2','ISOPCO2','ISOPDO2',
-    #'NISOPO2','CH3CO3','C2H5CO3','NC3H7O2','IC3H7O2','HYPROPO2','IPROPOLO2','PRONO3BO2',
-    #'PRONO3AO2','C6H5CH2O2','TLBIPERO2','CH3COCH2O2','BUT2OLO2','C42NO33O2','IC4H9O2','TC4H9O2','IBUTOLBO2','TBUTOLO2',
-    #'MPRANO3O2','MPRBNO3O2','IPEAO2','IPEBO2','IPECO2','MXYBIPERO2','MXYLO2','MEKAO2',
-    #'MEKCO2','MEKBO2','NC4H9O2','SC4H9O2','HEXAO2','HEXBO2','HEXCO2','PEAO2','PEBO2','PECO2','OXYBIPERO2','OXYLO2',
-    #'PXYBIPERO2','PXYLO2','MPRKAO2','CO2C54O2','HO2C5O2','DIEKAO2','DIEKBO2','BZEMUCO2',
-    #'BZEMUCCO3','C5DIALO2','PHENO2','NPHENO2','EBZMUCO2','EBZMUCCO3','C715CO2O2','EBENZOLO2','NEBNZOLO2','HCOCO3','HMVKAO2',
-    #'HMVKBO2','MVKO2','MACO3','MACRO2','TLEMUCO2','TLEMUCCO3','C615CO2O2','CRESO2',
-    #'NCRESO2','MXYMUCO2','MXYMUCCO3','C726CO5O2','MXYOLO2','NMXYOLO2','OXYMUCO2',
-    #'OXYMUCCO3','MC6CO2O2','OXYOLO2','NOXYOLO2','PXYMUCO2','PXYMUCCO3','C6M5CO2O2','PXYOLO2','NPXYOLO2','HO3C3CO3',
-    #'CO3C4NO3O2','MALDIALCO3','EPXDLCO3','C3DIALO2','MALDIALO2','HOCH2CO3',
-    #'NO3CH2CO3','C6H5CH2CO3','C6DCARBBO2','C58O2','HC4ACO3','HC4CCO3','C57O2',
-    #'C59O2','NC4CO3','C510O2','HO1C3O2','CH3CHOHCO3','PRNO3CO3','C6H5CO3','C5CO14O2',
-    #'IBUTOLCO2','IBUTALBO2','IBUTALCO2','IPRCO3','IPRHOCO3','MPRBNO3CO3','M2BUOL2O2',
-    #'HM2C43O2','BUT2CO3','C52O2','ME2BUOLO2','H2M3C4O2','MIPKAO2','MIPKBO2','ME2BU2OLO2',
-    #'PROL11MO2','HO2M2C4O2','C3MCODBCO3','MXYLCO3','EPXMDLCO3','C3MDIALO2','HO1CO3C4O2','CO2C3CO3','BIACETO2',
-    #'NBUTOLBO2','BUTALO2','C3H7CO3','HO1C4O2','C5H11CO3','HO1C6O2','HEX2ONAO2','HEX2ONBO2','HEX2ONCO2','HO2C6O2','HO3C6O2',
-    #'HEX3ONDO2','HEX3ONCO2','HEX3ONBO2','HEX3ONAO2','C4CHOBO2','C4H9CO3','HO1C5O2','PE2ENEBO2','HO3C5O2','OXYLCO3','EPXM2DLCO3',
-    #'C4MCO2O2','PXYLCO3','CO23C54O2','HO2CO4C5O2','CO24C53O2','HO2C4CO3','HO2C4O2','HOCO3C54O2','CO3C4CO3','BZFUO2','NBZFUO2','HCOCOHCO3','EBFUO2','BUTALAO2',
-    #'NEBFUO2','C6DICARBO2','C7CO3OHO2','MVKOHBO2','MVKOHAO2','CO2H3CO3','ACO3','TLFUO2','NTLFUO2','C5DICARBO2','MC3CODBCO3','C4M2ALOHO2','C4MCODBCO3','C5MCO2OHO2',
-    #'MXYFUO2','C23O3MO2','NMXYFUO2','PXYFUO2','MCOCOMOXO2','NPXYFUO2','MC5CO2OHO2','MC4CODBCO3','OXYFUO2','C6OTKETO2',
-    #'NOXYFUO2','DMKOHO2','C4CO2O2','C51O2','HCOCH2O2','PBZQO2','NBZQO2','NCATECO2','NNCATECO2','CO3H4CO3','PEBQO2','NPEBQO2','ENCATECO2','ENNCATECO2','HOC2H4CO3',
-    #'MECOACETO2','PTLQO2','NPTLQO2','MNCATECO2','MNNCATECO2','HOIPRCO3','IBUDIALCO3','PROPALO2','HOIBUTCO3','HO2C43CO3','C56O2',
-    #'C53O2','C41CO3','PROL1MCO3','H2M2C3CO3','C54O2','CHOMOHCO3','MXYQO2','NMXYQO2','MXNCATECO2','MXNNCATCO2','HO2C3CO3','HOC3H6CO3','C63O2','CO2HOC61O2','CO24C6O2',
-    #'CO25C6O2','C61O2','CO23C65O2','HO3C5CO3','C6HO1CO3O2','C3COCCO3','PEN2ONE1O2','C6CO34O2','C6CO3OH5O2','HO3C4CO3','HO13C5O2','TMB1FUO2','NTMB1FUO2','OXYQO2',
-    #'NOXYQO2','OXNCATECO2','OXNNCATCO2','PXYQO2','NPXYQO2','PXNCATECO2','PXNNCATCO2',
-    #'CO2C4CO3','HO13C4O2','MALANHYO2','DNPHENO2','NDNPHENO2','DNEBNZLO2','NDNEBNZLO2','H13CO2CO3','DNCRESO2','NDNCRESO2',\
-    #'HOBUT2CO3','ACCOCOMEO2','MMALANHYO2','DNMXYOLO2','NDNMXYOLO2','CO3C5CO3','C6O4KETO2','DNOXYOLO2','NDNOXYOLO2',
-    #'TL4OHNO2O2','DNPXYOLO2','NDNPXYOLO2','CO23C4CO3','HCOCH2CO3','C5CO2OHCO3','ECO3CO3','C7OHCO2CO3','ACCOMECO3',
-    #'CH3COCO3','C6CO2OHCO3','C42CO3','H13C43CO3','C4COMOHCO3','C23O3MCO3','C23O3CCO3',
-    #'C7CO2OHCO3','C62O2','C5M2OHOCO3','C6MOHCOCO3','HO13C3CO3','C4CO2DBCO3','C7CO2DBCO3','C5CO2DBCO3','C5CO234O2',
-    #'C5CO34CO3','C4DBM2CO3','C5DBCO2CO3','C5CO23O2','EMALANHYO2']
-
     RO2_names = ['HOCH2CH2O2','HO1C3O2','HYPROPO2','IPROPOLO2','NBUTOLAO2','NBUTOLBO2','BUT2OLO2','IBUTOLBO2','IBUTOLCO2','TBUTOLO2','HO3C5O2', 
     'PE2ENEBO2','HM2C43O2','M2BUOL2O2','HM33C3O2','ME3BUOLO2','HO2M2C4O2','ME2BU2OLO2','PROL11MO2','H2M3C4O2','ME2BUOLO2','CYHEXOLAO2','MIBKAOHAO2',  
     'MIBKAOHBO2','MIBKHO4O2','CH3CO3','NMBOAO2','NMBOBO2','MBOAO2','MBOBO2','CH3O2','HCOCH2O2','C2H5CO3','C2H5O2','C3H7CO3','BUTALO2','NC3H7O2','IPRCO3','IBUTALBO2,'
@@ -1984,48 +2027,24 @@ def write_RO2_indices(filename,species_dict2array):
             RO2_indices.append(species_dict2array[name])
             
     np.save(filename+'_RO2_indices', RO2_indices)
-    
-    # -----------------------------------------------------------------------------------------------------------------------------
-    # Placeholder for future development - create specific RO2 file for speed improvement
-    #Put all of the rate coefficient functional forms into a new python file.
-    #f = open('RO2_conc.py','w')
-    #f.write('##################################################################################################### \n') # python will convert \n to os.linesep
-    #f.write('# Python function to hold indices for calculating RO2 concentration                                 # \n') # python will convert \n to os.linesep
-    #f.write('#    Copyright (C) 2017  David Topping : david.topping@manchester.ac.uk                             # \n')
-    #f.write('#                                      : davetopp80@gmail.com                                       # \n')
-    #f.write('#    Personal website: davetoppingsci.com                                                           # \n')
-    #f.write('#                                                                                                   # \n')
-    #f.write('#    This program does not have a license, meaning the deault copyright law applies.                # \n')
-    #f.write('#    Only users who have access to the private repository that holds this file may                  # \n')
-    #f.write('#    use it or develop it, but may not distribute it.                                               # \n')
-    #f.write('#                                                                                                   # \n')
-    #f.write('#                                                                                                   # \n')
-    #f.write('##################################################################################################### \n')    
-    #f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
-    #f.write('\n') 
-    #f.write('import numpy as np\n') 
-    #f.write('\n') 
-    #f.write('def RO2_conc(y):\n') 
-    ## Now cycle through all of the mcm_constants_dict values.
-    ## Please note this includes photolysis rates that will change with time of day or condition in the chamber. You will
-    ## need to modify this potentially.
-    #f.write('    # Sum all relevant contributions from y array\n') 
-    #step=0
-    #for name in RO2_names:
-    #    if name in species_dict2array:
-    #        if step==0:
-    #            f.write('    RO2_indices =[%s,\ \n' %(species_dict2array[name]))
-    #            step+=1
-    #        elif step >0: 
-    #            f.write('    %s,\ \n' %(species_dict2array[name]))
-    #            step+=1
-    #f.write('    ]\ \n')       
-    #f.write('\n')     
-    #f.write('    return RO2_indices \n')   
-    #f.close() 
-    # -----------------------------------------------------------------------------------------------------------------------------
-      
+    	
 def write_reactants_indices(filename,equations,num_species,species_dict2array,rate_dict_reactants,loss_dict):
+
+    """ Function to generate a Numba enabled .py file that calculates total product of reactants for each reaction
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • rate_dict_reactants - dict that holds string definition of rate coefficients for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    outputs:
+    • N/A - generates:
+     - a .npy file for later use
+     - .npy files for checking stochiometry indices and sparse matrix multiplication [not used in current version]
+    """
+	
 
     #Save the indices to a file
     reactants_indices=[]
@@ -2120,6 +2139,22 @@ def write_reactants_indices(filename,equations,num_species,species_dict2array,ra
     # -----------------------------------------------------------------------------------------------------------------------------
     
 def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP):
+
+    """ Function to generate a .f90 Fortran file that calculates total product of reactants for each reaction
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • rate_dict_reactants - dict that holds string definition of rate coefficients for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    • openMP - flag to enable relevant OpenMP pragma statements where possible
+    outputs:
+    • N/A - generates:
+     - a .npy file for later use
+     - .npy files for checking stochiometry indices and sparse matrix multiplication [not used in current version]
+    """
 
     #Save the indices to a file
     reactants_indices=[]
@@ -2222,9 +2257,30 @@ def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_d
     # -----------------------------------------------------------------------------------------------------------------------------
         
 def save_sparse_csr(filename,array):
+
+    """ Function to save an array in sparse matrix [row] format [not used in current version]
+	 """
+
     np.savez(filename,data = array.data ,indices=array.indices,indptr =array.indptr, shape=array.shape )
                 
 def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,species_dict2array):
+
+
+    """ Function to generate a Numba enabled .py file that calculates dy_dt for each compound
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • gain_dict - dict that holds products for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    outputs:
+    • N/A - generates:
+     - a .npy file for later use
+     """
+
+
     #Here we create and then store a sparse matrix for use in the loss_gain calculations
     #This is then loaded before the simulation to calculate loss and gain
             
@@ -2344,6 +2400,23 @@ def write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,sp
     # -----------------------------------------------------------------------------------------------------------------------------
     
 def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP):
+
+
+    """ Function to generate a .f90 Fortran file that calculates dy_dt for each compound
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • gain_dict - dict that holds products for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    • openMP - flag to enable relevant OpenMP pragma statements where possible
+    outputs:
+    • N/A - generates:
+     - a .f90 file for later use
+     """
+
     #Here we create and then store a sparse matrix for use in the loss_gain calculations
     #This is then loaded before the simulation to calculate loss and gain
             
@@ -2466,6 +2539,26 @@ def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,s
     # -----------------------------------------------------------------------------------------------------------------------------
 
 def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,OpenMP):
+
+
+    """ Function to generate a .f90 Fortran file that defines the jacobian for the gas phase model currently used
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • gain_dict - dict that holds products for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    • rate_dict_reactants - reactants involved in each reaction
+    • OpenMP - flag to enable OpenMP pragma statements where required
+    
+    outputs:
+    • N/A - generates:
+     - a .f90 file for later use
+     """
+
+	 
     
     # Function to calculate the jacobian for the gas phase only model. Designed to provide some
     # improvements in comp efficiency. Cant be done for the full aerosol model due to dependency on
@@ -2737,6 +2830,23 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
     f.close()  
 
 def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants):
+
+    """ Function to generate a Numba enabled .py file that defines the jacobian for the gas phase model currently used
+
+    inputs:
+    • filename - name that will define the extension of the produced file
+    • equations - total number of equations
+    • num_species - total numer of compounds
+    • species_dict2array - dict that maps compound names onto array indices
+    • gain_dict - dict that holds products for each reaction
+    • loss_dict - dict that holds all reactants for each reaction
+    • rate_dict_reactants - reactants involved in each reaction
+    
+    outputs:
+    • N/A - generates:
+     - a .py file for later use
+     """
+
     
     # Function to calculate the jacobian for the gas phase only model. Designed to provide some
     # improvements in comp efficiency. Cant be done for the full aerosol model due to dependency on
@@ -2980,6 +3090,22 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
 
 
 def write_partitioning_section_fortran(total_length_y,num_bins,num_species):
+
+    """ Function to generate a .f90 Fortran file that defines the dy_dt due to condensation to an existing particulate phase
+
+    inputs:
+    • total_length_y - total length of array that holds gas + codnensed phase
+    • num_bins - number of size bins used in the model
+    • num_species - number of compounds used in the simulation
+    
+    outputs:
+    • N/A - generates:
+     - a .f90 file for later use
+
+     NB uses OpenMP be default
+     """
+
+
     f = open('Partitioning.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to calculating dy/dt according to gas-to-particle partitioning                    # \n') # python will convert \n to os.linesep
@@ -3165,6 +3291,22 @@ def write_partitioning_section_fortran(total_length_y,num_bins,num_species):
     f.close()  
 
 def write_partitioning_section_fortran_ignore(total_length_y,num_bins,num_species,num_species_condensed,include_index):
+
+    """ Function to generate a .f90 Fortran file that defines the dy_dt due to condensation to an existing particulate phase
+
+    inputs:
+    • total_length_y - total length of array that holds gas + codnensed phase
+    • num_bins - number of size bins used in the model
+    • num_species - number of compounds used in the simulation
+    
+    outputs:
+    • N/A - generates:
+     - a .f90 file for later use
+
+     NB uses OpenMP be default / designed to ignore species caculated as too volatile [defined by users choice of vapour pressure method]
+     """
+
+
     f = open('Partitioning.f90','w')
     f.write('!##################################################################################################### \n') # python will convert \n to os.linesep
     f.write('! Fortran function to calculating dy/dt according to gas-to-particle partitioning                    # \n') # python will convert \n to os.linesep
