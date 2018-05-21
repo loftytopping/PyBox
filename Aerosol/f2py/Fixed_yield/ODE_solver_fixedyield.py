@@ -53,6 +53,15 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
     # define the ODE function to be called
     def dydt_func(t,y):
 
+        """
+        This function defines the right-hand side [RHS] of the ordinary differential equations [ODEs] to be solved
+        input:
+        • t - time variable [internal to solver]
+        • y - array holding concentrations of all compounds in both gas and particulate [molecules/cc]
+        output:
+        dydt - the dy_dt of each compound in both gas and particulate phase [molecules/cc.sec]
+        """
+
         dy_dt=numpy.zeros((total_length_y,1),)
         
         #pdb.set_trace()
