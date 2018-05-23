@@ -8,9 +8,9 @@ This project is licensed under the terms of the GNU General Public License v3.0,
 
 # Table of contents
 1. [Model overview](#Model-overview)
-2. [Dependencies](#Dependencies)
+2. [Dependencies and installation](#Dependencies)
 3. [Folder structure and running the model](#Folder-Structure)
-4. [Automated unit tests](#Automated-unit-tests)
+4. [Unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
 6. [Code of Conduct](#Code-of-Conduct)
 
@@ -29,7 +29,7 @@ PyBox works on the basis of reading a file that defines reactions between compou
 
 Where the equation number is defined first, then the reactants/products along with a defined rate coefficient. This equation file is parsed by functions in 'Parse_eqn_file.py', providing information that can be used to set up and solve the relevant ordinary differential equations (ODEs) to simulate the evolution of the chemical mechanism.  Each component in this chemical mechanism also has an associated record of chemical structure in the form of a [SMILES string](http://www.daylight.com/dayhtml/doc/theory/theory.smiles.html). This information is carried in a .xml file, provided by the MCM, and stored in the root directory of PyBox. Why is this important? Well, this information is taken by the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite and allows us to predict properties of each compound that helps us predict whether they are likely to remain in the gas phase or condense to an existing particulate phase through gas-to-particle partitioning. Before we take a look at the directory structure provided in this repository, lets deal with the dependencies.
 
-## Dependencies<a name="Dependencies"></a>
+## Dependencies and installation <a name="Dependencies"></a>
 
 PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). Utilised modules included within the Anaconda environment are:
 
@@ -165,7 +165,7 @@ Please note this does require some knowledge of typical aerosol size distributio
 <em>Example normalised contributions per size bin for the default fixed yield simulations</em>
 
 
-## Automated unit tests<a name="Automated-unit-tests"></a> 
+## Unit tests<a name="Automated-unit-tests"></a> 
 
 Within the folder tests, run the following command:
 
