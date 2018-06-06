@@ -13,6 +13,10 @@
 *.f90
 *_numba.py
 
+# Generated data file #
+######################
+#.csv
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
