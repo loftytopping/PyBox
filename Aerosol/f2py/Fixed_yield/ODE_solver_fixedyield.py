@@ -36,6 +36,8 @@ import pylab as P
 import pdb
 import pickle
 import Plotting
+import csv
+import pandas as pd 
 
 def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_cond, input_dict, simulation_time, batch_step):
 
@@ -272,6 +274,16 @@ def run_simulation(filename, save_output, start_time, temp, RH, H2O, PInit, y_co
             pickle.dump(size_matrix, handle, protocol=pickle.HIGHEST_PROTOCOL)
         with open(filename+'include_index.pickle', 'wb') as handle:
             pickle.dump(include_index, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print("Saving the model output as CSV files for later retrieval")
+        df = pd.DataFrame(y_matrix)
+        df.to_csv(filename+"_y_output.csv")
+        df = pd.DataFrame(t_array)
+        df.to_csv(filename+"_t_output.csv")
+        df = pd.DataFrame(SOA_matrix)
+        df.to_csv(filename+"_SOA_output.csv")
+        df = pd.DataFrame(size_matrix)
+        df.to_csv(filename+"_size_output.csv")
+     
         
     with_plots=True
     
