@@ -38,6 +38,8 @@ import pylab as P
 import pdb
 from scipy.sparse import csr_matrix
 from timeit import default_timer as timer
+import csv
+import pandas as pd 
 
 def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step):
 
@@ -239,6 +241,11 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     # Do you want to save the generated matrix of outputs?
     if save_output:
         numpy.save(filename+'_output', y_matrix)
+        df = pd.DataFrame(y_matrix)
+        df.to_csv(filename+"_output_matrix.csv")
+        w = csv.writer(open(filename+"_output_names.csv", "w"))
+        for specie, number in species_dict2array.items():
+            w.writerow([specie, number])
         
     with_plots=True
     
