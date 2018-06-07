@@ -27,7 +27,7 @@
 
 import sys
 import numpy 
-sys.path.append('/Code/Git_repos/UManSysProp_public/')
+sys.path.append('/Users/davidtopping/Code/Git_repos/UManSysProp_public/')
 from umansysprop import boiling_points
 from umansysprop import vapour_pressures
 from umansysprop import critical_properties

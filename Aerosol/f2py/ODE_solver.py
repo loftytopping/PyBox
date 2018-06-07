@@ -315,10 +315,13 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #Plot the change in concentration over time for a given specie. For the user to change / remove
     #In a future release I will add this as a seperate module
     if plot_mass is True:
-        P.plot(t_array,SOA_matrix[:,0], marker='o')
-        P.title(exp_mod.name)
-        P.ylabel("SOA mass [micrograms/m3]")
-        P.xlabel("Time [seconds] since start of simulation")
-        P.show()
+        try:
+            P.plot(t_array,SOA_matrix[:,0], marker='o')
+            P.title(exp_mod.name)
+            P.ylabel("SOA mass [micrograms/m3]")
+            P.xlabel("Time [seconds] since start of simulation")
+            P.show()
+        except:
+            print("There is a problem using Matplotlib in your environment. If using this within a docker container, you will need to transfer the data to the host or configure your container to enable graphical displays. More information can be found at http://wiki.ros.org/docker/Tutorials/GUI ")
         
     
