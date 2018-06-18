@@ -76,6 +76,54 @@ Other dependecies include:
 
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
+### Using a Docker container <a name="Docker"></a>
+
+If you would like to run PyBox within a Docker container, I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
+
+> docker build -t pybox .
+
+After this has completed [which may take some time], type the following to see your new image listed:
+
+> docker images
+
+To create and run a new container based on this image, with a name 'project_pybox', type:
+
+> docker run --name=project_pybox -it pybox
+
+This will take you in to the container. So, lets run the gas phase model in PyBox whilst you are there. Change directory to where PyBox is located:
+
+> cd /Code/Git_repos/PyBox/
+
+Lets run the default simulation:
+
+> python Gas_simulation.py 
+
+Dont worry about the error message regarding the Matplotlib plots. This is a result of working in a Docker container. For those of you not familiar with Docker commands, lets leave the container. Type:
+
+> exit
+
+You are now back in your original 'host' operating system. To list all available containers, type:
+
+> docker ps -a
+
+You should see how long ago you exited our 'project_pybox' container. Lets restart this container. To do this type the following:
+
+> docker start project_pybox
+> docker exec -it project_pybox bash
+
+We are back in! Lets exit again:
+
+> exit
+
+To remove the container, you can type:
+
+> docker rm project_pybox
+
+To remove the image on which the container is based, which was built from our Dockerfile, type:
+
+> docker rmi pybox
+
+
 ## Folder structure and running the model <a name="Folder-Structure"></a>
 
 If you are happy all dependencies are installed and working, to run PyBox 'out of the box', type the following in the root directory:
