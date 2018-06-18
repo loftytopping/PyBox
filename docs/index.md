@@ -130,7 +130,7 @@ If you are happy all dependencies are installed and working, to run PyBox 'out o
 
 > python Gas_simulation.py
 
-You will see a plot displaying the concentration of two compounds over time. To understand what this simulation has actually done, let us now discuss the repository structure.
+If you are not in a Docker container, you will see a plot displaying the concentration of two compounds over time. To understand what this simulation has actually done, let us now discuss the repository structure.
 
 ### Directory layout
 
