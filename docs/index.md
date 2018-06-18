@@ -9,6 +9,7 @@ This project is licensed under the terms of the GNU General Public License v3.0,
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies and installation](#Dependencies)
+     2a. [Using a Docker container](#Docker)
 3. [Folder structure and running the model](#Folder-Structure)
 4. [Unit Tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
