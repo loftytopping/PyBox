@@ -9,6 +9,7 @@ This project is licensed under the terms of the GNU General Public License v3.0,
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies and installation](#Dependencies)
+     2a. [Using a Docker container](#Docker)
 3. [Folder structure and running the model](#Folder-Structure)
 4. [Unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
@@ -79,13 +80,37 @@ Other dependecies include:
 
 - [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
+### Using a Docker container <a name="Docker"></a>
+
+If you would like to run PyBox within a Docker container, I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
+
+> docker build -t pybox .
+
+After this has completed [which may take some time], type the following to see your new image listed:
+
+> docker images
+
+To create and run a new container based on this image, with a name 'project_pybox', type:
+
+> docker run --name=project_pybox -it pybox
+
+This will take you in to the container. So, lets run the gas phase model in PyBox whilst you are there. Change directory to where PyBox is located:
+
+> cd /Code/Git_repos/PyBox/
+
+Lets run the default simulation:
+
+> python Gas_simulation.py 
+
+Dont worry about the error message regarding the Matplotlib plots. This is a result of working in a Docker container. For those not familiar with standard Docker commands, please check the brief instructions provided in the Docker_README.txt file where I give some additional examples on how to stop, restart and delete the PyBox container. 
+
 ## Folder structure and running the model <a name="Folder-Structure"></a>
 
 If you are happy all dependencies are installed and working, to run PyBox 'out of the box', type the following in the root directory:
 
 > python Gas_simulation.py
 
-You will see a plot displaying the concentration of two compounds over time. To understand what this simulation has actually done, let us now discuss the repository structure.
+If you are not running within a Docker container, you will see a plot displaying the concentration of two compounds over time. To understand what this simulation has actually done, let us now discuss the repository structure.
 
 ### Directory layout
 
@@ -134,7 +159,7 @@ The 'batch_step' variable allows us to define when to stop/start/record outputs 
     species_initial_conc['O3']=18.0
     species_initial_conc['APINENE']=30.0
 
-If you run 'Gas_simulation.py' as provided you will see a simple plot of Alpha-Pinene concentration decay over 2 hours.
+If you are not running within a Docker container, if you run 'Gas_simulation.py' as provided you will see a simple plot of Alpha-Pinene concentration decay over 2 hours.
 
 #### 2) Python + Fortran [using f2py Fortran to Python Interface Generator] 
 Whilst the above variant uses the Numba package, in the folder 'f2py' the same model is constructed using the [F2Py](https://docs.scipy.org/doc/numpy/f2py/)package, where functions that define the ODEs are converted into pre-compiled Fortran modules with the option to use [OpenMP](http://www.openmp.org) to exploit the number of cores available to you on any given platform. As before, please check the relevant files for defining initial conditions, species concetrations, and expect some compilation time during the first run. To run this simulation, type the following from the f2py directory:
