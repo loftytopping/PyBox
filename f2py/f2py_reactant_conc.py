@@ -35,8 +35,7 @@ ext = Extension (name = "reactants_conc_f2py",
                                      "-ffast-math",
                                      "-fopenmp"],
                  extra_link_args=["-lgomp",
-                                  "-static",
-                                  "-llapack",
+                                 "-llapack",
                                   "-lblas"])
 if __name__ == '__main__':
     from numpy.distutils.core import setup 

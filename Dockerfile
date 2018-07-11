@@ -1,8 +1,8 @@
 # ================================================================================
 #
-# This Dockerfile sets up a container based on the Ubuntu 16:04 image to run PyBox
+# This Dockerfile sets up a container based on the Ubuntu 18:04 image to run PyBox
 # 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER David Topping (david.topping@manchester.ac.uk)
 
 # ========================== Basic configuration =================================
@@ -27,9 +27,7 @@ RUN apt-get install -y build-essential \
 # Install BLAS and LAPACK
 RUN apt-get install -y \
     libblas-dev \
-    liblapack-dev \
-    libblas-doc \
-    liblapack-doc 
+    liblapack-dev 
 
 # ========================== Create directory structure ==========================
 RUN mkdir -p /Code

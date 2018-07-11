@@ -35,7 +35,6 @@ ext = Extension (name = "rate_coeff_f2py",
                                      "-ffast-math",
                                      "-fopenmp"],
                  extra_link_args=["-lgomp",
-                                  "-static",
                                   "-llapack",
                                   "-lblas"])
 if __name__ == '__main__':
