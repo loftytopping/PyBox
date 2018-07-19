@@ -142,7 +142,7 @@ if __name__=='__main__':
         # Generate some static Fortran libraries for use in ODE solver
         # Here you have the option to use OpenMP for spreading caclualtions across available cores
         # This will automatically map to the number of cores on your machine
-        openMP=True
+        openMP=False
         
         #pdb.set_trace()
     
@@ -154,19 +154,22 @@ if __name__=='__main__':
         Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
         print("Compiling rate coefficient file using f2py")
         #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
-        os.system("python f2py_rate_coefficient.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_rate_coefficient.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m rate_coeff_f2py Rate_coefficients.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
         # Create Fortran file for calculating prodcts all of reactants for all reactions
         print("Creating Fortran file to calculate reactant contribution to equation")
         Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
         print("Compiling reactant product file using f2py")
-        os.system("python f2py_reactant_conc.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_reactant_conc.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m reactants_conc_f2py Reactants_conc.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
         # Create Fortran file for calculating dy_dt
         print("Creating Fortran file to calculate dy_dt for each reaction")
         Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
         print("Compiling dydt file using f2py")
-        os.system("python f2py_loss_gain.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_loss_gain.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m loss_gain_f2py Loss_Gain.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
@@ -175,7 +178,8 @@ if __name__=='__main__':
         # Create jacobian 
         Parse_eqn_file.write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,openMP)
         print("Compiling jacobian function using f2py")      
-        os.system("python f2py_jacobian.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_jacobian.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m jacobian_f2py Jacobian.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
     else:
         

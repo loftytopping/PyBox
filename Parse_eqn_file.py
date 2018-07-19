@@ -1144,27 +1144,79 @@ def write_rate_file_numba(filename,rate_dict):
     
     f.write('    KMT18 = 9.5E-39*O2*numba_exp(5270.0/temp)/(1+7.5E-29*O2*numba_exp(5610.0/temp))\n') 
 
+    #f.write('    # ************************************************************************\n') 
+    #f.write('    # define photolysis reaction rates using derwent method from mcm2box.fac\n') 
+    #f.write('    # ************************************************************************\n') 
+
+    #f.write('    # solar declination angle \n') 
+    #f.write('    dec = 23.79\n') 
+    #f.write('    # latitude\n') 
+    #f.write('    lat = 50.0\n') 
+    #f.write('    pi = 4.0*numba_arctan(1.0)\n') 
+    #f.write('    # local hour angle - representing time of day\n') 
+    #f.write('    lha = (1.0+ttime/4.32E+4)*pi\n') 
+    #f.write('    radian = 180.0/pi\n') 
+    #f.write('    lat = lat/radian\n') 
+    #f.write('    dec = dec/radian\n') 
+    #f.write('    theta = numba_arccos(numba_cos(lha)*numba_cos(dec)*numba_cos(lat)+numba_sin(dec)*numba_sin(lat))\n') 
+    #f.write('    sinld = numba_sin(lat)*numba_sin(dec)\n') 
+    #f.write('    cosld = numba_cos(lat)*numba_cos(dec)\n') 
+    #f.write('    cosx = (numba_cos(lha)*cosld)+sinld\n') 
+    #f.write('    cosx = numba_cos(theta)\n') 
+    #f.write('    secx = 1.0E+0/(cosx+1.0E-30)\n') 
+
     f.write('    # ************************************************************************\n') 
-    f.write('    # define photolysis reaction rates using derwent method from mcm2box.fac\n') 
+    f.write('    # define photolysis reaction rates using the AtChem2 model which can be found: \n') 
+    f.write('    # https://github.com/AtChem/AtChem2 \n')
     f.write('    # ************************************************************************\n') 
 
-    f.write('    # solar declination angle \n') 
-    f.write('    dec = 23.79\n') 
-    f.write('    # latitude\n') 
-    f.write('    lat = 50.0\n') 
-    f.write('    pi = 4.0*numba_arctan(1.0)\n') 
-    f.write('    # local hour angle - representing time of day\n') 
-    f.write('    lha = (1.0+ttime/4.32E+4)*pi\n') 
-    f.write('    radian = 180.0/pi\n') 
-    f.write('    lat = lat/radian\n') 
-    f.write('    dec = dec/radian\n') 
-    f.write('    theta = numba_arccos(numba_cos(lha)*numba_cos(dec)*numba_cos(lat)+numba_sin(dec)*numba_sin(lat))\n') 
-    f.write('    sinld = numba_sin(lat)*numba_sin(dec)\n') 
-    f.write('    cosld = numba_cos(lat)*numba_cos(dec)\n') 
-    f.write('    cosx = (numba_cos(lha)*cosld)+sinld\n') 
-    f.write('    cosx = numba_cos(theta)\n') 
-    f.write('    secx = 1.0E+0/(cosx+1.0E-30)\n') 
+    f.write('    pi = 4.0*numba_arctan(1.0) \n') 
 
+    f.write('    currentDayOfYear=150.0 \n') 
+    f.write('    latitude=51.51  \n') 
+    f.write('    longitude=0.13  \n') 
+    f.write('    cosx_threshold = 1.0E-30  \n') 
+
+    f.write('    theta = 2.0 * pi * (currentDayOfYear - 1.0) / 365.0 \n') 
+
+    f.write('    # The sun declination is the angle between the center of the Sun \n') 
+    f.write('    # and Earths equatorial plane. \n') 
+    f.write('    b0 =  0.006918 \n') 
+    f.write('    b1 = -0.399912 \n') 
+    f.write('    b2 =  0.070257 \n') 
+    f.write('    b3 = -0.006758 \n') 
+    f.write('    b4 =  0.000907 \n') 
+    f.write('    b5 = -0.002697 \n') 
+    f.write('    b6 =  0.001480 \n') 
+    f.write('    dec = b0 + b1 * numba_cos(theta) + b2 * numba_sin(theta) + b3 * numba_cos(2.0 * theta) + b4 * numba_sin(2.0 * theta) + b5 * numba_cos(3.0 * theta) + b6 * numba_sin(3.0 * theta) \n') 
+
+    f.write('    # The equation of time accounts for the discrepancy between the \n') 
+    f.write('    # apparent and the mean solar time at a given location. \n') 
+    f.write('    c0 = 0.000075 \n') 
+    f.write('    c1 = 0.001868 \n') 
+    f.write('    c2 = -0.032077 \n') 
+    f.write('    c3 = -0.014615 \n') 
+    f.write('    c4 = -0.040849 \n') 
+    f.write('    eqtime = c0 + c1 * numba_cos(theta) + c2 * numba_sin(theta) + c3 * numba_cos(2.0 * theta) + c4 * numba_sin(2.0 * theta) \n') 
+    f.write('    currentFracDay = currentDayOfYear - 1.0 + ( ttime / 86400.0 ) \n') 
+    f.write('    currentFracHour =  (currentFracDay - int(currentFracDay)) * 24.0 \n') 
+    f.write('    lha = pi * ((currentFracHour / 12.0) - (1.0 + longitude / 180.0)) + eqtime \n') 
+
+    f.write('    lat = latitude * pi / 180.0 \n') 
+    f.write('    sinld = numba_sin( lat ) * numba_sin( dec ) \n') 
+    f.write('    cosld = numba_cos( lat ) * numba_cos( dec ) \n') 
+    f.write('    # Calculate the cosine of the solar zenith angle. \n') 
+    f.write('    cosx = numba_cos( lha ) * cosld + sinld \n') 
+
+    f.write('    # Set negative cosx to zero and calculate the inverse \n') 
+    f.write('    # (secx=1/cosx). The MCM photolysis parameterisation \n') 
+    f.write('    # (http://mcm.leeds.ac.uk/MCM/parameters/photolysis_param.htt) \n') 
+    f.write('    # requires cosx and secx to calculate the photolysis rates. \n') 
+    f.write('    if cosx <= cosx_threshold: \n') 
+    f.write('        cosx = 0.0 \n') 
+    f.write('        secx = 1.0E+20 \n') 
+    f.write('    else: \n') 
+    f.write('        secx = 1.0 / cosx \n') 
     f.write('    # Data taken from photolysis.txt. Calculations done in the form of:\n') 
     f.write('    # j(k) = l(k)*cosx**( mm(k))*numba_exp(-nn(k)*secx)\n') 
     #f.write('    J=[None]*62\n') 
@@ -1255,6 +1307,8 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     #f.write('\n') 
     f.write('subroutine evaluate_rates(RO2,H2O,TEMP,ttime,rate_values)\n') 
     f.write('    implicit none \n') 
+    #f.write('    !f2py threadsafe \n')
+    #f.write('    !$ use omp_lib \n') 
     f.write('    REAL(8), intent(in) :: RO2,H2O,TEMP \n') 
     f.write('    !f2py intent(in) :: RO2,H2O,TEMP \n') 
     f.write('    REAL(8), intent(out), dimension(%s) :: rate_values \n' %(len(rate_dict_fortran.keys()))) 
@@ -1294,6 +1348,12 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    REAL(8) KROPRIM, KCH3O2, K298CH3O2, KMT18  \n ')
     f.write('    REAL(8) KPPN0, KPPNI, KRPPN, FCPPN, NCPPN  \n ')
     f.write('    REAL(8) FPPN, KBPPN  \n ')
+    f.write('    REAL(8) b0, b1, b2, b3, b4, b5, b6  \n ')
+    f.write('    REAL(8) currentDayOfYear  \n ')
+    f.write('    REAL(8) c0, c1, c2, c3, c4  \n ')
+    f.write('    REAL(8) currentFracDay, currentFracHour, eqtime  \n ')
+    f.write('    REAL(8) latitude, longitude  \n ')
+    f.write('    REAL(8), PARAMETER :: cosx_threshold = 1.0E-30  \n ')
     f.write('\n') 
         
     # Now add an account for the variables used in changing photolysis rates
@@ -1313,25 +1373,63 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    REAL(8), PARAMETER :: O2 = %E \n' %(0.2095*2.55E+19))   
     f.write('\n') 
     f.write('    ! Creating numpy array to hold results of expressions taken from .eqn file \n') 
-    
+    f.write('\n') 
     # Populate values in Photolysis rates
-    
-    f.write('    ! solar declination angle from july 1st - harwell traj model \n') 
-    f.write('    dec = 23.79\n') 
-    f.write('    ! latitude\n') 
-    f.write('    lat = 50.0\n') 
-    f.write('    pi = 4.0*ATAN(1.0)\n') 
-    f.write('    ! local hour angle - representing time of day\n') 
-    f.write('    lha = (1.0+ttime/4.32d+4)*pi\n') 
-    f.write('    radian = 180.0/pi\n') 
-    f.write('    lat = lat/radian\n') 
-    f.write('    dec = dec/radian\n') 
-    f.write('    theta = ACOS(COS(lha)*COS(dec)*COS(lat)+SIN(dec)*SIN(lat))\n') 
-    f.write('    sinld = SIN(lat)*SIN(dec)\n') 
-    f.write('    cosld = COS(lat)*COS(dec)\n') 
-    f.write('    cosx = (COS(lha)*cosld)+sinld\n') 
-    f.write('    cosx = COS(theta)\n') 
-    f.write('    secx = 1.0d+0/(cosx+1.0d-30)\n') 
+    f.write('    ! The following was taken from the AtChem2 model which can be found: \n') 
+    f.write('    ! https://github.com/AtChem/AtChem2 \n')
+    f.write('    ! Specifically I have used the equations for defining zenith angles and \n') 	
+    f.write('    ! thus impacting photolysis rates \n') 	
+    f.write('\n') 
+    f.write('    pi = 4.0*ATAN(1.0)  \n')
+    f.write('    !!USER TO CHANGE THESE VALUES')
+    f.write('    currentDayOfYear=150.0 \n')
+    f.write('    latitude=51.51  \n') 
+    f.write('    longitude=0.13  \n')
+    f.write('\n') 
+    f.write('    theta = 2.0 * pi * (currentDayOfYear - 1.0) / 365.0  \n')
+    f.write('\n') 
+    f.write('    ! The sun declination is the angle between the center of the Sun  \n')
+    f.write('    ! and Earths equatorial plane.  \n')
+    f.write('    b0 =  0.006918  \n')
+    f.write('    b1 = -0.399912 \n')
+    f.write('    b2 =  0.070257 \n')
+    f.write('    b3 = -0.006758 \n')
+    f.write('    b4 =  0.000907 \n')
+    f.write('    b5 = -0.002697 \n')
+    f.write('    b6 =  0.001480 \n')
+    f.write('    dec = b0 + b1 * cos(theta) + b2 * sin(theta) + b3 * cos(2.0 * theta) + & \n')
+    f.write('        b4 * sin(2.0 * theta) + b5 * cos(3.0 * theta) + b6 * sin(3.0 * theta) \n')
+    f.write('\n') 
+    f.write('    ! The equation of time accounts for the discrepancy between the \n')
+    f.write('    ! apparent and the mean solar time at a given location. \n')
+    f.write('    c0 = 0.000075 \n')
+    f.write('    c1 = 0.001868 \n')
+    f.write('    c2 = -0.032077 \n')
+    f.write('    c3 = -0.014615 \n')
+    f.write('    c4 = -0.040849 \n')
+    f.write('    eqtime = c0 + c1 * cos(theta) + c2 * sin(theta) + c3 * cos(2.0 * theta) + & \n')
+    f.write('        c4 * sin(2.0 * theta) \n')
+    f.write('    currentFracDay = currentDayOfYear - 1.0 + ( ttime / 86400.0 ) \n') 
+    f.write('    currentFracHour =  (currentFracDay - floor(currentFracDay)) * 24.0 \n')
+    f.write('    lha = pi * ((currentFracHour / 12.0) - (1.0 + longitude / 180.0)) + eqtime \n')
+    f.write('\n') 
+    f.write('    lat = latitude * pi / 180.0 \n')
+    f.write('    sinld = sin( lat ) * sin( dec ) \n')
+    f.write('    cosld = cos( lat ) * cos( dec ) \n')
+    f.write('    ! Calculate the cosine of the solar zenith angle. \n')
+    f.write('    cosx = cos( lha ) * cosld + sinld \n')
+    f.write('\n') 
+    f.write('    ! Set negative cosx to zero and calculate the inverse \n')
+    f.write('    ! (secx=1/cosx). The MCM photolysis parameterisation \n')
+    f.write('    ! (http://mcm.leeds.ac.uk/MCM/parameters/photolysis_param.htt) \n')
+    f.write('    ! requires cosx and secx to calculate the photolysis rates. \n')
+    f.write('    if ( cosx <= cosx_threshold ) then \n')
+    f.write('      cosx = 0.0 \n')
+    f.write('     secx = 1.0E+20 \n')
+    f.write('    else \n')
+    f.write('      secx = 1.0 / cosx \n')
+    f.write('    end if \n')
+    f.write('\n') 
     f.write('    J(1)=6.073E-05*cosx**(1.743)*EXP(-1.0*0.474*secx)\n') 
     f.write('    J(2)=4.775E-04*cosx**(0.298)*EXP(-1.0*0.080*secx)\n') 
     f.write('    J(3)=1.041E-05*cosx**(0.723)*EXP(-1.0*0.279*secx)\n') 
@@ -1368,13 +1466,13 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     f.write('    J(56)=4.365E-05*cosx**(1.089)*EXP(-1.0*0.323*secx)\n') 
     f.write('    J(57)=3.363E-06*cosx**(1.296)*EXP(-1.0*0.322*secx)\n') 
     f.write('    J(61)=7.537E-04*cosx**(0.499)*EXP(-1.0*0.266*secx)\n') 
-    
+    f.write('\n') 
     f.write('    ! Calculating standard rate coefficients \n') 
     f.write('    ! iupac 1992 \n')
     f.write('    KRONO2    = 2.7E-12*EXP(360/TEMP) \n')
-
+    f.write('\n') 
     f.write('    KRO2NO = 2.7E-12*EXP(360.0/TEMP) \n') 
-    
+    f.write('\n') 
     #mcm_constants_dict['KRONO2']=kro2no
     f.write('    ! kro2ho2: ro2      + ho2     = rooh    + o2 \n')
     f.write('    ! mcm protocol [1997] \n')
@@ -1655,7 +1753,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
     check_step=0
     for key in rate_dict_fortran.keys():
         if openMP is True and check_step == 0:
-            f.write('!$OMP PARALLEL DO &\n')
+            f.write('!$OMP PARALLEL &\n')
             f.write('!$OMP& SHARED(rate_values, J)  \n') 
             f.write('!$OMP SINGLE \n') 
         if openMP is True and check_step in break_list:
@@ -1666,7 +1764,7 @@ def write_rate_file_fortran(filename,rate_dict_fortran,openMP):
         check_step+=1
     if openMP is True:
         f.write('!$OMP END SINGLE NOWAIT \n') 
-        f.write('!$OMP END PARALLEL DO \n') 
+        f.write('!$OMP END PARALLEL \n') 
     f.write('\n') 
     f.write('end subroutine\n')   
     f.close()  
@@ -2215,6 +2313,8 @@ def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_d
     f.write('\n')
     f.write('subroutine reactants(y,reactants_conc)\n')
     f.write('    implicit none \n')     
+    #f.write('    !f2py threadsafe \n')   
+    #f.write('    !$ use omp_lib \n') 
     f.write('    ! Calculate reactant and stochiometric contribution for each reaction\n')
     f.write('    REAL(8), intent(in), dimension(%s) :: y \n' %(str(len(species_dict2array.keys()))) )     
     f.write('    !f2py intent(in) :: y \n') 
@@ -2224,11 +2324,12 @@ def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_d
     for equation_step in range(equations):
         step=0
         if openMP is True and equation_step == 0:
-            f.write('!$OMP PARALLEL DO &\n')
+            f.write('!$OMP PARALLEL &\n')
             f.write('!$OMP& SHARED(y,reactants_conc)  \n') 
             f.write('!$OMP SINGLE \n') 
+            #f.write('!$OMP SECTION \n') 
         if openMP is True and equation_step in break_list:
-            f.write('!$OMP END SINGLE NOWAIT \n') 
+            f.write('!$OMP END SINGLE NOWAIT\n') 
             f.write('!$OMP SINGLE \n') 
         for reactant_step, reactant in rate_dict_reactants[equation_step].items():
             if reactant not in ['hv']:
@@ -2247,8 +2348,8 @@ def write_reactants_indices_fortran(filename,equations,species_dict2array,rate_d
                         f.write('*y(%s)**%s'%(species_dict2array[reactant]+1,stoich))
         f.write('\n')
     if openMP is True:
-        f.write('!$OMP END SINGLE NOWAIT \n') 
-        f.write('!$OMP END PARALLEL DO \n') 
+        f.write('!$OMP END SINGLE NOWAIT\n') 
+        f.write('!$OMP END PARALLEL \n') 
     f.write('end subroutine\n') 
     f.close()  
     #reactants_jac[equation_step][reactant]=y[arg8[reactant]]
@@ -2453,7 +2554,10 @@ def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,s
     #f.write('    loss_gain_list=[0]*num_species\n')
     #for species, species_step in species_dict2array.items():
     #    
-    f.write('    implicit none \n')         
+    f.write('    implicit none \n')
+    #f.write('    !$ use omp_lib \n')     
+    #f.write('    !f2py threadsafe \n') 
+    #f.write('    !f2py threadsafe \n')   
     f.write('    REAL(8), intent(in), dimension(%s) :: r \n' %(str(equations)) )     
     f.write('    !f2py intent(in) :: r \n') 
     f.write('    REAL(8), intent(out), dimension(%s) :: loss_gain_array \n' %(str(num_species)) ) 
@@ -2471,11 +2575,12 @@ def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,s
     for species, species_step in species_dict2array.items():
 
         if openMP is True and check_step == 0:
-            f.write('!$OMP PARALLEL DO &\n')
+            f.write('!$OMP PARALLEL &\n')
             f.write('!$OMP& SHARED(r,loss_gain_array)  \n') 
             f.write('!$OMP SINGLE \n') 
+            #f.write('!$OMP SECTION \n') 
         if openMP is True and check_step in break_list:
-            f.write('!$OMP END SINGLE NOWAIT \n') 
+            f.write('!$OMP END SINGLE NOWAIT\n') 
             f.write('!$OMP SINGLE \n') 
             
         if species not in ['AIR','H2O','O2','hv']:
@@ -2531,8 +2636,8 @@ def write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,s
         check_step+=1
         #dydt_list[species_step]+=(gain[species_step]-loss[species_step])
     if openMP is True:
-        f.write('!$OMP END SINGLE NOWAIT \n') 
-        f.write('!$OMP END PARALLEL DO \n') 
+        f.write('!$OMP END SINGLE NOWAIT\n') 
+        f.write('!$OMP END PARALLEL \n') 
     f.write('end subroutine \n') 
     f.close()  
     #pdb.set_trace()
@@ -2598,6 +2703,8 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
     #for species, species_step in species_dict2array.items():
     #    
     f.write('    implicit none \n')         
+    #f.write('    !f2py threadsafe \n') 
+    #f.write('    !$ use omp_lib \n') 
     f.write('    REAL(8), intent(in), dimension(%s) :: r \n' %(str(equations)) )     
     f.write('    !f2py intent(in) :: r \n') 
     f.write('    REAL(8), intent(in), dimension(%s) :: y \n' %(str(num_species)) ) 
@@ -2611,17 +2718,17 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
         cores=multiprocessing.cpu_count()
         # Now work out the points at which to define a new clause
         break_list=[int(x) for x in np.linspace(0,num_species,cores)][1:-1]
-
+    #pdb.set_trace()
     check_step=0
 
     for species, species_step in species_dict2array.items():
 
         if OpenMP is True and check_step == 0:
-            f.write('!$OMP PARALLEL DO &\n')
+            f.write('!$OMP PARALLEL &\n')
             f.write('!$OMP& SHARED(r,y,dy_dy)  \n') 
             f.write('!$OMP SINGLE \n') 
         if OpenMP is True and check_step in break_list:
-            f.write('!$OMP END SINGLE NOWAIT \n') 
+            f.write('!$OMP END SINGLE NOWAIT\n') 
             f.write('!$OMP SINGLE \n') 
 
         #pdb.set_trace()
@@ -2821,10 +2928,10 @@ def write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dic
 
 
                 f.write(' \n')
-                check_step+=1
+        check_step+=1
     if OpenMP is True:
-        f.write('!$OMP END SINGLE NOWAIT \n') 
-        f.write('!$OMP END PARALLEL DO \n') 
+        f.write('!$OMP END SINGLE NOWAIT\n') 
+        f.write('!$OMP END PARALLEL \n') 
     f.write('end subroutine \n') 
     f.close()  
 
@@ -2939,8 +3046,10 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
                         # Check if 'otherspecie' is in this reaction
                         if reactant in reactants_list_loss_temp:
                             if equation_flag > 3: # this is just to ensure line length isnt a problem for Fortran compiler
-                                #f.write('\\n')
-                                #f.write('    ')  
+                                #f.write(' \\n')
+                                #f.write('n') 
+                                #f.write(os.linesep)
+                                #f.write('\t\t')  
                                 equation_flag=0
                             step=1
                             stoich_first=loss_dict[reactant][equation]

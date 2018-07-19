@@ -63,12 +63,12 @@ if __name__=='__main__':
     #-------------------------------------------------------------------------------------
 
     #1)Define starting ambient conditions
-    temp=288.15 # Kelvin
+    temp=298.15 # Kelvin
     RH=0.5 # RH/100% [0 - 0.99]
     #Define a start time 
     hour_of_day=12.0 # 24 hr format
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
-    simulation_time= 7200.0 # seconds
+    simulation_time= 10800.0 # seconds
     batch_step=100.0 # seconds
     #2)Generate constants used in rate of reaction calculations
     #Convert RH to concentration of water vapour molecules [this will change when in Parcel model mode]
@@ -159,6 +159,9 @@ if __name__=='__main__':
         Parse_eqn_file.write_reactants_indices(filename,equations,num_species,species_dict2array,rate_dict_reactants,loss_dict)
         Parse_eqn_file.write_loss_gain_matrix(filename,equations,num_species,loss_dict,gain_dict,species_dict2array)
 
+        print("Creating Python-Numba Jacobian")
+        Parse_eqn_file.write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants)
+
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
         Parse_eqn_file.write_RO2_indices(filename,species_dict2array)
@@ -183,9 +186,9 @@ if __name__=='__main__':
     #-------------------------------------------------------------------------------------
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
-    species_initial_conc['O3']=18.0
-    species_initial_conc['APINENE']=30.0
-	
+    species_initial_conc['O3']=60.0
+    species_initial_conc['APINENE']=40.0
+
     # Save this information to a dictionary to pass to ODE solver
     input_dict=dict()
     input_dict['species_dict']=species_dict
