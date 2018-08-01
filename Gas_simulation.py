@@ -186,8 +186,8 @@ if __name__=='__main__':
     #-------------------------------------------------------------------------------------
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
-    species_initial_conc['O3']=60.0
-    species_initial_conc['APINENE']=40.0
+    species_initial_conc['O3']=18.0
+    species_initial_conc['APINENE']=30.0
 
     # Save this information to a dictionary to pass to ODE solver
     input_dict=dict()
