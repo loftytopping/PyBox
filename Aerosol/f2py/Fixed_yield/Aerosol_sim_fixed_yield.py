@@ -373,7 +373,8 @@ if __name__=='__main__':
         print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
         Parse_eqn_file.write_partitioning_section_fortran_ignore(num_species+num_species_condensed*num_bins,num_bins,num_species,num_species_condensed,include_index)
         print("Compiling gas-to-particle partitioning file using f2py")
-        os.system("python f2py_partition.py build_ext --inplace --fcompiler=gfortran")        
+        #os.system("python f2py_partition.py build_ext --inplace --fcompiler=gfortran")    
+        os.system('f2py -c -m partition_f2py Partitioning.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
     #-------------------------------------------------------------------------------------
     # 10) Save this information to a dictionary to pass to ODE solver

@@ -230,7 +230,8 @@ def setup(filename):
     print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
     Parse_eqn_file.write_partitioning_section_fortran_ignore(num_species+num_species_condensed*num_bins,num_bins,num_species,num_species_condensed,include_index)
     print("Compiling gas-to-particle partitioning file using f2py")
-    os.system("python f2py_partition.py build_ext --inplace")        
+    #os.system("python f2py_partition.py build_ext --inplace")        
+    os.system('f2py -c -m partition_f2py Partitioning.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
 
     # Load the compiled functions
@@ -281,7 +282,7 @@ def setup(filename):
     numpy.save(filename+'dydt_dydt_fortran', dydt_dydt_fortran)
     
     # Numba modules
-    rates_numba=evaluate_rates_numba(RO2,H2O,temp,time_of_day_seconds,numpy.zeros((equations)),numpy.zeros((63)))
+    rates_numba=evaluate_rates_numba(time_of_day_seconds,RO2,H2O,temp,numpy.zeros((equations)),numpy.zeros((63)))
     #numpy.save(filename+'rates_numba_base', rates_numba)
     #shutil.move(filename+'rates_numba_base.npy','./data')
     numpy.save(filename+'rates_numba', rates_numba)
@@ -375,77 +376,77 @@ class TestParsing(unittest.TestCase):
     def test_RO2(self):
         RO2_base=numpy.load('./data/'+filename+'_RO2_base.npy')
         RO2=numpy.load(filename+'_RO2.npy')
-        npt.assert_almost_equal(RO2_base, RO2)
+        npt.assert_almost_equal(RO2_base, RO2, decimal=5)
     
     def test_rates_fortran(self):
         rates_fortran_base=numpy.load('./data/'+filename+'rates_fortran_base.npy')
         rates_fortran=numpy.load(filename+'rates_fortran.npy')
-        npt.assert_almost_equal(rates_fortran_base, rates_fortran)
+        npt.assert_almost_equal(rates_fortran_base, rates_fortran, decimal=5)
     
     def test_reactants_fortran(self):
         reactants_fortran_base=numpy.load('./data/'+filename+'reactants_fortran_base.npy')
         reactants_fortran=numpy.load(filename+'reactants_fortran.npy')
-        npt.assert_almost_equal(reactants_fortran_base, reactants_fortran)
+        npt.assert_almost_equal(reactants_fortran_base, reactants_fortran, decimal=5)
     
     def test_dydt_fortran(self):
         dydt_fortran_base=numpy.load('./data/'+filename+'dydt_fortran_base.npy')
         dydt_fortran=numpy.load(filename+'dydt_fortran.npy')
-        npt.assert_almost_equal(dydt_fortran_base, dydt_fortran)
+        npt.assert_almost_equal(dydt_fortran_base, dydt_fortran, decimal=5)
     
     def test_dydt_dydt_fortran(self):
         dydt_dydt_fortran_base=numpy.load('./data/'+filename+'dydt_dydt_fortran_base.npy')    
         dydt_dydt_fortran=numpy.load(filename+'dydt_dydt_fortran.npy') 
-        npt.assert_almost_equal(dydt_dydt_fortran_base, dydt_dydt_fortran)   
+        npt.assert_almost_equal(dydt_dydt_fortran_base, dydt_dydt_fortran, decimal=5)   
     
     def test_rates_numba(self):
         rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
         rates_numba=numpy.load(filename+'rates_numba.npy')
-        npt.assert_almost_equal(rates_numba_base, rates_numba)
+        npt.assert_almost_equal(rates_numba_base, rates_numba, decimal=5)
 
-    def rates_fortran_numba(self):
-        rates_fortran_base=numpy.load('./data/'+filename+'rates_fortran_base.npy')
-        rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
-        npt.assert_almost_equal(rates_fortran_base, rates_numba_base)
+    #def test_rates_fortran_numba(self):
+    #    rates_fortran_base=numpy.load('./data/'+filename+'rates_fortran_base.npy')
+    #    rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
+    #    npt.assert_almost_equal(rates_fortran_base, rates_numba_base, decimal=4)
     
     def test_reactants_numba(self):
         reactants_numba_base=numpy.load('./data/'+filename+'reactants_numba_base.npy')
         reactants_numba=numpy.load(filename+'reactants_numba.npy')
-        npt.assert_almost_equal(reactants_numba_base, reactants_numba)
+        npt.assert_almost_equal(reactants_numba_base, reactants_numba, decimal=5)
     
     def test_dydt_numba(self):
         dydt_numba_base=numpy.load('./data/'+filename+'dydt_numba_base.npy')
         dydt_numba=numpy.load(filename+'dydt_numba.npy')
-        npt.assert_almost_equal(dydt_numba_base, dydt_numba)
+        npt.assert_almost_equal(dydt_numba_base, dydt_numba, decimal=5)
     
     def test_dydt_dydt_numba(self):
         dydt_dydt_numba_base=numpy.load('./data/'+filename+'dydt_dydt_numba_base.npy')
         dydt_dydt_numba=numpy.load(filename+'dydt_dydt_numba.npy')
-        npt.assert_almost_equal(dydt_dydt_numba_base, dydt_dydt_numba)
+        npt.assert_almost_equal(dydt_dydt_numba_base, dydt_dydt_numba, decimal=5)
     
     def test_pressure_gas(self):
         Pressure_gas_base=numpy.load('./data/'+filename+'Pressure_gas_base.npy')
         Pressure_gas=numpy.load(filename+'Pressure_gas.npy')
-        npt.assert_almost_equal(Pressure_gas_base, Pressure_gas)
+        npt.assert_almost_equal(Pressure_gas_base, Pressure_gas, decimal=5)
     
     def test_SOA_mass(self):
         total_SOA_mass_base=numpy.load('./data/'+filename+'total_SOA_mass_base.npy')
         total_SOA_mass=numpy.load(filename+'total_SOA_mass.npy')
-        npt.assert_almost_equal(total_SOA_mass_base, total_SOA_mass)
+        npt.assert_almost_equal(total_SOA_mass_base, total_SOA_mass, decimal=5)
     
     def test_aw_array(self):
         aw_array_base=numpy.load('./data/'+filename+'aw_array_base.npy')
         aw_array=numpy.load(filename+'aw_array.npy')
-        npt.assert_almost_equal(aw_array_base, aw_array)
+        npt.assert_almost_equal(aw_array_base, aw_array, decimal=5)
     
     def test_size_array(self):
         size_array_base=numpy.load('./data/'+filename+'size_array_base.npy')
         size_array=numpy.load(filename+'size_array.npy')
-        npt.assert_almost_equal(size_array_base, size_array)
+        npt.assert_almost_equal(size_array_base, size_array, decimal=5)
     
     def test_dy_dt_calc(self):
         dy_dt_calc_base=numpy.load('./data/'+filename+'dy_dt_calc_base.npy')
         dy_dt_calc=numpy.load(filename+'dy_dt_calc.npy')    
-        npt.assert_almost_equal(dy_dt_calc_base, dy_dt_calc)
+        npt.assert_almost_equal(dy_dt_calc_base, dy_dt_calc, decimal=5)
     
 
 # Start of the main body of code

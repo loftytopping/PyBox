@@ -226,19 +226,22 @@ if __name__=='__main__':
         Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
         print("Compiling rate coefficient file using f2py")
         #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
-        os.system("python f2py_rate_coefficient.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_rate_coefficient.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m rate_coeff_f2py Rate_coefficients.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
         # Create Fortran file for calculating prodcts all of reactants for all reactions
         print("Creating Fortran file to calculate reactant contribution to equation")
         Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
         print("Compiling reactant product file using f2py")
-        os.system("python f2py_reactant_conc.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_reactant_conc.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m reactants_conc_f2py Reactants_conc.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
         # Create Fortran file for calculating dy_dt
         print("Creating Fortran file to calculate dy_dt for each reaction")
         Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
         print("Compiling dydt file using f2py")
-        os.system("python f2py_loss_gain.py build_ext --inplace --fcompiler=gfortran")
+        #os.system("python f2py_loss_gain.py build_ext --inplace --fcompiler=gfortran")
+        os.system('f2py -c -m loss_gain_f2py Loss_Gain.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
                 
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
@@ -418,7 +421,8 @@ if __name__=='__main__':
         print("Creating Fortran file to calculate gas-to-particle partitining for each compound")
         Parse_eqn_file.write_partitioning_section_fortran_ignore(num_species+num_species_condensed*num_bins,num_bins,num_species,num_species_condensed,include_index)
         print("Compiling gas-to-particle partitioning file using f2py")
-        os.system("python f2py_partition.py build_ext --inplace --fcompiler=gfortran")        
+        #os.system("python f2py_partition.py build_ext --inplace --fcompiler=gfortran")    
+        os.system('f2py -c -m partition_f2py Partitioning.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
     #-------------------------------------------------------------------------------------
     # 10) Save this information to a dictionary to pass to ODE solver
