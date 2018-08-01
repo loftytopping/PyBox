@@ -191,11 +191,12 @@ def run_simulation(filename, start_time, save_output, temp, RH, RO2_indices, H2O
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.
         #exp_mod.jac = dydt_jac
+        exp_mod.jac = jacobian
         # Define which ODE solver you want to use
         exp_sim = CVode(exp_mod) 
         tol_list=[1.0e-3]*num_species
         exp_sim.atol = tol_list #Default 1e-6
-        exp_sim.rtol = 0.03 #Default 1e-6
+        exp_sim.rtol = 1e-6 #Default 1e-6
         exp_sim.inith = 1.0e-6 #Initial step-size
         #exp_sim.discr = 'Adams'
         exp_sim.maxh = 100.0

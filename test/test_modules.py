@@ -107,12 +107,13 @@ def setup(filename):
     # you will need to change the reference here
     outputdict=Parse_eqn_file.extract_smiles_species(outputdict,'../Aerosol/MCM.xml')
 
+    #pdb.set_trace()
     # Collect the dictionaries generated
-    reaction_dict=outputdict['reaction_dict']
+    #reaction_dict=outputdict['reaction_dict']
     rate_dict=outputdict['rate_dict']
     rate_dict_fortran=rate_coeff_conversion.convert_rate_mcm_fortran(rate_dict)
     rate_dict_reactants=outputdict['rate_dict_reactants']
-    rate_def=outputdict['rate_def']
+    #rate_def=outputdict['rate_def']
     loss_dict=outputdict['loss_dict']
     gain_dict=outputdict['gain_dict']
     stoich_dict=outputdict['stoich_dict']
@@ -171,7 +172,7 @@ def setup(filename):
     #Create a number concentration for a lognormal distribution
     N_perbin,x=Size_distributions.lognormal(num_bins,total_conc,meansize,std,lowersize,uppersize)
 
-    openMP=True
+    openMP=False
 
     # Convert the rate coefficient expressions into Fortran commands
     print("Converting rate coefficient operation into Fortran file")
@@ -181,23 +182,27 @@ def setup(filename):
     Parse_eqn_file.write_rate_file_fortran(filename,rate_dict_fortran,openMP)    
     print("Compiling rate coefficient file using f2py")
     #Parse_eqn_file.write_rate_file(filename,rate_dict,mcm_constants_dict)
-    os.system("python f2py_rate_coefficient.py build_ext --inplace")
+    #os.system("python f2py_rate_coefficient.py build_ext --inplace")
+    os.system('f2py -c -m rate_coeff_f2py Rate_coefficients.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
     # Create Fortran file for calculating prodcts all of reactants for all reactions
     print("Creating Fortran file to calculate reactant contribution to equation")
     Parse_eqn_file.write_reactants_indices_fortran(filename,equations,species_dict2array,rate_dict_reactants,loss_dict,openMP)
     print("Compiling reactant product file using f2py")
-    os.system("python f2py_reactant_conc.py build_ext --inplace")
+    #os.system("python f2py_reactant_conc.py build_ext --inplace")
+    os.system('f2py -c -m reactants_conc_f2py Reactants_conc.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
         
     # Create Fortran file for calculating dy_dt
     print("Creating Fortran file to calculate dy_dt for each reaction")
     Parse_eqn_file.write_loss_gain_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,openMP)
     print("Compiling dydt file using f2py")
-    os.system("python f2py_loss_gain.py build_ext --inplace")
+    #os.system("python f2py_loss_gain.py build_ext --inplace")
+    os.system('f2py -c -m loss_gain_f2py Loss_Gain.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
     Parse_eqn_file.write_gas_jacobian_fortran(filename,equations,num_species,loss_dict,gain_dict,species_dict2array,rate_dict_reactants,openMP)
     print("Compiling jacobian function using f2py")      
-    os.system("python f2py_jacobian.py build_ext --inplace")
+    #os.system("python f2py_jacobian.py build_ext --inplace")
+    os.system('f2py -c -m jacobian_f2py Jacobian.f90 --f90flags="-O3 -ffast-math -fopenmp" -lgomp')
 
     # Create .npy file with indices for all RO2 species
     print("Creating file that holds RO2 species indices")
@@ -396,6 +401,11 @@ class TestParsing(unittest.TestCase):
         rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
         rates_numba=numpy.load(filename+'rates_numba.npy')
         npt.assert_almost_equal(rates_numba_base, rates_numba)
+
+    def rates_fortran_numba(self):
+        rates_fortran_base=numpy.load('./data/'+filename+'rates_fortran_base.npy')
+        rates_numba_base=numpy.load('./data/'+filename+'rates_numba_base.npy')
+        npt.assert_almost_equal(rates_fortran_base, rates_numba_base)
     
     def test_reactants_numba(self):
         reactants_numba_base=numpy.load('./data/'+filename+'reactants_numba_base.npy')

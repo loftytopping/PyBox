@@ -76,7 +76,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         #pdb.set_trace()
         #Here we use the pre-created Numba based functions to arrive at our value for dydt
         # Calculate time of day
-        time_of_day_seconds=start_time+t
+        time_of_day_seconds=start_time+t 
      
         # make sure the y array is not a list. Assimulo uses lists
         y_asnumpy=numpy.array(y)
@@ -133,6 +133,41 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         
         return dydt
 
+    #-------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------
+    # define jacobian function to be called
+    def jac(t,y):    
+
+        """
+        This function defines Jacobian of the ordinary differential equations [ODEs] to be solved
+        input:
+        • t - time variable [internal to solver]
+        • y - array holding concentrations of all compounds in both gas and particulate [molecules/cc]
+        output:
+        dydt_dydt - the N_compounds x N_compounds matrix of Jacobian values
+        """
+
+        # Different solvers might call jacobian at different stages, so we have to redo some calculations here 
+        # Calculate time of day
+        time_of_day_seconds=start_time+t
+        
+        # make sure the y array is not a list. Assimulo uses lists
+        y_asnumpy=numpy.array(y)
+        
+        #Calculate the concentration of RO2 species, using an index file created during parsing
+        RO2=numpy.sum(y[RO2_indices])
+
+        #Calculate reaction rate for each equation.
+        # Note that H2O will change in parcel mode
+        rates=evaluate_rates(time_of_day_seconds,RO2,H2O,temp,numpy.zeros((equations)),numpy.zeros((63)))
+        #pdb.set_trace()
+        # Now use reaction rates with the loss_gain matrix to calculate the final dydt for each compound
+        # With the assimulo solvers we need to output numpy arrays
+        dydt_dydt=jacobian_function(rates,y_asnumpy,numpy.zeros((len(y_asnumpy),len(y_asnumpy))))
+        #pdb.set_trace()
+
+        return dydt_dydt
+
 
     #-------------------------------------------------------------------------------------
 
@@ -141,6 +176,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     from Rate_coefficients_numba import evaluate_rates 
     from Reactants_conc_numba import reactants as reactant_product
     from Loss_Gain_numba import dydt as dydt_eval
+    from Jacobian_numba import jacobian as jacobian_function
     
     # 'Unpack' variables from input_dict
     species_dict=input_dict['species_dict']
@@ -210,7 +246,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
             
         # Define ODE parameters. 
         # Initial steps might be slower than mid-simulation. It varies.
-        #exp_mod.jac = dydt_jac
+        exp_mod.jac = jac
         # Define which ODE solver you want to use
         exp_sim = CVode(exp_mod) 
         tol_list=[1.0e-3]*num_species
@@ -222,7 +258,7 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
         # Use of a jacobian makes a big differece in simulation time. This is relatively 
         # easy to define for a gas phase - not sure for an aerosol phase with composition
         # dependent processes. 
-        exp_sim.usejac = False # To be provided as an option in future update. See Fortran variant for use of Jacobian
+        exp_sim.usejac = True # To be provided as an option in future update. See Fortran variant for use of Jacobian
         #exp_sim.fac1 = 0.05
         #exp_sim.fac2 = 50.0
         exp_sim.report_continuously = True

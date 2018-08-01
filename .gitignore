@@ -30,6 +30,12 @@
 *.tar
 *.zip
 
+# Text files #
+######################
+*.txt
+!mechanism_files/*.txt
+!Docker_README.txt
+
 # Logs and databases #
 ######################
 *.log
@@ -60,7 +66,7 @@ Thumbs.db
 !images/Example_SOA_simulation.png
 !images/Example_deafult_gas_simulation.png
 *.jpeg
-
+*.gif
 
 
 # Folders

@@ -33,6 +33,7 @@ from umansysprop import vapour_pressures
 from umansysprop import critical_properties
 from umansysprop import liquid_densities
 from umansysprop import partition_models
+from umansysprop import groups
 from umansysprop import activity_coefficient_models_dev as aiomfac
 from umansysprop.forms import CoreAbundanceField
 import pdb
@@ -68,6 +69,8 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     
     y_density_array=[1000.0]*num_species
     y_mw=[200.0]*num_species
+    o_c=[0.0]*num_species
+    h_c=[0.0]*num_species
     sat_vp=[100.0]*num_species
     sat_vp_org=dict() #Recorded seperately and will not include the extension for water. This is used for any checks with equilibrium partitioning predictions
     y_gas=[0.0]*num_species
@@ -114,6 +117,10 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
             #y_density_array.append(1400.0)
             y_mw[species_dict2array[compound]]=(Pybel_object_dict[SMILES_dict[compound]].molwt)
             #In the following you will need to select which vapour pressure method you like.
+
+            groups_dict=groups.composition(Pybel_object_dict[SMILES_dict[compound]])
+            o_c[species_dict2array[compound]]=groups_dict['O']/groups_dict['C']
+            h_c[species_dict2array[compound]]=groups_dict['H']/groups_dict['C']
             
             # Calculate boiling point
             b = boiling_point(Pybel_object_dict[SMILES_dict[compound]])
@@ -142,6 +149,8 @@ def Pure_component1(num_species,species_dict,species_dict2array,Pybel_object_dic
     return_dict=dict()
     return_dict['y_density_array']=y_density_array
     return_dict['y_mw']=y_mw
+    return_dict['o_c']=o_c
+    return_dict['h_c']=h_c
     return_dict['sat_vp']=sat_vp
     return_dict['Delta_H']=Delta_H
     return_dict['Latent_heat_gas']=Latent_heat_gas   
