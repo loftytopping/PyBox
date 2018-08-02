@@ -62,7 +62,7 @@ Module        |  Version [dependency]
  
 ### Conda <a name="Conda"></a>
 
-I would heartily recommend using the Conda environment for installing and using PyBox. The reason for this is down to ease of installation for the Assimulo package through the conda package manager, aside from also installating the above dependencies. The dependencies and instructions are now listed.
+I would heartily recommend using the Conda environment for installing and using PyBox. The reason for this is down to ease of installation for the Assimulo package through the conda package manager, aside from also installing aforementioned dependencies. 
 
 - [Assimulo](http://www.jmodelica.org/assimulo). As found on the project website, there are multiple [methods for installation for Assimulo](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  Using conda, one can try the following:
 
