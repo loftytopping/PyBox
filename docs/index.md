@@ -120,7 +120,7 @@ If you do not want to use either the Conda or Docker route, there are a few issu
 
 > from assimulo.solvers import RodasODE, CVode
 
-If you recieve an error such as 'Could not find GLIMDA' or 'No module named sundials' it is most likely you have not correctly specified the location of the [Sundials](https://computation.llnl.gov/projects/sundials) solver suite, it dosnt exist or you have provided incorrect links to BLAS and LAPACK libraries. For other modules listed in [Dependencies and installation](#Dependencies), you will be able to use recomended routes provided on the links provided. Again, you can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
+If you recieve an error such as 'Could not find GLIMDA' or 'No module named sundials' it is most likely you have not correctly specified the location of the [Sundials](https://computation.llnl.gov/projects/sundials) solver suite, it does not exist or you have provided incorrect links to BLAS and LAPACK libraries. For other modules listed in [Dependencies and installation](#Dependencies), you will be able to use recomended routes provided on the links provided. Again, you can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
 
 ## Folder structure and running the model <a name="Folder-Structure"></a>
 
