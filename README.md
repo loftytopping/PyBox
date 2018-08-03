@@ -9,7 +9,9 @@ This project is licensed under the terms of the GNU General Public License v3.0,
 # Table of contents
 1. [Model overview](#Model-overview)
 2. [Dependencies and installation](#Dependencies)
-     2a. [Using a Docker container](#Docker)
+     * 2a. [Conda](#Conda)
+     * 2b. [Using a Docker container](#Docker)
+     * 2c. [Alternative](#Alternative)
 3. [Folder structure and running the model](#Folder-Structure)
 4. [Unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
@@ -32,57 +34,64 @@ Where the equation number is defined first, then the reactants/products along wi
 
 ## Dependencies and installation <a name="Dependencies"></a>
 
-PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). Utilised modules included within the Anaconda environment are:
-
- - Numpy
- - Scipy
- - Matplotlib
- - unittest
- - shutil
- - xml.dom
- - multiprocessing
+PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). [Assimulo](http://www.jmodelica.org/assimulo) is the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) is used to automate predictions of pure component and mixture properties to allow gas-to-particle partitioning simulations. Before methods of installation are described, below is a list of both 3rd party and Python native modules required. You can click on each to visit the project website with further details, including useful information on installation pertinent to the section on using an [alternative](#Alternative) installation procedure to either Docker or Conda. The version number reflects that which has been used/tested against the provided source code here. I also note those modules that are require specifically for the UManSysProp package noted earlier:
  
-Additional dependencies are:
+#### 3rd party modules:
 
-- [Assimulo](http://www.jmodelica.org/assimulo). This is the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. As found on the project website, there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  Using conda, one can try the following:
+Module        |  Version [dependency]
+------------- | -------------
+[Assimulo](https://jmodelica.org/assimulo/)      |  2.9
+[flask-wtf](http://flask-wtf.readthedocs.io/en/stable/)     |  0.14.2 [UManSysProp]
+[matplotlib](https://matplotlib.org/)    |  2.0.2
+[numba](https://numba.pydata.org/)         |  0.33.0 
+[numpy](https://www.scipy.org/scipylib/download.html)         |  1.12.1
+[openbabel python interface](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html)     |  2.4.1  [UManSysProp] 
+[pandas](https://pandas.pydata.org/)        |  0.20.1
+[scipy](https://www.scipy.org/scipylib/download.html)         |  0.19.1
+[wtforms](https://wtforms.readthedocs.io/en/stable/)       |  2.1    [UManSysProp]
+
+#### Built-in modules
+
+ - [unittest](https://docs.python.org/3/library/unittest.html)
+ - [shutil](https://docs.python.org/3/library/shutil.html)
+ - [xml.dom](https://docs.python.org/2/library/xml.dom.html)
+ - [multiprocessing](https://docs.python.org/3.4/library/multiprocessing.html?highlight=process)
+ 
+#### Compiler suites
+- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
+ 
+### Conda <a name="Conda"></a>
+
+I would heartily recommend using the Conda environment for installing and using PyBox. The reason for this is down to ease of installation for the Assimulo package through the conda package manager, aside from also installing aforementioned dependencies. 
+
+- [Assimulo](http://www.jmodelica.org/assimulo). As found on the project website, there are multiple [methods for installation for Assimulo](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  Using conda, one can try the following:
 
 > conda install -c chria assimulo
 
-It may be better to build from source. You will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. Whichever method you use, you can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
+You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
 > from assimulo.solvers import RodasODE, CVode
 
-- [UManSysProp](http://umansysprop.seaes.manchester.ac.uk). As described on the UManSysProp project page, this model was developed at the University of Manchester under a research grant in order to automate predictions of pure component and mixture properties. This suite requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. You can clone the suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). Once you have cloned the repository, you will need to add the location of it in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
+- [UmanSysProp](http://umansysprop.seaes.manchester.ac.uk). Reliance on UManSysProp requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. Both can be installed via the following commands:
 
-> import sys
+> conda install openbabel
 
-> sys.path.append('<-- add your path here -->/UManSysProp_public/')
+> conda install -c anaconda flask-wtf 
 
-> from umansysprop import boiling_points
-
-> from umansysprop import vapour_pressures
-
-> from umansysprop import critical_properties
-
-> from umansysprop import liquid_densities
-
-> from umansysprop import partition_models
-
-> from umansysprop.forms import CoreAbundanceField
+You can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
 
 Other dependecies include:
 
-- [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator, which is now included in Numpy. 
+- [f2py](https://docs.scipy.org/doc/numpy-1.13.0/f2py/index.html), the Fortran to Python Interface Generator, which is now included in Numpy, which is provided as part of the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). 
 
 - [Numba](https://numba.pydata.org) to generate optimized machine code using the LLVM compiler infrastructure at import time, runtime, or statically. As noted on the project website, the easiest way to install numba is by using the Anaconda Distribution:
 
 > conda install numba
 
-- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
 
 ### Using a Docker container <a name="Docker"></a>
 
-If you would like to run PyBox within a Docker container, I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
+As an method for a 'fully automated setup' I have provided the option to setup and run PyBox within a Docker container. I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
 
 > docker build -t pybox .
 
@@ -104,7 +113,34 @@ Lets run the default simulation:
 
 Dont worry about the error message regarding the Matplotlib plots. This is a result of working in a Docker container. For those not familiar with standard Docker commands, please check the brief instructions provided in the Docker_README.txt file where I give some additional examples on how to stop, restart and delete the PyBox container. 
 
+
+### Alternative <a name="Alternative"></a>
+
+If you do not want to use either the Conda or Docker route, there are a few issues to note. Depending on your OS, as found on the project website for [Assimulo](http://www.jmodelica.org/assimulo), there are multiple [methods for installation](https://jmodelica.org/assimulo/installation.html) and it is up to you to find the most appropriate.  It may be better to build from source. In which case, you will need to point to the location of the [Sundials solver suite](https://computation.llnl.gov/projects/sundials) and both BLAS and LAPACK. Whichever method you use, it is important to validate the installation by trying to import both the CVode and RodasODE to ensure all dependencies have been correctly built. To do this, open an interactive Python shell and type:
+
+> from assimulo.solvers import RodasODE, CVode
+
+If you recieve an error such as 'Could not find GLIMDA' or 'No module named sundials' it is most likely you have not correctly specified the location of the [Sundials](https://computation.llnl.gov/projects/sundials) solver suite, it does not exist or you have provided incorrect links to BLAS and LAPACK libraries. For other modules listed in [Dependencies and installation](#Dependencies), you will be able to use recomended routes provided on the links provided. Again, you can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
+
 ## Folder structure and running the model <a name="Folder-Structure"></a>
+
+Before we run PyBox, lets make sure you have the correct link to the UManSysProp suite. Once you have cloned the repository, you will need to add the location of it in the python script 'Property_calculation.py' within the 'Aerosol' directory of PyBox. As with the Assimulo package, you can test this import by opening an interactive Python shell and typing:
+
+> import sys
+
+> sys.path.append('<-- add your path here -->/UManSysProp_public/')
+
+> from umansysprop import boiling_points
+
+> from umansysprop import vapour_pressures
+
+> from umansysprop import critical_properties
+
+> from umansysprop import liquid_densities
+
+> from umansysprop import partition_models
+
+> from umansysprop.forms import CoreAbundanceField
 
 If you are happy all dependencies are installed and working, to run PyBox 'out of the box', type the following in the root directory:
 
