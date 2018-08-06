@@ -2,6 +2,8 @@
 
 # To build a new image, run the following command in the directory of the supplied Dockerfile:
 docker build -t pybox .
+# Please note that when the build reaches the section on whether to install MS Visual Studio or not:
+# 'Do you wish to proceed with the installation of Microsoft VSCode? [yes|no]', it can appear to hang. However this is seemingly a sympton # of the build process. Please do wait for completion.
 
 # After this has completed [which may take some time], type the following to see your new image listed
 docker images
