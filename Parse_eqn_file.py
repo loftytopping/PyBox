@@ -2984,7 +2984,7 @@ def write_gas_jacobian_numba(filename,equations,num_species,loss_dict,gain_dict,
     f.write('#    You should have received a copy of the GNU General Public License along with                   # \n')
     f.write('#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                            # \n')
     f.write('#                                                                                                   # \n')
-    f.write('#§# \n')
+    f.write('#                                                                                                   # \n')
     f.write('###################################################################################################### \n')    
     f.write('# File created at %s \n' % datetime.datetime.now()) # python will convert \n to os.linesep
     f.write('\n') 
