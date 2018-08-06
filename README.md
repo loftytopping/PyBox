@@ -75,7 +75,7 @@ You can check if your Assimulo installation has worked by opening an interactive
 
 - [UmanSysProp](http://umansysprop.seaes.manchester.ac.uk). Reliance on UManSysProp requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. Both can be installed via the following commands:
 
-> conda install openbabel
+> conda install -c openbabel openbabel
 
 > conda install -c anaconda flask-wtf 
 
