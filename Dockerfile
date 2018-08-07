@@ -1,9 +1,39 @@
-# ================================================================================
-#
-# This Dockerfile sets up a container based on the Ubuntu 18:04 image to run PyBox
-# 
+# =======================================================================================#
+#                                                                                        #
+# This Dockerfile sets up a container based on the Ubuntu 18:04 image to run PyBox       #
+#                                                                                        #
 FROM ubuntu:18.04
 MAINTAINER David Topping (david.topping@manchester.ac.uk)
+#                                                                                        #
+#    Copyright (C) 2018  David Topping : david.topping@manchester.ac.uk                  #
+#                                      : davetopp80@gmail.com                            #
+#    Personal website: davetoppingsci.com                                                #
+#                                                                                        #
+#    All Rights Reserved.                                                                #
+#    This file is part of PyBox.                                                         #
+#                                                                                        #
+#    PyBox is free software: you can redistribute it and/or modify it under              #
+#    the terms of the GNU General Public License as published by the Free Software       #
+#    Foundation, either version 3 of the License, or (at your option) any later          #
+#    version.                                                                            #
+#                                                                                        #
+#    PyBox is distributed in the hope that it will be useful, but WITHOUT                #
+#    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS       #
+#    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more              #
+#    details.                                                                            #
+#                                                                                        #
+#    You should have received a copy of the GNU General Public License along with        #
+#    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                 #
+#                                                                                        #
+##########################################################################################
+# Please note:                                                                           #
+# The default Docker container provides access as root. This might cause a security      #
+# issue and it is important to check this with your local sysadmin where possible        #
+# The current image also builds to over 4GB. Please ensure you have adequate space to    #
+# build and run                                                                          #
+# Please check the project Github wiki for planned updates to security and build         #
+# procedures                                                                             #
+##########################################################################################
 
 # ========================== Basic configuration =================================
 RUN apt-get update 
