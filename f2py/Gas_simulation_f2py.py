@@ -141,8 +141,9 @@ if __name__=='__main__':
             
         # Generate some static Fortran libraries for use in ODE solver
         # Here you have the option to use OpenMP for spreading caclualtions across available cores
-        # This will automatically map to the number of cores on your machine
         openMP=False
+        # Please note, this has not yet been optimised and remains experimental. The default is to
+        # not use OpenMP but keep the 'flag' in response to a fully profiled and optimised model version
         
         #pdb.set_trace()
     
