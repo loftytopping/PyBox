@@ -59,7 +59,7 @@ Module        |  Version [dependency]
  - [multiprocessing](https://docs.python.org/3.4/library/multiprocessing.html?highlight=process)
  
 #### Compiler suites
-- [gfortran compiler with support for OpenMP](https://gcc.gnu.org/wiki/openmp) if you would like to exploit multicore capabilities of your system in the Python+Fortran model variants included in folders named 'f2py'. I have not yet tested PyBox using proprietary compilers.
+- [gfortran compiler](https://gcc.gnu.org/wiki/openmp). The current version provides an option to use OpenMP. However, this is not yet optimised and the default is to not use OpenMP but retain the flags in the relevant parsing routines in-line with a future release. If you would like to exploit multicore capabilities of your system, please check status of this development in the project wiki. Also, I have not yet tested PyBox using proprietary compilers.
  
 ### Conda <a name="Conda"></a>
 
