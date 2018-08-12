@@ -34,7 +34,7 @@ Where the equation number is defined first, then the reactants/products along wi
 
 ## Dependencies and installation <a name="Dependencies"></a>
 
-PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). [Assimulo](http://www.jmodelica.org/assimulo) is the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) is used to automate predictions of pure component and mixture properties to allow gas-to-particle partitioning simulations. Before methods of installation are described, below is a list of both 3rd party and Python native modules required. You can click on each to visit the project website with further details, including useful information on installation pertinent to the section on using an [alternative](#Alternative) installation procedure to either Docker or Conda. The version number reflects that which has been used/tested against the provided source code here. I also note those modules that are require specifically for the UManSysProp package noted earlier:
+PyBox has been built in the [Anaconda Python 3.6 environment](https://www.anaconda.com/download/#macos). [Assimulo](http://www.jmodelica.org/assimulo) is *currently* the numerical core of PyBox. The Assimulo Ordinary Differential Equation (ODE) solver package allows us to use solvers designed for stiff systems. [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) is used to automate predictions of pure component and mixture properties to allow gas-to-particle partitioning simulations. Before methods of installation are described, below is a list of both 3rd party and Python native modules required. You can click on each to visit the project website with further details, including useful information on installation pertinent to the section on using an [alternative](#Alternative) installation procedure to either Docker or Conda. The version number reflects that which has been used/tested against the provided source code here. I also note those modules that are require specifically for the UManSysProp package noted earlier:
  
 #### 3rd party modules:
 
@@ -63,15 +63,17 @@ Module        |  Version [dependency]
  
 ### Conda <a name="Conda"></a>
 
-I would heartily recommend using the Conda environment for installing and using PyBox. The reason for this is down to ease of installation for the Assimulo package through the conda package manager, aside from also installing aforementioned dependencies. 
+I would heartily recommend using the Conda environment for installing and using PyBox. The reason for this is down to the *relative* ease of installation for the Assimulo package through the conda package manager, aside from also installing aforementioned dependencies. 
 
-- [Assimulo](http://www.jmodelica.org/assimulo). As found on the project website, there are multiple [methods for installation for Assimulo](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source.  Using conda, one can try the following:
+- [Assimulo](http://www.jmodelica.org/assimulo). As found on the project website, there are multiple [methods for installation for Assimulo](https://jmodelica.org/assimulo/installation.html), including both package managers and compiling from source. There can be a range of problems installing this package and unfortunately there is no perfect method for automation. It has been noted that, if errors are encountered, even though a conda environment, the glibc version required for assimulo may be at fault. Using conda, one can try the following:
 
 > conda install -c chria assimulo
 
 You can check if your Assimulo installation has worked by opening an interactive Python shell and typing:
 
 > from assimulo.solvers import RodasODE, CVode
+
+There are alternative conda channels if this proves unsuccessful, including conda-forge.  
 
 - [UmanSysProp](http://umansysprop.seaes.manchester.ac.uk). Reliance on UManSysProp requires the Python interface to the [OpenBabel](https://openbabel.org/docs/dev/UseTheLibrary/Python_Pybel.html) package and uses [Flask WTF](https://flask-wtf.readthedocs.io/en/stable/) to deliver a web based facility. Both can be installed via the following commands:
 
@@ -121,7 +123,7 @@ If you do not want to use either the Conda or Docker route, there are a few issu
 
 > from assimulo.solvers import RodasODE, CVode
 
-If you recieve an error such as 'Could not find GLIMDA' or 'No module named sundials' it is most likely you have not correctly specified the location of the [Sundials](https://computation.llnl.gov/projects/sundials) solver suite, it does not exist or you have provided incorrect links to BLAS and LAPACK libraries. For other modules listed in [Dependencies and installation](#Dependencies), you will be able to use recomended routes provided on the links provided. Again, you can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
+If you recieve an error such as 'Could not find GLIMDA' or 'No module named sundials' it is most likely you have not correctly specified the location of the [Sundials](https://computation.llnl.gov/projects/sundials) solver suite, it does not exist or you have provided incorrect links to BLAS and LAPACK libraries. In addition, the glibc version required for assimulo may be at fault. For other modules listed in [Dependencies and installation](#Dependencies), you will be able to use recomended routes provided on the links provided. Again, you can clone the UManSysProp suite from the [project Github page](https://github.com/loftytopping/UManSysProp_public). 
 
 ## Folder structure and running the model <a name="Folder-Structure"></a>
 
