@@ -1,4 +1,4 @@
-# PyBox
+# PyBox  [![DOI](http://joss.theoj.org/papers/10.21105/joss.00755/status.svg)](https://doi.org/10.21105/joss.00755)
 
 PyBox is a Python based box-model generator and simulator designed for atmospheric chemistry and aerosol studies. The first phase of the PyBox project is to develop a gas phase model, using the reaction information within the [Master Chemical Mechanism (MCM)](http://mcm.leeds.ac.uk/MCM/) as the basis, coupled with an idealised sectional aerosol model. PyBox also relates component properties, using molecular structural information, through the [UManSysProp](http://umansysprop.seaes.manchester.ac.uk) informatics suite.  Any public release will occur according to new processes added, agreement from any partner contributions and/or associated peer-review papers.
 
@@ -16,6 +16,7 @@ This project is licensed under the terms of the GNU General Public License v3.0,
 4. [Unit tests](#Automated-unit-tests)
 5. [Contributing](#Contributing)
 6. [Code of Conduct](#Code-of-Conduct)
+7. [Citation](#Citation)
 
 ## Model overview<a name="Model-overview"></a>
 
@@ -253,3 +254,7 @@ Please use the issue tracker at https://github.com/loftytopping/PyBox/issues if 
 ## Code of Conduct<a name="Code-of-Conduct"></a>
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](code-of-conduct.md). There needs to be greater support and recognition for software development and developers. PyBox can act as a vehicle for enabling better collaboration and therefore better science.
+
+## Citation<a name="Citation"></a>
+
+If you use PyBox in any study we ask you reference our paper in the Journal of Open Source Software [![DOI](http://joss.theoj.org/papers/10.21105/joss.00755/status.svg)](https://doi.org/10.21105/joss.00755). Citation: Topping et al., (2018). PyBox: An automated box-model generator for atmospheric chemistry and aerosol simulations. . Journal of Open Source Software, 3(28), 755, https://doi.org/10.21105/joss.00755
