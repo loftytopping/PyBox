@@ -94,7 +94,7 @@ Other dependecies include:
 
 ### Using a Docker container <a name="Docker"></a>
 
-As an method for a 'fully automated setup' I have provided the option to setup and run PyBox within a Docker container. I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
+As a method for a 'fully automated setup' I have provided the option to setup and run PyBox within a Docker container. I have provided a Dockerfile that will automatically build all dependencies within a new container based on the Ubuntu:16.04 image. To build the new image, assuming you have Docker installed, run the following command in the directory of the supplied Dockerfile:
 
 > docker build -t pybox .
 
