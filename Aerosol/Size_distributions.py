@@ -27,7 +27,11 @@
 
 from scipy.stats import lognorm
 from scipy import stats # Import the scipy.stats module
-import matplotlib.pyplot as plt
+import matplotlib
+import platform
+if platform.system() == 'Darwin': # Found some issues with Matplotlib in recent OSx versions
+    matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
 import numpy as np
 
 def lognormal(num_bins,total_conc,meansize,std,lowersize,uppersize):

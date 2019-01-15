@@ -34,7 +34,11 @@
 ##########################################################################################
 
 import numpy 
-import pylab as P
+import matplotlib
+import platform
+if platform.system() == 'Darwin': # Found some issues with Matplotlib in recent OSx versions
+    matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
 import pdb
 from scipy.sparse import csr_matrix
 from timeit import default_timer as timer
@@ -290,13 +294,13 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #In a future release I will add this as a seperate module
     if with_plots:
         try:
-            P.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['APINENE']]), marker='o',label="APINENE")
-            P.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['PINONIC']]), marker='o',label="PINONIC")
-            P.title(exp_mod.name)
-            P.legend(loc='upper left')
-            P.ylabel("Concetration log10[molecules/cc]")
-            P.xlabel("Time [seconds] since start of simulation")
-            P.show()
+            plt.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['APINENE']]), marker='o',label="APINENE")
+            plt.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['PINONIC']]), marker='o',label="PINONIC")
+            plt.title(exp_mod.name)
+            plt.legend(loc='upper left')
+            plt.ylabel("Concetration log10[molecules/cc]")
+            plt.xlabel("Time [seconds] since start of simulation")
+            plt.show()
         except:
             print("There is a problem using Matplotlib in your environment. If using this within a docker container, you will need to transfer the data to the host or configure your container to enable graphical displays. More information can be found at http://wiki.ros.org/docker/Tutorials/GUI ")
         

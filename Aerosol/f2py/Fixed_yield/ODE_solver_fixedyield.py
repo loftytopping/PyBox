@@ -32,7 +32,11 @@
 ##########################################################################################
 
 import numpy 
-import pylab as P
+import matplotlib
+import platform
+if platform.system() == 'Darwin': # Found some issues with Matplotlib in recent OSx versions
+    matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
 import pdb
 import pickle
 import Plotting

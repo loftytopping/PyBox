@@ -25,10 +25,14 @@
 
 from scipy.stats import lognorm
 from scipy import stats # Import the scipy.stats module
-import matplotlib.pyplot as plt
+import matplotlib
+import platform
+if platform.system() == 'Darwin': # Found some issues with Matplotlib in recent OSx versions
+    matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
 import numpy as np
-from matplotlib.pyplot import cm 
-from matplotlib.animation import FuncAnimation
+#from matplotlib.pyplot import cm 
+#from matplotlib.animation import FuncAnimation
 import pdb
 import time as time_func
 
@@ -44,7 +48,7 @@ def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
     for time_step in range(len(time)):
         
         #Define a range of colours to represent every compound
-        color_array=iter(cm.rainbow(np.linspace(0,1,num_species-1)))
+        color_array=plt.cm.rainbow(np.linspace(0,1,num_species-1))
         
         time_stamp=time[time_step]
         y_asnumpy=np.array(y_matrix[time_step,:])
@@ -66,22 +70,26 @@ def stacked_bar(time,y_matrix,num_species, num_bins,molw_asnumpy,NA):
             y_norm_matrix[:,size-1]=np.transpose(y_mass_array[0:num_species-1]/(np.sum(y_mass_array[0:num_species-1])))
             
         #Now plot the results
-        fig, ax = plt.subplots()
+        #pdb.set_trace()
+        step=0
+        #fig, ax = plt.subplots()
         bar_locations = np.arange(num_bins)
         for org in range(num_species-1):
-            c=next(color_array)
+            #pdb.set_trace()
+            c=color_array[step]
             if org == 0:
-                ax.bar(bar_locations, y_norm_matrix[org,:],color=c)
+                plt.bar(bar_locations, y_norm_matrix[org,:],color=c)
             else:
                 y_cummulative[0,:]=y_cummulative[0,:]+y_norm_matrix[org-1,:]
-                ax.bar(bar_locations, y_norm_matrix[org,:],bottom=np.array(y_cummulative[0,:]),color=c)
+                plt.bar(bar_locations, y_norm_matrix[org,:],bottom=np.array(y_cummulative[0,:]),color=c)
+            step+=1
     
         plt.title('SOA mass = {:.2f}'.format(np.sum(np.sum(y_abs_matrix))))
         plt.ylabel('Normalised SOA contribution')
         plt.xlabel('Size bin')
         plt.show()
         #time_func.sleep(3) 
-        pdb.set_trace()
-        plt.close(fig)
+        #pdb.set_trace()
+        plt.close()
     
     

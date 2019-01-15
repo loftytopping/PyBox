@@ -32,7 +32,11 @@
 ##########################################################################################
 
 import numpy 
-import pylab as P
+import matplotlib
+import platform
+if platform.system() == 'Darwin': # Found some issues with Matplotlib in recent OSx versions
+    matplotlib.use("TkAgg")
+from matplotlib import pyplot as plt
 import pdb
 import pickle
 
@@ -316,11 +320,11 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
     #In a future release I will add this as a seperate module
     if plot_mass is True:
         try:
-            P.plot(t_array,SOA_matrix[:,0], marker='o')
-            P.title(exp_mod.name)
-            P.ylabel("SOA mass [micrograms/m3]")
-            P.xlabel("Time [seconds] since start of simulation")
-            P.show()
+            plt.plot(t_array,SOA_matrix[:,0], marker='o')
+            plt.title(exp_mod.name)
+            plt.ylabel("SOA mass [micrograms/m3]")
+            plt.xlabel("Time [seconds] since start of simulation")
+            plt.show()
         except:
             print("There is a problem using Matplotlib in your environment. If using this within a docker container, you will need to transfer the data to the host or configure your container to enable graphical displays. More information can be found at http://wiki.ros.org/docker/Tutorials/GUI ")
         
