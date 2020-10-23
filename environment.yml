@@ -1,0 +1,29 @@
+name: base
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - conda
+  - python=3.7
+  - menuinst
+  - console_shortcut
+  - powershell_shortcut
+  - conda-env
+  - conda-build
+  - conda-verify
+  - _ipyw_jlab_nb_ext_conf
+  - anaconda==2020.02=py37_0
+  - anaconda-navigator
+  - navigator-updater
+  - cartopy
+  - openbabel
+  - flask-wtf
+  - assimulo
+  - python-ternary
+  - plotly
+  - bokeh
+  - requests
+  - dataset
+  - pandas
+  - numba
+prefix: C:\Users\Dave\anaconda3
