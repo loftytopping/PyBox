@@ -23,7 +23,6 @@ dependencies:
   - plotly
   - bokeh
   - requests
-  - dataset
   - pandas
   - numba
 prefix: C:\Users\Dave\anaconda3
