@@ -32,7 +32,7 @@
 #    PyBox.  If not, see <http://www.gnu.org/licenses/>.                                 #
 #                                                                                        #
 ##########################################################################################
-# Developed using the Anaconda Python 3 distribution and with the Assimulo ODE solver    # 
+# Developed using the Anaconda Python 3 distribution and with the Assimulo ODE solver    #
 # suite: http://www.jmodelica.org/assimulo                                               #
 # In the import statements, all files developed specifically for this project            #
 # as marked [•]                                                                          #
@@ -42,10 +42,10 @@
 
 # Developed using the Anaconda Python distribution and with the Assimulo ODE solver suite: http://www.jmodelica.org/assimulo
 # Assimulo gives a Python front-end acces to stiff solvers so this can be merged with aerosol developments in a seperate branch.
-# The Assimulo package does not allow extra argument passing, and thus defines the structure of the code. 
+# The Assimulo package does not allow extra argument passing, and thus defines the structure of the code.
 # In the import statements, all files developed specifically for this project as marked [•]
 
-import numpy 
+import numpy
 import Parse_eqn_file # [•] Needed to parse the .eqn file, name given in this file
 import rate_coeff_conversion # [•] Converts standard text rate coefficients into Numba/Fortran
 import collections
@@ -56,16 +56,16 @@ from ODE_solver import run_simulation # [•] Contains routines to run ODE solve
 import os
 import pickle
 from shutil import copy2
-            
+
 # Start of the main body of code
 if __name__=='__main__':
-   
+
     #-------------------------------------------------------------------------------------
 
     #1)Define starting ambient conditions
     temp=298.15 # Kelvin
     RH=0.5 # RH/100% [0 - 0.99]
-    #Define a start time 
+    #Define a start time
     hour_of_day=12.0 # 24 hr format
     start_time=hour_of_day*60*60 # seconds, used as t0 in solver
     simulation_time= 10800.0 # seconds
@@ -81,18 +81,18 @@ if __name__=='__main__':
     Wconc=Wconc*1.0e-6
     #Convert from kg to molecules/cc
     H2O=Wconc*(1.0/(18.0e-3))*6.0221409e+23
-    
+
     #-------------------------------------------------------------------------------------
-    #2) Parse equation file 
+    #2) Parse equation file
     # Do files already exist? If so, you can bypass this stage and proceed with simulation
     # Note, this is for you to manage. If unsure which files are available, re-parse and re-compile
     # This is important since the species-2-dict array maps extracted species to array numbers. This
     # can change with each parse and depends on the choice of mechanism.
 
-    filename='MCM_APINENE'    
+    filename='MCM_APINENE'
 
     files_exist = False
-    
+
     if files_exist is False:
 
         # check if __pycache__ exists
@@ -113,7 +113,7 @@ if __name__=='__main__':
 
         # Copy mechanism file into working directory
         copy2('./mechanism_files/'+filename+'.eqn.txt','.')
-                
+
         # Parse equation file and store relevant dictionaries for later retrieval
         print_options=dict()
         print_options['Full_eqn']=1 #Set to 1 to print details of all equations and rate coefficients parsed [useful for checking]
@@ -142,17 +142,17 @@ if __name__=='__main__':
             pickle.dump(species_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
         with open(filename+'_equations.pickle', 'wb') as handle:
             pickle.dump(equations, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        
+
         #pdb.set_trace()
-    
+
         # Convert the rate coefficient expressions into Numba commands
         print("Converting rate coefficient operations into Python-Numba file")
         #rate_dict=rate_coeff_conversion.convert_rate_mcm(rate_dict)
         # Convert rate definitions in original *.eqn.txt file into a form to be used in Fortran
-        # In the production model we use Numba for speed. You can select an equivalent 
+        # In the production model we use Numba for speed. You can select an equivalent
         rate_dict=rate_coeff_conversion.convert_rate_mcm_numba(rate_dict)
-        Parse_eqn_file.write_rate_file_numba(filename,rate_dict)    
-        
+        Parse_eqn_file.write_rate_file_numba(filename,rate_dict)
+
         # Create python modules for product multiplications and dydt function
         # Also create sparse matrices for both operations if not using Numba
         print("Creating Python-Numba functions and sparse matrices for product multiplications and dydt function")
@@ -165,24 +165,24 @@ if __name__=='__main__':
         # Create .npy file with indices for all RO2 species
         print("Creating file that holds RO2 species indices")
         Parse_eqn_file.write_RO2_indices(filename,species_dict2array)
-        
+
     else:
-        
-        # You have already parsed the .eqn file and stored relevant information. 
+
+        # You have already parsed the .eqn file and stored relevant information.
         # Load the dictioanties here to pass into the ODE solver
         with open(filename+'_species_dict2array.pickle', 'rb') as f:
-            species_dict2array = pickle.load(f) 
+            species_dict2array = pickle.load(f)
         with open(filename+'_species_dict.pickle', 'rb') as f:
-            species_dict = pickle.load(f) 
+            species_dict = pickle.load(f)
         with open(filename+'_equations.pickle', 'rb') as f:
-            equations = pickle.load(f) 
-        
-    print("Ready to run simulation") 
+            equations = pickle.load(f)
+
+    print("Ready to run simulation")
     #pdb.set_trace()
-            
+
     # Now load the numpy arrays generated in the parsing script for use in the simulations. Again, these are named to
     # match this particular code. However the ordering is not important.
-    RO2_indices=numpy.load(filename+'_RO2_indices.npy')    
+    RO2_indices=numpy.load(filename+'_RO2_indices.npy')
     #-------------------------------------------------------------------------------------
     # Define initial concentrations, in pbb, of species using names from KPP file
     species_initial_conc=dict()
@@ -197,10 +197,8 @@ if __name__=='__main__':
     input_dict['equations']=equations
 
     #Do you want to save the output from the simulation as a .npy file?
-    save_output=True
+    save_output=False
     #-------------------------------------------------------------------------------------
     #3) Run the simulation
-    run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step)
+    output, species_dict = run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step)
     #-------------------------------------------------------------------------------------
-    
-
