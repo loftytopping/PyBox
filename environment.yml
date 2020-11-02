@@ -1,0 +1,21 @@
+name: base
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - conda
+  - python=3.7
+  - python.app
+  - conda-env
+  - conda-build
+  - conda-verify
+  - _ipyw_jlab_nb_ext_conf
+  - anaconda==2019.10=py37_0
+  - anaconda-navigator
+  - navigator-updater
+  - basemap
+  - cartopy
+  - keras
+  - pygobject
+  - scikit-learn
+prefix: /Users/user/anaconda3
