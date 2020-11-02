@@ -2,6 +2,7 @@ name: PyBox
 channels:
   - conda-forge
   - defaults
+  - anaconda
 dependencies:
   - assimulo
   - numba
