@@ -1,0 +1,14 @@
+name: PyBox
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - assimulo
+  - numba
+  - openbabel
+  - pybel
+  - matplotlib
+  - pandas
+  - jupyter
+  - flask-wtf
+prefix: /Users/user/anaconda3/envs/PyBox
