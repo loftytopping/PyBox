@@ -56,6 +56,8 @@ from ODE_solver import run_simulation # [•] Contains routines to run ODE solve
 import os
 import pickle
 from shutil import copy2
+from matplotlib import pyplot as plt
+
 
 # Start of the main body of code
 if __name__=='__main__':
@@ -200,5 +202,11 @@ if __name__=='__main__':
     save_output=False
     #-------------------------------------------------------------------------------------
     #3) Run the simulation
-    output, species_dict = run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step)
+    t_array, y_matrix = run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O, input_dict, simulation_time, batch_step)
     #-------------------------------------------------------------------------------------
+    plt.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['APINENE']]), marker='o',label="APINENE")
+    plt.plot(t_array,numpy.log10(y_matrix[:,species_dict2array['PINONIC']]), marker='o',label="PINONIC")
+    plt.legend(loc='upper left')
+    plt.ylabel("Concetration log10[molecules/cc]")
+    plt.xlabel("Time [seconds] since start of simulation")
+    plt.show()

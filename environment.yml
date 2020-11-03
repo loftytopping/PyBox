@@ -1,0 +1,14 @@
+name: test
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - jupyter
+  - pandas
+  - matplotlib
+  - numba
+  - flask-wtf
+  - assimulo
+  - openbabel
+  - pybel
+prefix: /Users/user/anaconda3/envs/test

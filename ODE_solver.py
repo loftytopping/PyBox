@@ -305,4 +305,4 @@ def run_simulation(filename, save_output, start_time, temp, RH, RO2_indices, H2O
             print("There is a problem using Matplotlib in your environment. If using this within a docker container, you will need to transfer the data to the host or configure your container to enable graphical displays. More information can be found at http://wiki.ros.org/docker/Tutorials/GUI ")
 
 
-    return t_array, y_matrix, species_dict2array
+    return t_array, y_matrix
